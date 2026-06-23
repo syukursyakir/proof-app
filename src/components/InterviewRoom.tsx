@@ -70,7 +70,9 @@ function Room({
   convRef.current = conversation;
   const getLevel = useCallback(() => {
     try {
-      return convRef.current.getOutputVolume();
+      const c = convRef.current;
+      // react to the AI's voice while speaking, the candidate's mic while listening
+      return c.isSpeaking ? c.getOutputVolume() : c.getInputVolume();
     } catch {
       return 0;
     }
@@ -268,7 +270,13 @@ function Room({
           />
         </div>
 
-        <VoiceOrb getLevel={getLevel} active={phase === "live"} />
+        <VoiceOrb
+          state={
+            phase === "live" ? (speaking ? "speaking" : "listening") : "thinking"
+          }
+          getLevel={getLevel}
+          size={320}
+        />
 
         <p className="mt-2 text-sm font-medium text-muted">
           {phase === "connecting"
