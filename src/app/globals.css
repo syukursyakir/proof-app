@@ -1,46 +1,48 @@
 @import "tailwindcss";
 
+/* Light, trust-anchored theme. Indigo/violet primary; warm gradients used as
+   accents elsewhere (e.g. the Core Features cards). */
 :root {
-  --background: #08080c;
-  --foreground: #ededf0;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --card: #f8fafc;
+  --border: #e6e8ef;
   --accent: #6d5ef8;
-  --accent-soft: #8b7cff;
-  --muted: #9ca3af;
-  --card: #111119;
-  --border: #23232e;
+  --accent-soft: #4f46e5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-border: var(--border);
-  --font-sans: var(--font-geist-sans);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
-/* The voice orb — the hero motif. Idle pulse + glow. */
+/* The voice orb — idle pulse + glow. */
 @keyframes orbPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.06); }
 }
 @keyframes orbGlow {
   0%, 100% {
-    box-shadow: 0 0 50px 8px rgba(109, 94, 248, 0.45),
-                0 0 130px 28px rgba(109, 94, 248, 0.22);
+    box-shadow: 0 0 50px 8px rgba(109, 94, 248, 0.35),
+                0 0 130px 28px rgba(109, 94, 248, 0.16);
   }
   50% {
-    box-shadow: 0 0 85px 18px rgba(139, 124, 255, 0.6),
-                0 0 190px 46px rgba(109, 94, 248, 0.3);
+    box-shadow: 0 0 85px 18px rgba(124, 111, 240, 0.45),
+                0 0 190px 46px rgba(109, 94, 248, 0.22);
   }
 }
 .orb-pulse { animation: orbPulse 3.4s ease-in-out infinite; }

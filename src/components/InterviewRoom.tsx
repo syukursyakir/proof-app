@@ -207,7 +207,7 @@ function Room({
             it. Your answers are assessed against a fixed rubric — the same for every
             candidate.
           </p>
-          {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
           <button
             onClick={start}
             className="mt-6 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft"
@@ -224,7 +224,7 @@ function Room({
       <Shell>
         <div className="max-w-md text-center">
           <h1 className="text-2xl font-semibold">Can&apos;t start the interview</h1>
-          <p className="mt-3 text-sm text-red-400">{error}</p>
+          <p className="mt-3 text-sm text-red-600">{error}</p>
           <button
             onClick={() => {
               setError(null);
@@ -289,7 +289,7 @@ function Room({
         {phase === "live" && (
           <button
             onClick={end}
-            className="mt-10 rounded-full border border-border px-6 py-2.5 text-sm hover:border-red-500 hover:text-red-400"
+            className="mt-10 rounded-full border border-border px-6 py-2.5 text-sm hover:border-red-500 hover:text-red-600"
           >
             End interview
           </button>

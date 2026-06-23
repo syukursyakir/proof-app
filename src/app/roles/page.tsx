@@ -41,7 +41,7 @@ export default async function RolesPage() {
         <p className="mt-2 text-muted">Describe a role by voice and Proof builds the assessment.</p>
 
         {dbError && (
-          <div className="mt-8 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm text-yellow-200">
+          <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
             Couldn&apos;t reach the database. Make sure you ran <code>docs/schema.sql</code> in
             Supabase. ({dbError})
           </div>

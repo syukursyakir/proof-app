@@ -7,10 +7,10 @@ import type { Candidate } from "@/lib/types";
 
 const statusStyle: Record<string, string> = {
   invited: "text-muted",
-  interviewing: "text-yellow-300",
+  interviewing: "text-amber-600",
   completed: "text-accent-soft",
-  advanced: "text-green-400",
-  rejected: "text-red-400",
+  advanced: "text-green-600",
+  rejected: "text-red-600",
 };
 
 export default function CandidatePanel({

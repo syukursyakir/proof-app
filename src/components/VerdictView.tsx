@@ -38,10 +38,10 @@ function Highlighted({ text, quotes }: { text: string; quotes: string[] }) {
 }
 
 const recColor: Record<string, string> = {
-  advance: "bg-green-500/15 text-green-300",
-  "lean advance": "bg-green-500/15 text-green-300",
-  "lean reject": "bg-red-500/15 text-red-300",
-  reject: "bg-red-500/15 text-red-300",
+  advance: "bg-green-500/15 text-green-700",
+  "lean advance": "bg-green-500/15 text-green-700",
+  "lean reject": "bg-red-500/15 text-red-700",
+  reject: "bg-red-500/15 text-red-700",
 };
 
 export default function VerdictView({

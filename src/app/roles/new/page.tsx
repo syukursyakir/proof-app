@@ -161,7 +161,7 @@ export default function NewRolePage() {
               onChange={(e) => setDescription(e.target.value)}
             />
 
-            {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
             <button
               onClick={getFollowups}
@@ -203,7 +203,7 @@ export default function NewRolePage() {
                 </div>
               ))}
             </div>
-            {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
             <button
               onClick={buildAssessment}
               className="mt-8 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
