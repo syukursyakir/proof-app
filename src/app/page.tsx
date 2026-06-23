@@ -85,7 +85,7 @@ export default function Home() {
                 <span aria-hidden>🎙️</span> Describe your ideal hire
               </Link>
               <Link
-                href="/candidates/demo"
+                href="/sample"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-border px-7 font-medium text-foreground transition-colors hover:border-accent"
               >
                 See a sample verdict →
