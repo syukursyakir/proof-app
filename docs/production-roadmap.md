@@ -1,4 +1,4 @@
-# Proof — The 20-Phase Plan to Production
+# Clarion — The 20-Phase Plan to Production
 
 > Research-backed roadmap from the current hackathon MVP to a valid, fair, defensible, production-grade hiring product. Each phase has: **Goal · Why (with research) · Build · Failure modes & handling · Employer UX / Candidate UX · Done when.**
 > Sources are summarized in §Appendix. This is engineering/product guidance, **not legal advice** — engage employment counsel + an I-O psychologist before relying on the assessment in real hiring.
@@ -18,7 +18,7 @@ These are **fine for the hackathon demo** (single user, throwaway data) but are 
 5. **Scoring runs at temperature 0.4, single sample, no quote verification, no injection defense.** Non-deterministic and spoofable. (P7)
 
 ### The north star
-Proof is, in selection-science terms, **a structured interview with mechanical, criterion-referenced scoring** — which the latest meta-analysis (Sackett et al. 2022) ranks as the **#1 predictor of job performance (ρ ≈ .42), ahead of cognitive ability.** We are building the right instrument. The entire roadmap exists to make that instrument *valid, reliable, fair, and defensible* — and to wrap it in a real SaaS.
+Clarion is, in selection-science terms, **a structured interview with mechanical, criterion-referenced scoring** — which the latest meta-analysis (Sackett et al. 2022) ranks as the **#1 predictor of job performance (ρ ≈ .42), ahead of cognitive ability.** We are building the right instrument. The entire roadmap exists to make that instrument *valid, reliable, fair, and defensible* — and to wrap it in a real SaaS.
 
 ---
 
@@ -35,7 +35,7 @@ This is the heart of the product. The science is unambiguous on the principles:
 - **Validate against human SME panels**: target ICC (two-way, absolute agreement) ≥ .75; weighted-κ / Krippendorff's α ≥ .80 on ordinal anchors. Publish the numbers — they *are* the evidence.
 - **Set cut scores with a modified-Angoff panel**, not a gut threshold; document it.
 - **Monitor adverse impact** (four-fifths rule + significance) continuously.
-- **Calibrate expectations:** even best-in-class, this explains ~18% of performance variance. Proof is a strong *signal to rank and screen*, never a deterministic verdict — and a human always decides.
+- **Calibrate expectations:** even best-in-class, this explains ~18% of performance variance. Clarion is a strong *signal to rank and screen*, never a deterministic verdict — and a human always decides.
 
 The phases below operationalize every line of this.
 
@@ -114,7 +114,7 @@ The phases below operationalize every line of this.
 - **Why:** reliability/validity evidence is the legal + product backbone (AERA/APA/NCME Standards).
 - **Build:** a gold corpus with **≥3 human SME raters** per transcript; compute **ICC (two-way, absolute agreement)** for continuous scores and **weighted-κ / Krippendorff's α** for ordinal; calibration (ECE + reliability diagram); test-retest variance. Compare against the human–human agreement ceiling. Publish results.
 - **Failure modes:** low agreement on subjective criteria (revise anchors / FOR-calibrate the model); small sample (report CIs, not point estimates).
-- **Employer/Candidate UX:** a published "how accurate is Proof" page builds trust.
+- **Employer/Candidate UX:** a published "how accurate is Clarion" page builds trust.
 - **Done when:** ICC ≥ .75 on key criteria, with CIs, documented.
 
 ### Phase 10 — Defensible thresholds, ranking & comparison `P1`
@@ -144,7 +144,7 @@ The phases below operationalize every line of this.
 ### Phase 13 — Candidate experience polish `P1`
 - **Goal:** a calm, fair, professional candidate journey.
 - **Why:** async AI interviews drive anxiety/distrust; experience affects completion + employer brand.
-- **Build:** pre-flight mic/cam check, clear "what's assessed" preview, save/resume, progress + time cues, post-interview status, optional feedback, plus the fairness/consistency messaging Proof is built on.
+- **Build:** pre-flight mic/cam check, clear "what's assessed" preview, save/resume, progress + time cues, post-interview status, optional feedback, plus the fairness/consistency messaging Clarion is built on.
 - **Failure modes:** device failures (graceful fallbacks), dropouts (resume).
 - **Candidate UX:** the whole point. **Employer UX:** higher completion rates.
 - **Done when:** the candidate flow has a tech check + resume + status.

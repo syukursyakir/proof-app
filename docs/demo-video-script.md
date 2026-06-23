@@ -1,4 +1,4 @@
-# Proof — 3-Minute Demo Video Script (≤3:00, YouTube)
+# Clarion — 3-Minute Demo Video Script (≤3:00, YouTube)
 
 > Structure: hook → the 3 on-camera moments (voice authoring, the orb interview, the glass-box reveal) → close. Use the seeded Customer Support role so nothing flakes. Screen-record at 1080p; talk over it.
 
@@ -6,14 +6,14 @@
 
 ## 0:00 – 0:20 · Hook
 *(On camera or voiceover over the landing page / orb)*
-> "Small employers can't afford to hire wrong — a bad hire costs around $15,000. But with no recruiting team, they end up hiring on résumés and gut feel. That's hiring on who you know, not what you can do. This is **Proof** — and our promise is simple: **hire on proof, not pedigree.**"
+> "Small employers can't afford to hire wrong — a bad hire costs around $15,000. But with no recruiting team, they end up hiring on résumés and gut feel. That's hiring on who you know, not what you can do. This is **Clarion** — and our promise is simple: **hire on proof, not pedigree.**"
 
 ## 0:20 – 0:50 · Moment 1 — Voice authoring (the open)
 *(Screen: /roles/new. Click record, speak.)*
 > "Watch. I just describe the role out loud —"
 *(Speak naturally:)* "I need a customer support rep who stays calm with angry customers, takes ownership of problems, and communicates clearly."
 *(AI generates; the rubric + questions appear.)*
-> "In seconds, Proof turned that into a structured rubric and a full interview — that I can edit. No forms. I just talked."
+> "In seconds, Clarion turned that into a structured rubric and a full interview — that I can edit. No forms. I just talked."
 
 ## 0:50 – 1:50 · Moment 2 — The voice interview (THE HERO — give it the most time)
 *(Screen: /interview/[candidate]. Webcam tile + glowing orb. Consent line visible.)*
@@ -30,12 +30,12 @@
 *(Screen: employer dashboard / verdict.)*
 > "When it's done, the employer gets a verdict — scored against their rubric. But every score is glass-box."
 *(Click a criterion; it expands; the transcript quote highlights.)*
-> "Empathy: four out of five — and here's the exact moment that earned it, highlighted in the transcript. No black box. Most AI hiring tools just hand you a number — some are getting sued for it. Proof shows its receipts."
+> "Empathy: four out of five — and here's the exact moment that earned it, highlighted in the transcript. No black box. Most AI hiring tools just hand you a number — some are getting sued for it. Clarion shows its receipts."
 *(Hover Advance / Reject.)*
 > "And the AI never decides. The human does."
 
 ## 2:35 – 3:00 · Close
-> "Affordable, explainable, voice-native — the first AI interviewer a founder can actually run themselves. Built in two days on OpenAI, ElevenLabs, Supabase and Vercel. **Proof. Hire on proof, not pedigree.** The AI assesses — you decide."
+> "Affordable, explainable, voice-native — the first AI interviewer a founder can actually run themselves. Built in two days on OpenAI, ElevenLabs, Supabase and Vercel. **Clarion. Hear the proof, not the pedigree.** The AI assesses — you decide."
 *(End card: logo + live link.)*
 
 ---

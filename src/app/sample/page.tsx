@@ -74,14 +74,14 @@ export default function SamplePage() {
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.5)]" />
-            Proof
+            Clarion
           </Link>
           <span className="text-sm text-muted">Sample verdict</span>
         </div>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
         <p className="mb-6 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
-          This is an example of Proof&apos;s glass-box verdict — every score links to the exact
+          This is an example of Clarion&apos;s glass-box verdict — every score links to the exact
           words behind it. Expand a criterion to see the evidence highlighted in the transcript.
         </p>
         <VerdictView

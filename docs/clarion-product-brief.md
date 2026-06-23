@@ -1,9 +1,9 @@
-# Proof — Product Brief (the build spec)
+# Clarion — Product Brief (the build spec)
 
-> NOTE: `project.md` in this folder is the HACKATHON brief (TheFirst Spark Challenge, by Wavesparks + January Capital, due 25 June 12:00pm SGT). THIS file is the product/build spec for Proof.
+> NOTE: `project.md` in this folder is the HACKATHON brief (TheFirst Spark Challenge, by Wavesparks + January Capital, due 25 June 12:00pm SGT). THIS file is the product/build spec for Clarion.
 
 ## What we're building
-Proof — an employer-owned candidate assessment platform. An employer describes their ideal hire by voice, AI generates a role-specific assessment (optional skills test + a live AI voice interview), candidates complete it, and the employer gets a transparent verdict where every AI judgment links to the exact transcript evidence. Human makes the final call.
+Clarion — an employer-owned candidate assessment platform. An employer describes their ideal hire by voice, AI generates a role-specific assessment (optional skills test + a live AI voice interview), candidates complete it, and the employer gets a transparent verdict where every AI judgment links to the exact transcript evidence. Human makes the final call.
 
 ## Stack (do not deviate)
 - Next.js (App Router) + TypeScript + Tailwind

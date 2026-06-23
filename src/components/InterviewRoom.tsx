@@ -43,6 +43,7 @@ function Room({
   const [phase, setPhase] = useState<Phase>("consent");
   const [mode, setMode] = useState<"voice" | "text">("voice");
   const [caption, setCaption] = useState("");
+  const [lines, setLines] = useState<Turn[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -50,21 +51,24 @@ function Room({
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const turnsRef = useRef<Turn[]>([]);
+  const finishingRef = useRef(false);
 
   const conversation = useConversation({
     onConnect: () => setPhase("live"),
-    onDisconnect: () => {},
+    onDisconnect: () => {
+      // Covers the AGENT ending the call (end-call tool) or a dropped session —
+      // still save the transcript + recording.
+      void finalize();
+    },
     onError: (msg) => {
       setError(typeof msg === "string" ? msg : "Connection error");
       setPhase("error");
     },
     onMessage: (m: { message: string; source: "user" | "ai" }) => {
       if (!m?.message) return;
-      turnsRef.current.push({
-        role: m.source === "ai" ? "agent" : "user",
-        text: m.message,
-        t: Date.now(),
-      });
+      const role: Turn["role"] = m.source === "ai" ? "agent" : "user";
+      turnsRef.current.push({ role, text: m.message, t: Date.now() });
+      setLines((prev) => [...prev, { role, text: m.message }].slice(-6));
       if (m.source === "ai") setCaption(m.message);
     },
   });
@@ -152,13 +156,10 @@ function Room({
     }
   }
 
-  async function end() {
+  async function finalize() {
+    if (finishingRef.current) return; // run once, whoever ends the call
+    finishingRef.current = true;
     setPhase("saving");
-    try {
-      await conversation.endSession();
-    } catch {
-      /* ignore */
-    }
 
     // Stop recording and wait for the final blob.
     const recordingUrl = await new Promise<string | null>((resolve) => {
@@ -211,6 +212,16 @@ function Room({
     setPhase("done");
   }
 
+  // Candidate pressed "End interview" — stop the session, then finalize.
+  function end() {
+    try {
+      conversation.endSession();
+    } catch {
+      /* ignore */
+    }
+    void finalize();
+  }
+
   // ---- Render ----
   if (mode === "text") {
     return (
@@ -230,7 +241,7 @@ function Room({
           <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_30%,#d6d0ff,#6d5ef8_50%,#3b2fb0)] shadow-[0_0_40px_8px_rgba(109,94,248,0.5)]" />
           <h1 className="text-2xl font-semibold">Your interview for {roleTitle}</h1>
           <p className="mt-3 text-muted">
-            You&apos;ll have a short voice conversation with Proof. Speak naturally —
+            You&apos;ll have a short voice conversation with Clarion. Speak naturally —
             and you can ask it anything, including how you&apos;re being assessed.
           </p>
           <p className="mt-4 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
@@ -323,7 +334,7 @@ function Room({
             : phase === "saving"
               ? "Saving your interview…"
               : speaking
-                ? "Proof is speaking…"
+                ? "Clarion is speaking…"
                 : "Listening…"}
         </p>
 
@@ -331,6 +342,25 @@ function Room({
           <p className="mt-6 max-w-xl text-center text-foreground/90">
             &ldquo;{caption}&rdquo;
           </p>
+        )}
+
+        {phase === "live" && lines.length > 0 && (
+          <div className="mt-6 max-h-44 w-full max-w-xl space-y-2 overflow-y-auto rounded-xl border border-border bg-card/50 p-4 text-sm">
+            <p className="mb-1 text-xs uppercase tracking-wide text-muted">
+              Live transcript
+            </p>
+            {lines.map((l, i) => (
+              <p
+                key={i}
+                className={l.role === "user" ? "text-foreground" : "text-muted"}
+              >
+                <span className="font-medium">
+                  {l.role === "user" ? "You" : "Clarion"}:
+                </span>{" "}
+                {l.text}
+              </p>
+            ))}
+          </div>
         )}
 
         {phase === "live" && (

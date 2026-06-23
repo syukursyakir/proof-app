@@ -1,4 +1,4 @@
-# Proof — Build Plan (handoff to the developer AI)
+# Clarion — Build Plan (handoff to the developer AI)
 
 > CEO-authored execution plan. Goal: WIN the ElevenLabs "Best Project" bonus + make top-10 stage at TheFirst Spark. Deadline: 25 Jun 2026, 12:00pm SGT. Hero = the ElevenLabs voice interview. Build fast, keep each phase deployable.
 

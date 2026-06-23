@@ -1,9 +1,9 @@
-# Proof — Devpost Submission (ready to paste)
+# Clarion — Devpost Submission (ready to paste)
 
 > Fill the [bracketed] bits. Live demo + tools are done; you supply the team, video link, and deck link.
 
 ## Project name
-**Proof — Hire on proof, not pedigree.**
+**Clarion — Hear the proof, not the pedigree.**
 
 ## Team members
 [Your name(s)]
@@ -19,7 +19,7 @@ The first AI voice interviewer a small employer can actually afford — and trus
 **Problem:** With no time and no recruiters, small employers screen on résumés, referrals, and gut feel — so hiring runs on *social capital, not skill*. Good candidates with the wrong network get filtered out, and every applicant gets a different interview, on a different day, from someone in a different mood. The AI tools that exist are either cheap recorders with no scoring, or expensive black-box enterprise scorers that have been *sued* over how they judge people.
 
 ## Solution (2–3 sentences)
-Proof lets an employer describe their ideal hire by voice; AI turns it into a structured, role-specific rubric and interview. Every candidate then takes the *same* fair AI voice interview, and the employer gets a glass-box verdict where every score links to the exact transcript quote that earned it — and a human makes the final call.
+Clarion lets an employer describe their ideal hire by voice; AI turns it into a structured, role-specific rubric and interview. Every candidate then takes the *same* fair AI voice interview, and the employer gets a glass-box verdict where every score links to the exact transcript quote that earned it — and a human makes the final call.
 
 ## Live demo link
 https://proof-app-virid.vercel.app/  · Sample verdict: https://proof-app-virid.vercel.app/sample
@@ -36,7 +36,7 @@ OpenAI (GPT-4o for rubric generation + transcript scoring; Whisper for voice aut
 ---
 
 ## What it does
-Proof runs the whole loop: **(1) Author by voice** — an employer describes the role out loud and AI drafts an editable rubric + interview. **(2) Live AI interview** — a candidate has a natural voice conversation with an ElevenLabs agent that asks the role's questions, follows up adaptively, and answers the candidate's questions honestly (including "how am I being judged?"). **(3) Glass-box verdict** — AI scores the transcript against the rubric, and every score expands to the exact verbatim quote that justifies it, highlighted in context. The employer plays the recording and clicks Advance or Reject. The AI assesses; the human decides.
+Clarion runs the whole loop: **(1) Author by voice** — an employer describes the role out loud and AI drafts an editable rubric + interview. **(2) Live AI interview** — a candidate has a natural voice conversation with an ElevenLabs agent that asks the role's questions, follows up adaptively, and answers the candidate's questions honestly (including "how am I being judged?"). **(3) Glass-box verdict** — AI scores the transcript against the rubric, and every score expands to the exact verbatim quote that justifies it, highlighted in context. The employer plays the recording and clicks Advance or Reject. The AI assesses; the human decides.
 
 ## How we built it
 Next.js (App Router) + TypeScript + Tailwind on Vercel. Supabase for Postgres, Google auth, and recording storage. OpenAI Whisper transcribes the employer's spoken role; GPT-4o generates the rubric/questions and later scores the interview transcript (JSON-only, validated, with verbatim evidence quotes). ElevenLabs Conversational AI runs the interview, with the role's questions + rubric injected at runtime via prompt overrides. The voice orb is a custom GLSL shader (simplex-noise vertex displacement + Fresnel rim) on React Three Fiber, driven by live audio amplitude.

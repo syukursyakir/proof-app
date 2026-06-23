@@ -31,7 +31,7 @@ export default async function RolesPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.6)]" />
-            Proof
+            Clarion
           </Link>
           <div className="flex items-center gap-3">
             {user?.email && (
@@ -54,7 +54,7 @@ export default async function RolesPage() {
         <Reveal>
           <h1 className="text-3xl font-semibold tracking-tight">Roles</h1>
           <p className="mt-2 text-muted">
-            Describe a role by voice and Proof builds the assessment.
+            Describe a role by voice and Clarion builds the assessment.
           </p>
         </Reveal>
 

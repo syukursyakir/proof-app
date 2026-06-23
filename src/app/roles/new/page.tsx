@@ -186,7 +186,7 @@ export default function NewRolePage() {
         {phase === "building" && (
           <div className="flex flex-col items-center gap-4 py-24 text-center">
             <div className="orb-pulse orb-glow h-20 w-20 rounded-full bg-[radial-gradient(circle_at_35%_30%,#b9aefff2,#6d5ef8_45%,#3b2fb0_100%)]" />
-            <p className="text-muted">Proof is thinking…</p>
+            <p className="text-muted">Clarion is thinking…</p>
           </div>
         )}
 
@@ -230,7 +230,7 @@ export default function NewRolePage() {
               Review &amp; edit
             </h1>
             <p className="mt-2 mb-8 text-muted">
-              Proof drafted this. Edit anything, then save.
+              Clarion drafted this. Edit anything, then save.
             </p>
             <AssessmentForm
               mode="create"

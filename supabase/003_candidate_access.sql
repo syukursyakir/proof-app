@@ -1,4 +1,4 @@
--- Proof migration 003 — secure candidate access + private recordings.
+-- Clarion migration 003 — secure candidate access + private recordings.
 -- Run AFTER 002. Replaces the bare-UUID interview link with an opaque,
 -- expiring access token + a short human join code, logs consent, and makes
 -- the recordings bucket PRIVATE (served via signed URLs only).

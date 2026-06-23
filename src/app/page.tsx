@@ -97,15 +97,15 @@ export default function Home() {
               variants={itemV}
               className="text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"
             >
-              Hire on proof,
+              Hear the proof,
               <br />
-              not pedigree.
+              not the pedigree.
             </motion.h1>
             <motion.p
               variants={itemV}
               className="mt-6 max-w-xl text-lg leading-8 text-muted"
             >
-              Proof gives every candidate the same AI-run voice interview, scores them
+              Clarion gives every candidate the same AI-run voice interview, scores them
               consistently against <span className="text-foreground">your</span> rubric, and
               shows you the exact words behind every judgment. You make the final call.
             </motion.p>
@@ -197,12 +197,12 @@ export default function Home() {
         <ProofFeatures />
       </Reveal>
 
-      {/* Why Proof */}
+      {/* Why Clarion */}
       <section className="border-t border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <Reveal>
             <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
-              Why Proof
+              Why Clarion
             </h2>
           </Reveal>
           <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -227,7 +227,7 @@ export default function Home() {
               The glass box
             </p>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Most AI hiring tools score you in a black box. Proof shows its work.
+              Most AI hiring tools score you in a black box. Clarion shows its work.
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted">
               Every score expands to the transcript quote behind it. The AI assesses; the
@@ -281,7 +281,7 @@ export default function Home() {
 
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted">
-          <span>Proof</span>
+          <span>Clarion</span>
           <span>The AI assesses. You decide.</span>
         </div>
       </footer>

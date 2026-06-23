@@ -19,9 +19,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Proof — Hire on proof, not pedigree.",
+  title: "Clarion — Hear the proof, not the pedigree.",
   description:
-    "Proof gives every candidate the same AI-run voice interview, scores them consistently against your rubric, and shows you the exact words behind every judgment. You make the final call.",
+    "Clarion gives every candidate the same AI-run voice interview, scores them consistently against your rubric, and shows you the exact words behind every judgment. You make the final call.",
 };
 
 export default function RootLayout({

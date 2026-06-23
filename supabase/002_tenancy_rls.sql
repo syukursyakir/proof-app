@@ -1,4 +1,4 @@
--- Proof migration 002 — multi-tenancy + Row Level Security.
+-- Clarion migration 002 — multi-tenancy + Row Level Security.
 -- Run AFTER 001_init.sql. Fixes the cross-tenant data leak: employer data is
 -- now scoped to an organization, enforced by RLS. Candidate-facing flows run
 -- via the service-role key (which bypasses RLS) gated by app logic.

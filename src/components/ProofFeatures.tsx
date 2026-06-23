@@ -4,7 +4,7 @@ export default function ProofFeatures() {
   return (
     <div className="pf-shell">
       <div className="pf-container">
-        <div className="pf-badge">How Proof works</div>
+        <div className="pf-badge">How Clarion works</div>
         <h2 className="pf-title">From a spoken role to a fair verdict</h2>
         <p className="pf-subtitle">
           Author by voice. Interview by AI.
@@ -27,7 +27,7 @@ export default function ProofFeatures() {
             </div>
             <h3>Author by voice</h3>
             <p className="pf-sub">
-              Describe the role out loud — Proof drafts the rubric and questions in
+              Describe the role out loud — Clarion drafts the rubric and questions in
               seconds.
             </p>
           </div>

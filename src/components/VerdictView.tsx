@@ -164,7 +164,7 @@ export default function VerdictView({
         )}
       </div>
       <p className="-mt-6 text-xs text-muted">
-        Proof assesses. You decide — the verdict is a recommendation, not a decision.
+        Clarion assesses. You decide — the verdict is a recommendation, not a decision.
       </p>
 
       {appealRequested && (
@@ -281,7 +281,7 @@ export default function VerdictView({
             Calibration — score this candidate yourself
           </h2>
           <p className="mb-3 text-sm text-muted">
-            Rate each criterion to measure how closely Proof agrees with you — this is
+            Rate each criterion to measure how closely Clarion agrees with you — this is
             your reliability evidence.
           </p>
           <div className="space-y-3">
@@ -292,7 +292,7 @@ export default function VerdictView({
               >
                 <span className="text-sm font-medium">{c.name}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted">Proof: {c.score}</span>
+                  <span className="text-xs text-muted">Clarion: {c.score}</span>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
@@ -322,7 +322,7 @@ export default function VerdictView({
             </button>
             {humanRating && humanRating.length > 0 && agr.n > 0 && (
               <span className="text-sm text-muted">
-                You &amp; Proof: exact on {Math.round(agr.exact * 100)}%, within ±1 on{" "}
+                You &amp; Clarion: exact on {Math.round(agr.exact * 100)}%, within ±1 on{" "}
                 {Math.round(agr.within1 * 100)}% ({agr.n} criteria · avg diff{" "}
                 {agr.mae.toFixed(2)})
               </span>

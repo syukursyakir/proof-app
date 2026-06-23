@@ -1,4 +1,4 @@
--- Proof — initial schema. Run in the Supabase SQL editor.
+-- Clarion — initial schema. Run in the Supabase SQL editor.
 -- Demo posture: RLS left permissive for speed (hackathon). Tighten post-event.
 
 create extension if not exists "uuid-ossp";

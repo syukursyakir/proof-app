@@ -1,4 +1,4 @@
--- Proof migration 006 — human ratings for AI-vs-human validation (harness for P9).
+-- Clarion migration 006 — human ratings for AI-vs-human validation (harness for P9).
 create table if not exists human_ratings (
   id uuid primary key default uuid_generate_v4(),
   candidate_id uuid references candidates(id) on delete cascade,
