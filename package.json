@@ -12,6 +12,7 @@
     "@elevenlabs/react": "^1.7.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "next": "16.2.9",
     "openai": "^6.44.0",

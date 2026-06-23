@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
+import SignOutButton from "@/components/SignOutButton";
 import type { Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function RolesPage() {
+  const sb = await supabaseServer();
+  const {
+    data: { user },
+  } = await sb.auth.getUser();
+
   let roles: Role[] = [];
   let dbError: string | null = null;
   try {
@@ -27,12 +34,20 @@ export default async function RolesPage() {
             <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.6)]" />
             Proof
           </Link>
-          <Link
-            href="/roles/new"
-            className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft"
-          >
-            + New role
-          </Link>
+          <div className="flex items-center gap-3">
+            {user?.email && (
+              <span className="hidden text-sm text-muted sm:inline">
+                {user.email}
+              </span>
+            )}
+            <Link
+              href="/roles/new"
+              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft"
+            >
+              + New role
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
       </header>
 
