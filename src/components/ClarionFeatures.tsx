@@ -1,6 +1,6 @@
-import "./proof-features.css";
+import "./clarion-features.css";
 
-export default function ProofFeatures() {
+export default function ClarionFeatures() {
   return (
     <div className="pf-shell">
       <div className="pf-container">

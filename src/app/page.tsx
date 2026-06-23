@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import SiteNav from "@/components/SiteNav";
 import HeroBackground from "@/components/HeroBackground";
-import ProofFeatures from "@/components/ProofFeatures";
+import ClarionFeatures from "@/components/ClarionFeatures";
 import {
   CountUp,
   Item,
@@ -194,7 +194,7 @@ export default function Home() {
 
       {/* How it works */}
       <Reveal>
-        <ProofFeatures />
+        <ClarionFeatures />
       </Reveal>
 
       {/* Why Clarion */}
