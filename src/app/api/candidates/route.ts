@@ -16,6 +16,20 @@ export async function GET(req: Request) {
   return NextResponse.json(data);
 }
 
+export async function PATCH(req: Request) {
+  const body = await req.json();
+  if (!body.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  const supa = supabaseAdmin();
+  const { data, error } = await supa
+    .from("candidates")
+    .update({ status: body.status })
+    .eq("id", body.id)
+    .select()
+    .single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
   if (!body.role_id) {
