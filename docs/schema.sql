@@ -41,5 +41,14 @@ create table if not exists verdicts (
 
 -- Storage: create a bucket named `recordings` (public read for the demo) in the
 -- Supabase dashboard, or:
--- insert into storage.buckets (id, name, public) values ('recordings','recordings', true)
---   on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('recordings','recordings', true)
+  on conflict (id) do nothing;
+
+-- Demo-only: let the browser (anon) upload + read recordings. Tighten post-hackathon.
+drop policy if exists "recordings anon read" on storage.objects;
+create policy "recordings anon read" on storage.objects
+  for select to anon, authenticated using (bucket_id = 'recordings');
+
+drop policy if exists "recordings anon write" on storage.objects;
+create policy "recordings anon write" on storage.objects
+  for insert to anon, authenticated with check (bucket_id = 'recordings');

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
 import AssessmentForm from "@/components/AssessmentForm";
-import type { Role } from "@/lib/types";
+import CandidatePanel from "@/components/CandidatePanel";
+import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,13 @@ export default async function RolePage({
 
   if (error || !data) notFound();
   const role = data as Role;
+
+  const { data: candData } = await supa
+    .from("candidates")
+    .select("*")
+    .eq("role_id", roleId)
+    .order("created_at", { ascending: false });
+  const candidates = (candData as Candidate[]) ?? [];
 
   return (
     <div className="flex flex-col flex-1">
@@ -46,6 +54,7 @@ export default async function RolePage({
             test_enabled: role.test_enabled,
           }}
         />
+        <CandidatePanel roleId={role.id} candidates={candidates} />
       </main>
     </div>
   );
