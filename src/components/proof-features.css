@@ -69,6 +69,13 @@
   text-align: left;
   background: #f4f8f9;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+.pf-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 28px 56px -22px rgba(0, 0, 0, 0.18);
 }
 .pf-card h3 {
   font-size: 1.05rem;

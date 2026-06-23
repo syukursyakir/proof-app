@@ -127,7 +127,9 @@ function Room({
     }
 
     try {
-      const res = await fetch("/api/eleven-signed-url");
+      const res = await fetch(
+        `/api/eleven-signed-url?token=${encodeURIComponent(token)}`,
+      );
       if (!res.ok) throw new Error("Could not start the interview agent.");
       const { signedUrl } = await res.json();
 

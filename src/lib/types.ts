@@ -56,9 +56,10 @@ export type Transcript = {
 
 export type CriterionVerdict = {
   name: string;
-  score: number; // 1-5
+  score: number; // 1-5 (median across self-consistency samples)
   justification: string;
   quotes: string[];
+  low_confidence?: boolean; // samples disagreed by >=2 -> flag for human review
 };
 
 export type Verdict = {

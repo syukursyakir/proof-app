@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { openai, TRANSCRIBE_MODEL } from "@/lib/openai";
+import { getUserOrgId } from "@/lib/org";
 
 export const maxDuration = 60;
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
+    // Employer-only (denial-of-wallet protection).
+    if (!(await getUserOrgId())) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+    }
     const form = await req.formData();
     const file = form.get("audio");
     if (!(file instanceof File)) {

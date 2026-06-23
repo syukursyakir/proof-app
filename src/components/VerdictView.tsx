@@ -222,6 +222,11 @@ export default function VerdictView({
                 >
                   <span className="font-medium">{c.name}</span>
                   <span className="flex items-center gap-3">
+                    {c.low_confidence && (
+                      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700">
+                        uncertain — review
+                      </span>
+                    )}
                     <span className="text-sm font-semibold text-accent-soft">
                       {c.score}/5
                     </span>

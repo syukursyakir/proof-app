@@ -47,17 +47,17 @@ export default function Home() {
             <p className="mb-5 inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-muted">
               For small teams who can&apos;t afford to hire wrong
             </p>
-            <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+            <h1 className="fade-in-up text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
               Hire on proof,
               <br />
               not pedigree.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
+            <p className="fade-in-up mt-6 max-w-xl text-lg leading-8 text-muted">
               Proof gives every candidate the same AI-run voice interview, scores them
               consistently against <span className="text-foreground">your</span> rubric, and
               shows you the exact words behind every judgment. You make the final call.
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="fade-in-up mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/roles/new"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 font-medium text-white transition-colors hover:bg-accent-soft"
@@ -103,7 +103,7 @@ export default function Home() {
       </section>
 
       {/* Problem */}
-      <section className="border-t border-border/60">
+      <section className="border-t border-border/60 reveal">
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Small employers hire on the wrong signals.
@@ -120,7 +120,7 @@ export default function Home() {
               ["74%", "of small businesses have made a bad hire"],
               ["1.58", "job openings per jobseeker in Singapore (MOM, 2025)"],
             ].map(([stat, label]) => (
-              <div key={stat} className="rounded-xl border border-border bg-card/50 p-6">
+              <div key={stat} className="lift rounded-xl border border-border bg-card/50 p-6">
                 <div className="text-3xl font-semibold text-accent-soft">{stat}</div>
                 <div className="mt-2 text-sm text-muted">{label}</div>
               </div>
@@ -133,14 +133,14 @@ export default function Home() {
       <ProofFeatures />
 
       {/* Why Proof */}
-      <section className="border-t border-border/60">
+      <section className="border-t border-border/60 reveal">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
             Why Proof
           </h2>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pillars.map((p) => (
-              <div key={p.title} className="rounded-2xl border border-border bg-card/50 p-6">
+              <div key={p.title} className="lift rounded-2xl border border-border bg-card/50 p-6">
                 <h3 className="text-lg font-semibold">{p.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted">{p.body}</p>
               </div>
@@ -150,7 +150,7 @@ export default function Home() {
       </section>
 
       {/* Glass box */}
-      <section className="border-t border-border/60">
+      <section className="border-t border-border/60 reveal">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-2">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-border px-3 py-1 text-xs font-medium text-accent-soft">
@@ -165,7 +165,7 @@ export default function Home() {
               <span className="text-foreground"> and</span> the candidate.
             </p>
           </div>
-          <div className="rounded-2xl border border-border bg-card/70 p-6">
+          <div className="lift rounded-2xl border border-border bg-card/70 p-6">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <span className="font-medium">Verdict — Customer Support</span>
               <span className="rounded-full bg-accent/15 px-3 py-1 text-sm text-accent-soft">
@@ -192,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="border-t border-border/60">
+      <section className="border-t border-border/60 reveal">
         <div className="mx-auto max-w-3xl px-6 py-24 text-center">
           <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
             Stop guessing who can do the job.
@@ -210,7 +210,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-border/60">
+      <footer className="border-t border-border/60 reveal">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted">
           <span>Proof</span>
           <span>The AI assesses. You decide.</span>

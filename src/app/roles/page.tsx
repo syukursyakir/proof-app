@@ -77,7 +77,7 @@ export default async function RolesPage() {
             <Link
               key={r.id}
               href={`/roles/${r.id}`}
-              className="rounded-2xl border border-border bg-card/50 p-6 transition-colors hover:border-accent"
+              className="lift rounded-2xl border border-border bg-card/50 p-6 hover:border-accent"
             >
               <h2 className="text-lg font-semibold">{r.title}</h2>
               <p className="mt-2 line-clamp-2 text-sm text-muted">
