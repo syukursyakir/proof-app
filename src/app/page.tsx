@@ -1,25 +1,5 @@
 import Link from "next/link";
-
-const steps = [
-  {
-    n: "01",
-    title: "Speak the role",
-    body: "Describe your ideal hire out loud. Proof turns it into a structured rubric and interview in minutes.",
-    tag: "OpenAI · Whisper",
-  },
-  {
-    n: "02",
-    title: "One voice interview",
-    body: "An AI interviewer runs the same conversation for every candidate — adaptive follow-ups, and it answers their questions honestly, even “how am I being judged?”",
-    tag: "ElevenLabs · Conversational AI",
-  },
-  {
-    n: "03",
-    title: "Get the evidence",
-    body: "A verdict scored against your rubric, where every judgment links to the exact transcript quote that earned it. You advance or reject.",
-    tag: "Glass-box verdict",
-  },
-];
+import ProofFeatures from "@/components/ProofFeatures";
 
 const pillars = [
   {
@@ -150,25 +130,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section className="border-t border-border/60">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
-            How Proof works
-          </h2>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {steps.map((s) => (
-              <div key={s.n} className="rounded-2xl border border-border bg-card/50 p-7">
-                <div className="font-mono text-sm text-accent-soft">{s.n}</div>
-                <h3 className="mt-3 text-xl font-semibold">{s.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-muted">{s.body}</p>
-                <p className="mt-5 inline-block rounded-full border border-border px-3 py-1 text-xs text-muted">
-                  {s.tag}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProofFeatures />
 
       {/* Why Proof */}
       <section className="border-t border-border/60">

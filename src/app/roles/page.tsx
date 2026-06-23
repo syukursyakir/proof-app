@@ -42,8 +42,8 @@ export default async function RolesPage() {
 
         {dbError && (
           <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
-            Couldn&apos;t reach the database. Make sure you ran <code>docs/schema.sql</code> in
-            Supabase. ({dbError})
+            Couldn&apos;t reach the database. Make sure you ran{" "}
+            <code>supabase/001_init.sql</code> in Supabase. ({dbError})
           </div>
         )}
 

@@ -1,5 +1,5 @@
--- Proof — Supabase schema. Run in the Supabase SQL editor.
--- Demo posture: RLS is left permissive for speed (hackathon). Flag as future work.
+-- Proof — initial schema. Run in the Supabase SQL editor.
+-- Demo posture: RLS left permissive for speed (hackathon). Tighten post-event.
 
 create extension if not exists "uuid-ossp";
 
@@ -39,8 +39,7 @@ create table if not exists verdicts (
   created_at timestamptz default now()
 );
 
--- Storage: create a bucket named `recordings` (public read for the demo) in the
--- Supabase dashboard, or:
+-- Storage bucket for A/V recordings (created here so no manual step needed).
 insert into storage.buckets (id, name, public) values ('recordings','recordings', true)
   on conflict (id) do nothing;
 

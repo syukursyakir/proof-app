@@ -1,0 +1,223 @@
+/* Proof feature cards — same craft as the Core Features reference, Proof content. */
+.pf-shell {
+  background: #ffffff;
+  padding: 80px 20px;
+  display: flex;
+  justify-content: center;
+  font-family: var(--font-inter), "Inter", sans-serif;
+}
+.pf-shell * {
+  box-sizing: border-box;
+}
+.pf-container {
+  max-width: 1100px;
+  width: 100%;
+  text-align: center;
+}
+.pf-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #f5c344, #f28482, #b567c2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  margin-bottom: 16px;
+}
+.pf-title {
+  font-size: 2.75rem;
+  font-weight: 500;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.pf-subtitle {
+  font-size: 1.125rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 50px;
+}
+.pf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .pf-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .pf-grid {
+    grid-template-columns: 1fr;
+  }
+  .pf-title {
+    font-size: 2.25rem;
+  }
+}
+
+.pf-card {
+  border-radius: 20px;
+  height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  background: #f4f8f9;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+}
+.pf-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1e293b;
+  padding: 24px 24px 2px;
+  position: relative;
+  z-index: 3;
+}
+.pf-card .pf-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.5;
+  padding: 0 24px 24px;
+  position: relative;
+  z-index: 3;
+}
+
+.pf-card-1 {
+  background: radial-gradient(circle at 50% 0%, #ffb347 0%, #f9ed96 30%, #f4f8f9 60%, #f4f8f9 100%);
+}
+.pf-card-2 {
+  background: radial-gradient(circle at 50% 0%, #e5a1f5 0%, #f8aca0 30%, #f4f8f9 60%, #f4f8f9 100%);
+}
+.pf-card-3 {
+  background: radial-gradient(circle at 50% 0%, #f9ed96 0%, #e5a1f5 30%, #f4f8f9 60%, #f4f8f9 100%);
+}
+
+/* Card 1 — Author by voice */
+.pf-prompt {
+  position: absolute;
+  top: 28px;
+  left: 24px;
+  right: 24px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.6;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  z-index: 2;
+}
+.pf-hl {
+  background: linear-gradient(90deg, #ffb347, #e5a1f5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-weight: 600;
+}
+.pf-pill {
+  position: absolute;
+  top: 168px;
+  left: 24px;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e293b;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+.pf-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+/* Card 2 — Live AI interview */
+.pf-orb {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d6d0ff, #6d5ef8 50%, #3b2fb0 100%);
+  box-shadow: 0 0 50px 12px rgba(109, 94, 248, 0.45);
+  z-index: 2;
+}
+.pf-caption {
+  position: absolute;
+  top: 192px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #000;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #1e293b;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+  z-index: 2;
+}
+
+/* Card 3 — Glass-box verdict */
+.pf-mesh {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(circle at center top, black 0%, transparent 80%);
+  mask-image: radial-gradient(circle at center top, black 0%, transparent 80%);
+}
+.pf-verdict {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 232px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  text-align: left;
+  z-index: 2;
+}
+.pf-vrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pf-vname {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+.pf-vscore {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4f46e5;
+}
+.pf-quote {
+  margin-top: 10px;
+  background: rgba(109, 94, 248, 0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #475569;
+}
