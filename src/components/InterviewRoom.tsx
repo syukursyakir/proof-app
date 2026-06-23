@@ -20,6 +20,7 @@ type Props = {
   questions: string[];
   rubric: Criterion[];
   agentConfigured: boolean;
+  orgName?: string | null;
 };
 
 type Phase = "consent" | "connecting" | "live" | "saving" | "done" | "error";
@@ -39,6 +40,7 @@ function Room({
   questions,
   rubric,
   agentConfigured,
+  orgName,
 }: Props) {
   const [phase, setPhase] = useState<Phase>("consent");
   const [mode, setMode] = useState<"voice" | "text">("voice");
@@ -239,15 +241,22 @@ function Room({
       <Shell>
         <div className="max-w-md text-center">
           <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_30%,#d6d0ff,#6d5ef8_50%,#3b2fb0)] shadow-[0_0_40px_8px_rgba(109,94,248,0.5)]" />
-          <h1 className="text-2xl font-semibold">Your interview for {roleTitle}</h1>
-          <p className="mt-3 text-muted">
-            You&apos;ll have a short voice conversation with Clarion. Speak naturally —
-            and you can ask it anything, including how you&apos;re being assessed.
+          <h1 className="text-2xl font-semibold">{roleTitle}</h1>
+          {orgName && (
+            <p className="mt-1 text-sm text-muted">with {orgName}</p>
+          )}
+          <div className="mt-3 flex justify-center gap-5 text-sm text-muted">
+            <span>{questions.length} questions</span>
+            <span>≈ {Math.round(questions.length * 2.5)} min</span>
+            <span>Same rubric for every candidate</span>
+          </div>
+          <p className="mt-5 text-muted">
+            Speak naturally — you can ask Clarion anything along the way,
+            including exactly how you&apos;re being assessed.
           </p>
           <p className="mt-4 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
-            🔴 This interview is recorded (audio &amp; video) so the employer can review
-            it. Your answers are assessed against a fixed rubric — the same for every
-            candidate.
+            🔴 This interview is recorded (audio &amp; video) so the employer can
+            review it. Your answers are scored against a fixed rubric.
           </p>
           <DeviceCheck />
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
@@ -294,10 +303,17 @@ function Room({
     return (
       <Shell>
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-semibold">Interview complete 🎉</h1>
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl font-semibold text-green-600">
+            ✓
+          </div>
+          <h1 className="text-2xl font-semibold">Interview complete</h1>
           <p className="mt-3 text-muted">
-            Thanks, {candidateName}. Your responses have been recorded and sent to the
-            employer. You can close this tab.
+            Thanks, {candidateName}. Your responses have been saved and sent to
+            the hiring team for review.
+          </p>
+          <p className="mt-2 text-sm text-muted">
+            If you feel any response was missed or assessed unfairly, you can
+            request a human review below.
           </p>
           <AppealButton token={token} />
         </div>

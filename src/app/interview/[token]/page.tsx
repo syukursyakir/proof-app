@@ -34,11 +34,12 @@ export default async function InterviewPage({
 
   const { data: roleData } = await supabaseAdmin()
     .from("roles")
-    .select("*")
+    .select("*, organizations(name)")
     .eq("id", candidate.role_id)
     .single();
   if (!roleData) notFound();
-  const role = roleData as Role;
+  const role = roleData as Role & { organizations?: { name: string } | null };
+  const orgName = (role.organizations as { name?: string } | null)?.name ?? null;
 
   return (
     <InterviewRoom
@@ -48,6 +49,7 @@ export default async function InterviewPage({
       questions={role.interview_questions ?? []}
       rubric={role.rubric ?? []}
       agentConfigured={!!process.env.ELEVENLABS_AGENT_ID}
+      orgName={orgName}
     />
   );
 }

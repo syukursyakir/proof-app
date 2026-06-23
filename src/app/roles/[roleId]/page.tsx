@@ -58,7 +58,7 @@ export default async function RolePage({
           <Link href="/roles" className="text-sm text-muted hover:text-foreground">
             ← Roles
           </Link>
-          <span className="text-sm font-medium">Edit role</span>
+          <span className="text-sm text-muted">{role.title}</span>
         </div>
       </header>
 
