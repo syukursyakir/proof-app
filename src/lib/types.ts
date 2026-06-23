@@ -1,4 +1,10 @@
-export type Criterion = { name: string; good: string; bad: string };
+export type Criterion = {
+  name: string;
+  good: string;
+  bad: string;
+  // BARS: behavioral descriptors for scores 1..5 (optional for backward compat).
+  anchors?: string[];
+};
 export type Rubric = Criterion[];
 
 export type Assessment = {

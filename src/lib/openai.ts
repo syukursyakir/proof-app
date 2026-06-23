@@ -1,6 +1,11 @@
 import OpenAI from "openai";
 
-export const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// maxRetries handles 429/5xx/timeout with exponential backoff automatically.
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  maxRetries: 3,
+  timeout: 45000,
+});
 
 export const CHAT_MODEL = "gpt-4o";
 export const TRANSCRIBE_MODEL = "whisper-1";

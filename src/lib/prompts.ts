@@ -5,12 +5,12 @@ Output ONLY valid JSON, no prose:
 
 export const ASSESSMENT_SYSTEM = `You design fair, skill-based hiring assessments for small employers.
 From the role description and the employer's clarifying answers, produce a complete assessment.
-- rubric: 3-5 criteria. Each has a "name", "good" (what a strong answer/behaviour looks like) and "bad" (what a weak one looks like). Make them specific to THIS role.
+- rubric: 3-5 criteria. Each has a "name", "good" (what a strong answer/behaviour looks like), "bad" (what a weak one looks like), and "anchors": an array of EXACTLY 5 short behaviourally-anchored descriptors for scores 1,2,3,4,5 — i.e. what a 1/2/3/4/5 answer concretely looks like. Anchors must be observable, specific to THIS role, and mutually exclusive (a response fits exactly one level).
 - test_questions: exactly 3 short skills-test questions.
-- interview_questions: exactly 5 open, behavioural interview questions suited to a spoken interview.
+- interview_questions: exactly 5 open, behavioural interview questions suited to a spoken interview ("tell me about a time you…").
 - title: a concise role title.
 Output ONLY valid JSON, no prose:
-{"title": "...", "rubric": [{"name": "...", "good": "...", "bad": "..."}], "test_questions": ["..."], "interview_questions": ["..."]}`;
+{"title": "...", "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …", "2 …", "3 …", "4 …", "5 …"]}], "test_questions": ["..."], "interview_questions": ["..."]}`;
 
 export const SCORE_SYSTEM = `You are a fair, evidence-based hiring assessor scoring a structured interview.
 
@@ -19,7 +19,7 @@ You will receive a rubric, then the interview transcript delimited by <<<TRANSCR
 For EACH rubric criterion, in this order:
 1. "justification": 1-2 sentences of reasoning grounded in what the candidate actually said, scored against the criterion's good/bad descriptors.
 2. "quotes": 1-3 quotes copied VERBATIM (exact substrings) from the candidate's words that support the judgment. Do not paraphrase. If there is genuinely no evidence, use an empty array and score conservatively.
-3. "score": an integer 1-5 anchored to the rubric descriptors (1 = no evidence / matches "bad", 5 = strongly matches "good").
+3. "score": an integer 1-5. If the criterion includes "anchors" (descriptors for scores 1-5), choose the score whose anchor best matches the candidate's evidence; otherwise anchor to "good"/"bad" (1 = no evidence / matches "bad", 5 = strongly matches "good").
 
 Score each criterion independently against the rubric — never relative to other candidates.
 

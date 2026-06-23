@@ -37,8 +37,20 @@ export default function AssessmentForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function updateCriterion(i: number, key: keyof Criterion, v: string) {
+  function updateCriterion(i: number, key: "name" | "good" | "bad", v: string) {
     setRubric((r) => r.map((c, idx) => (idx === i ? { ...c, [key]: v } : c)));
+  }
+
+  function updateAnchor(i: number, level: number, v: string) {
+    setRubric((r) =>
+      r.map((c, idx) => {
+        if (idx !== i) return c;
+        const anchors = [...(c.anchors ?? ["", "", "", "", ""])];
+        while (anchors.length < 5) anchors.push("");
+        anchors[level] = v;
+        return { ...c, anchors };
+      }),
+    );
   }
 
   async function save() {
@@ -127,6 +139,24 @@ export default function AssessmentForm({
                     value={c.bad}
                     onChange={(e) => updateCriterion(i, "bad", e.target.value)}
                   />
+                </div>
+              </div>
+              <div className="mt-3">
+                <label className={label}>
+                  Score anchors — what each level (1–5) looks like
+                </label>
+                <div className="mt-2 space-y-2">
+                  {[1, 2, 3, 4, 5].map((level) => (
+                    <div key={level} className="flex items-center gap-2">
+                      <span className="w-4 shrink-0 text-xs text-muted">{level}</span>
+                      <input
+                        className={input}
+                        placeholder={`A score of ${level} looks like…`}
+                        value={c.anchors?.[level - 1] ?? ""}
+                        onChange={(e) => updateAnchor(i, level - 1, e.target.value)}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

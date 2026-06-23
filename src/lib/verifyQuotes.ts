@@ -18,10 +18,11 @@ function stripPunct(s: string): string {
 // Is this quote actually present in the transcript? exact -> normalized -> punctuation-stripped.
 export function quoteFound(quote: string, transcript: string): boolean {
   if (!quote || !transcript) return false;
+  const q = norm(quote);
+  // Too short to be meaningful evidence (avoids matching stray words like "the").
+  if (q.length < 8) return false;
   if (transcript.includes(quote)) return true;
   const t = norm(transcript);
-  const q = norm(quote);
-  if (q.length < 4) return false;
   if (t.includes(q)) return true;
   return stripPunct(t).includes(stripPunct(q));
 }
