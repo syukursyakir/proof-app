@@ -11,7 +11,7 @@ import {
 import type { Criterion, Turn } from "@/lib/types";
 
 type Props = {
-  candidateId: string;
+  token: string;
   candidateName: string;
   roleTitle: string;
   questions: string[];
@@ -30,7 +30,7 @@ export default function InterviewRoom(props: Props) {
 }
 
 function Room({
-  candidateId,
+  token,
   candidateName,
   roleTitle,
   questions,
@@ -88,6 +88,13 @@ function Room({
       return;
     }
     setPhase("connecting");
+
+    // Log consent + mark interviewing (best-effort, authorized by token).
+    fetch("/api/interview/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    }).catch(() => {});
 
     // Camera + mic for the webcam tile and recording (best-effort).
     try {
@@ -154,14 +161,19 @@ function Room({
       rec.onstop = async () => {
         try {
           const blob = new Blob(chunksRef.current, { type: "video/webm" });
+          const signRes = await fetch("/api/recordings/sign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+          if (!signRes.ok) return resolve(null);
+          const { path, signedToken } = await signRes.json();
           const supa = supabaseBrowser();
-          const path = `${candidateId}/${Date.now()}.webm`;
           const { error } = await supa.storage
             .from("recordings")
-            .upload(path, blob, { contentType: "video/webm", upsert: true });
+            .uploadToSignedUrl(path, signedToken, blob);
           if (error) return resolve(null);
-          const { data } = supa.storage.from("recordings").getPublicUrl(path);
-          resolve(data.publicUrl);
+          resolve(path); // store the private storage path, not a public URL
         } catch {
           resolve(null);
         }
@@ -181,7 +193,7 @@ function Room({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          candidate_id: candidateId,
+          token,
           full_text: fullText,
           turns,
           recording_url: recordingUrl,

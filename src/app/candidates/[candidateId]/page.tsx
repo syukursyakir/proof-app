@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase";
 import VerdictView from "@/components/VerdictView";
 import type { Candidate, Transcript, Verdict } from "@/lib/types";
 
@@ -40,6 +41,20 @@ export default async function CandidatePage({
 
   const t = transcript as Transcript | null;
 
+  // Recordings live in a private bucket; mint a short-lived signed URL for playback.
+  // (Ownership is already enforced: RLS returned this transcript to the employer.)
+  let recordingUrl: string | null = null;
+  if (t?.recording_url) {
+    if (t.recording_url.startsWith("http")) {
+      recordingUrl = t.recording_url; // legacy public URL
+    } else {
+      const { data: signed } = await supabaseAdmin()
+        .storage.from("recordings")
+        .createSignedUrl(t.recording_url, 3600);
+      recordingUrl = signed?.signedUrl ?? null;
+    }
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
@@ -59,7 +74,7 @@ export default async function CandidatePage({
           candidate={candidate}
           verdict={(verdict as Verdict | null) ?? null}
           fullText={t?.full_text ?? null}
-          recordingUrl={t?.recording_url ?? null}
+          recordingUrl={recordingUrl}
         />
       </main>
     </div>

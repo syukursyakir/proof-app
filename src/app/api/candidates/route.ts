@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getUserOrgId } from "@/lib/org";
+import { genToken, genCode } from "@/lib/candidateToken";
 
 export const runtime = "nodejs";
 
@@ -28,9 +29,17 @@ export async function POST(req: Request) {
   if (!body.role_id) {
     return NextResponse.json({ error: "Missing role_id" }, { status: 400 });
   }
+  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString();
   const { data, error } = await sb
     .from("candidates")
-    .insert({ role_id: body.role_id, name: body.name ?? "Candidate", org_id: orgId })
+    .insert({
+      role_id: body.role_id,
+      name: body.name ?? "Candidate",
+      org_id: orgId,
+      access_token: genToken(),
+      join_code: genCode(),
+      token_expires_at: expires,
+    })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

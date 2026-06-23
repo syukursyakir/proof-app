@@ -1,26 +1,19 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { resolveToken } from "@/lib/candidateToken";
 
 export const runtime = "nodejs";
 
-// Candidate-facing (unauthenticated): the candidate's browser posts the
-// transcript at the end of the interview. Runs via service role, but we set
-// org_id from the candidate so the owning employer can read it under RLS.
+// Candidate-facing: the browser posts the transcript at the end of the interview.
+// Authorized by the access token (not a raw candidate_id). recording_url is a
+// private storage PATH, not a public URL.
 export async function POST(req: Request) {
   const body = await req.json();
-  if (!body.candidate_id) {
-    return NextResponse.json({ error: "Missing candidate_id" }, { status: 400 });
+  const cand = await resolveToken(body.token);
+  if (!cand) {
+    return NextResponse.json({ error: "Invalid or expired link" }, { status: 403 });
   }
   const supa = supabaseAdmin();
-
-  const { data: cand } = await supa
-    .from("candidates")
-    .select("id, org_id")
-    .eq("id", body.candidate_id)
-    .single();
-  if (!cand) {
-    return NextResponse.json({ error: "Unknown candidate" }, { status: 404 });
-  }
 
   const { data, error } = await supa
     .from("transcripts")
@@ -35,10 +28,7 @@ export async function POST(req: Request) {
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  await supa
-    .from("candidates")
-    .update({ status: "completed" })
-    .eq("id", cand.id);
+  await supa.from("candidates").update({ status: "completed" }).eq("id", cand.id);
 
   return NextResponse.json(data);
 }

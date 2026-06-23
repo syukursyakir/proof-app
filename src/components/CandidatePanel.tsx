@@ -41,8 +41,9 @@ export default function CandidatePanel({
     }
   }
 
-  function copyLink(id: string) {
-    const url = `${window.location.origin}/interview/${id}`;
+  function copyLink(id: string, token: string | null | undefined) {
+    if (!token) return;
+    const url = `${window.location.origin}/interview/${token}`;
     navigator.clipboard?.writeText(url);
     setCopied(id);
     setTimeout(() => setCopied(null), 1500);
@@ -86,20 +87,28 @@ export default function CandidatePanel({
               <span className={`ml-3 text-xs ${statusStyle[c.status] ?? "text-muted"}`}>
                 {c.status}
               </span>
+              {c.join_code && (
+                <span className="ml-3 font-mono text-xs text-muted">
+                  code: {c.join_code}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2 text-sm">
               <button
-                onClick={() => copyLink(c.id)}
-                className="rounded-full border border-border px-3 py-1 hover:border-accent"
+                onClick={() => copyLink(c.id, c.access_token)}
+                disabled={!c.access_token}
+                className="rounded-full border border-border px-3 py-1 hover:border-accent disabled:opacity-50"
               >
                 {copied === c.id ? "Copied!" : "Copy interview link"}
               </button>
-              <Link
-                href={`/interview/${c.id}`}
-                className="rounded-full border border-border px-3 py-1 hover:border-accent"
-              >
-                Open
-              </Link>
+              {c.access_token && (
+                <Link
+                  href={`/interview/${c.access_token}`}
+                  className="rounded-full border border-border px-3 py-1 hover:border-accent"
+                >
+                  Open
+                </Link>
+              )}
               {(c.status === "completed" ||
                 c.status === "advanced" ||
                 c.status === "rejected") && (

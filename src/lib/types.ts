@@ -22,8 +22,13 @@ export type Role = {
 export type Candidate = {
   id: string;
   role_id: string;
+  org_id?: string | null;
   name: string | null;
   status: "invited" | "interviewing" | "completed" | "advanced" | "rejected";
+  access_token?: string | null;
+  join_code?: string | null;
+  token_expires_at?: string | null;
+  consent_at?: string | null;
   created_at: string;
 };
 
