@@ -65,7 +65,11 @@ export type CriterionVerdict = {
 export type Verdict = {
   id: string;
   candidate_id: string;
-  overall: { summary: string; recommendation: string } | null;
+  overall: {
+    summary: string;
+    recommendation: string;
+    integrity_flag?: boolean;
+  } | null;
   per_criterion: CriterionVerdict[] | null;
   created_at: string;
 };

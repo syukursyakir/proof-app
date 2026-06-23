@@ -9,7 +9,7 @@ export const maxDuration = 60;
 export const runtime = "nodejs";
 
 type ScoreResult = {
-  overall: { summary: string; recommendation: string };
+  overall: { summary: string; recommendation: string; integrity_flag?: boolean };
   per_criterion: CriterionVerdict[];
 };
 
@@ -107,7 +107,12 @@ export async function POST(req: Request) {
       Object.entries(recCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ??
       valid[0].overall?.recommendation ??
       "lean advance";
-    const overall = { summary: valid[0].overall?.summary ?? "", recommendation };
+    const integrity_flag = valid.some((r) => r.overall?.integrity_flag);
+    const overall = {
+      summary: valid[0].overall?.summary ?? "",
+      recommendation,
+      integrity_flag,
+    };
 
     await sb.from("verdicts").delete().eq("candidate_id", candidate_id);
     const { data, error } = await sb

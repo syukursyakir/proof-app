@@ -57,6 +57,7 @@ Buyer: the small employer / early-stage founder. Effect: candidates are judged o
 Live link: [your-vercel-url]. Voice authoring (OpenAI Whisper + GPT) → ElevenLabs interview with recording + transcript → GPT-scored evidence-linked verdict → employer dashboard with Advance/Reject.
 Stack: **OpenAI · ElevenLabs · Supabase · Vercel · Next.js.**
 > *Emphasize it's real and clickable, not a mockup.*
+> *Honest about limits / what's next: scoring is already injection-resistant and flags gaming attempts; the next safeguard is **candidate identity & proctoring** (anti-impersonation + deepfake checks). Until then, a human stays in the loop on every decision.*
 
 ### Slide 10 — Close
 **Stop guessing who can do the job. Start with proof.**

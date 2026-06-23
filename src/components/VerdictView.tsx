@@ -210,6 +210,11 @@ export default function VerdictView({
           <p className="mt-3 text-sm leading-7 text-foreground/85">
             {verdict.overall.summary}
           </p>
+          {verdict.overall.integrity_flag && (
+            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-3 py-1 text-sm text-amber-700">
+              ⚑ Possible attempt to game the interview — review the transcript.
+            </p>
+          )}
         </section>
       )}
 
