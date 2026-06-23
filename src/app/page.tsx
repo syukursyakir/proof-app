@@ -12,9 +12,11 @@ import SiteNav from "@/components/SiteNav";
 import HeroBackground from "@/components/HeroBackground";
 import ProofFeatures from "@/components/ProofFeatures";
 import {
+  CountUp,
   Item,
-  PrimaryButton,
+  MagneticButton,
   Reveal,
+  ScrollProgress,
   SecondaryButton,
   Stagger,
 } from "@/components/motion";
@@ -39,10 +41,28 @@ const pillars = [
   },
 ];
 
-const stats: [string, string][] = [
-  ["$14,900", "average cost of one bad hire (CareerBuilder)"],
-  ["74%", "of small businesses have made a bad hire"],
-  ["1.58", "job openings per jobseeker in Singapore (MOM, 2025)"],
+const stats = [
+  {
+    value: 14900,
+    prefix: "$",
+    suffix: "",
+    decimals: 0,
+    label: "average cost of one bad hire (CareerBuilder)",
+  },
+  {
+    value: 74,
+    prefix: "",
+    suffix: "%",
+    decimals: 0,
+    label: "of small businesses have made a bad hire",
+  },
+  {
+    value: 1.58,
+    prefix: "",
+    suffix: "",
+    decimals: 2,
+    label: "job openings per jobseeker in Singapore (MOM, 2025)",
+  },
 ];
 
 export default function Home() {
@@ -59,6 +79,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1">
+      <ScrollProgress />
       <SiteNav />
 
       {/* Hero */}
@@ -89,9 +110,9 @@ export default function Home() {
               shows you the exact words behind every judgment. You make the final call.
             </motion.p>
             <motion.div variants={itemV} className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <PrimaryButton href="/roles/new">
+              <MagneticButton href="/roles/new">
                 <span aria-hidden>🎙️</span> Describe your ideal hire
-              </PrimaryButton>
+              </MagneticButton>
               <SecondaryButton href="/sample">
                 See a sample verdict{" "}
                 <span className="transition-transform group-hover:translate-x-0.5">→</span>
@@ -151,13 +172,20 @@ export default function Home() {
             </p>
           </Reveal>
           <Stagger className="mt-12 grid gap-6 sm:grid-cols-3">
-            {stats.map(([stat, label]) => (
+            {stats.map((s) => (
               <Item
-                key={stat}
+                key={s.label}
                 className="lift rounded-xl border border-border bg-card/50 p-6"
               >
-                <div className="text-3xl font-semibold text-accent-soft">{stat}</div>
-                <div className="mt-2 text-sm text-muted">{label}</div>
+                <div className="text-3xl font-semibold text-accent-soft">
+                  <CountUp
+                    value={s.value}
+                    prefix={s.prefix}
+                    suffix={s.suffix}
+                    decimals={s.decimals}
+                  />
+                </div>
+                <div className="mt-2 text-sm text-muted">{s.label}</div>
               </Item>
             ))}
           </Stagger>
@@ -243,9 +271,9 @@ export default function Home() {
               Start with proof.
             </h2>
             <div className="mt-10 flex justify-center">
-              <PrimaryButton href="/roles/new">
+              <MagneticButton href="/roles/new">
                 <span aria-hidden>🎙️</span> Describe your ideal hire
-              </PrimaryButton>
+              </MagneticButton>
             </div>
           </Reveal>
         </div>
