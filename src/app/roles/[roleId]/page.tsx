@@ -69,6 +69,7 @@ export default async function RolePage({
           initial={{
             title: role.title,
             description_raw: role.description_raw,
+            occupation: role.occupation,
             rubric: role.rubric ?? [],
             test_questions: role.test_questions ?? [],
             interview_questions: role.interview_questions ?? [],

@@ -5,12 +5,13 @@ Output ONLY valid JSON, no prose:
 
 export const ASSESSMENT_SYSTEM = `You design fair, skill-based hiring assessments for small employers.
 From the role description and the employer's clarifying answers, produce a complete assessment.
+- occupation: first identify the closest O*NET-SOC occupation for this role (its standard title + SOC code), and GROUND the rubric criteria in that occupation's most important knowledge, skills, and abilities. This gives the rubric content validity.
 - rubric: 3-5 criteria. Each has a "name", "good" (what a strong answer/behaviour looks like), "bad" (what a weak one looks like), and "anchors": an array of EXACTLY 5 short behaviourally-anchored descriptors for scores 1,2,3,4,5 — i.e. what a 1/2/3/4/5 answer concretely looks like. Anchors must be observable, specific to THIS role, and mutually exclusive (a response fits exactly one level).
 - test_questions: exactly 3 short skills-test questions.
 - interview_questions: exactly 5 open, behavioural interview questions suited to a spoken interview ("tell me about a time you…").
 - title: a concise role title.
 Output ONLY valid JSON, no prose:
-{"title": "...", "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …", "2 …", "3 …", "4 …", "5 …"]}], "test_questions": ["..."], "interview_questions": ["..."]}`;
+{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …", "2 …", "3 …", "4 …", "5 …"]}], "test_questions": ["..."], "interview_questions": ["..."]}`;
 
 export const SCORE_SYSTEM = `You are a fair, evidence-based hiring assessor scoring a structured interview.
 

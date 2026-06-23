@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Criterion } from "@/lib/types";
+import type { Criterion, Occupation } from "@/lib/types";
 
 type Initial = {
   title: string;
   description_raw?: string | null;
+  occupation?: Occupation | null;
   rubric: Criterion[];
   test_questions: string[];
   interview_questions: string[];
@@ -60,6 +61,7 @@ export default function AssessmentForm({
       const payload = {
         title,
         description_raw: initial.description_raw ?? null,
+        occupation: initial.occupation ?? null,
         rubric,
         test_questions: tests,
         interview_questions: questions,
@@ -89,6 +91,13 @@ export default function AssessmentForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+        {initial.occupation?.title && (
+          <p className="mt-2 text-xs text-muted">
+            Grounded in O*NET occupation:{" "}
+            <span className="text-foreground">{initial.occupation.title}</span>
+            {initial.occupation.soc_code ? ` (${initial.occupation.soc_code})` : ""}
+          </p>
+        )}
       </div>
 
       {/* Rubric */}

@@ -7,8 +7,11 @@ export type Criterion = {
 };
 export type Rubric = Criterion[];
 
+export type Occupation = { title: string; soc_code?: string };
+
 export type Assessment = {
   title: string;
+  occupation?: Occupation | null;
   rubric: Rubric;
   test_questions: string[];
   interview_questions: string[];
@@ -18,6 +21,7 @@ export type Role = {
   id: string;
   title: string;
   description_raw: string | null;
+  occupation?: Occupation | null;
   rubric: Rubric | null;
   test_questions: string[] | null;
   interview_questions: string[] | null;

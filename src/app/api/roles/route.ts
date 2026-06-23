@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       org_id: orgId,
       title: body.title ?? "Untitled role",
       description_raw: body.description_raw ?? null,
+      occupation: body.occupation ?? null,
       rubric: body.rubric ?? null,
       test_questions: body.test_questions ?? null,
       interview_questions: body.interview_questions ?? null,

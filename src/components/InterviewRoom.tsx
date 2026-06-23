@@ -5,6 +5,7 @@ import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import VoiceOrb from "@/components/VoiceOrb";
 import TextInterview from "@/components/TextInterview";
 import AppealButton from "@/components/AppealButton";
+import DeviceCheck from "@/components/DeviceCheck";
 import { supabaseBrowser } from "@/lib/supabase";
 import {
   buildInterviewPrompt,
@@ -235,6 +236,7 @@ function Room({
             it. Your answers are assessed against a fixed rubric — the same for every
             candidate.
           </p>
+          <DeviceCheck />
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
           <button
             onClick={start}

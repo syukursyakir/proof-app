@@ -101,6 +101,7 @@ export default function NewRolePage() {
       const data = await res.json();
       setAssessment({
         title: data.title ?? "New role",
+        occupation: data.occupation ?? null,
         rubric: data.rubric ?? [],
         test_questions: data.test_questions ?? [],
         interview_questions: data.interview_questions ?? [],
@@ -226,6 +227,7 @@ export default function NewRolePage() {
               initial={{
                 title: assessment.title,
                 description_raw: description,
+                occupation: assessment.occupation,
                 rubric: assessment.rubric,
                 test_questions: assessment.test_questions,
                 interview_questions: assessment.interview_questions,
