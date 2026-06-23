@@ -16,11 +16,17 @@ const statusStyle: Record<string, string> = {
 export default function CandidatePanel({
   roleId,
   candidates,
+  summaries = {},
 }: {
   roleId: string;
   candidates: Candidate[];
+  summaries?: Record<string, { avg: number; recommendation: string }>;
 }) {
   const router = useRouter();
+  // Rank scored candidates first, highest average score on top.
+  const sorted = [...candidates].sort(
+    (a, b) => (summaries[b.id]?.avg ?? -1) - (summaries[a.id]?.avg ?? -1),
+  );
   const [name, setName] = useState("");
   const [adding, setAdding] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -77,7 +83,7 @@ export default function CandidatePanel({
         {candidates.length === 0 && (
           <p className="text-sm text-muted">No candidates yet.</p>
         )}
-        {candidates.map((c) => (
+        {sorted.map((c) => (
           <div
             key={c.id}
             className="flex items-center justify-between rounded-xl border border-border bg-card/50 px-4 py-3"
@@ -90,6 +96,12 @@ export default function CandidatePanel({
               {c.join_code && (
                 <span className="ml-3 font-mono text-xs text-muted">
                   code: {c.join_code}
+                </span>
+              )}
+              {summaries[c.id] && (
+                <span className="ml-3 rounded-full bg-accent/10 px-2 py-0.5 text-xs capitalize text-accent-soft">
+                  {summaries[c.id].recommendation || "scored"} ·{" "}
+                  {summaries[c.id].avg.toFixed(1)}/5
                 </span>
               )}
             </div>

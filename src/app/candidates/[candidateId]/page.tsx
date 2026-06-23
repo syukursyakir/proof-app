@@ -75,6 +75,7 @@ export default async function CandidatePage({
           verdict={(verdict as Verdict | null) ?? null}
           fullText={t?.full_text ?? null}
           recordingUrl={recordingUrl}
+          appealRequested={!!candidate.appeal_requested_at}
         />
       </main>
     </div>

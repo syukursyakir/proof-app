@@ -50,12 +50,14 @@ export default function VerdictView({
   fullText,
   recordingUrl,
   readOnly = false,
+  appealRequested = false,
 }: {
   candidate: Candidate;
   verdict: Verdict | null;
   fullText: string | null;
   recordingUrl: string | null;
   readOnly?: boolean;
+  appealRequested?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState<number | null>(0);
@@ -128,6 +130,12 @@ export default function VerdictView({
       <p className="-mt-6 text-xs text-muted">
         Proof assesses. You decide — the verdict is a recommendation, not a decision.
       </p>
+
+      {appealRequested && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
+          ⚑ This candidate has requested a human review of their interview.
+        </div>
+      )}
 
       {!verdict && (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">

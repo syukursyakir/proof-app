@@ -30,6 +30,27 @@ export default async function RolePage({
     .order("created_at", { ascending: false });
   const candidates = (candData as Candidate[]) ?? [];
 
+  // Verdict summaries (avg score + recommendation) for at-a-glance ranking.
+  const summaries: Record<string, { avg: number; recommendation: string }> = {};
+  const candIds = candidates.map((c) => c.id);
+  if (candIds.length) {
+    const { data: vrows } = await supa
+      .from("verdicts")
+      .select("candidate_id, overall, per_criterion")
+      .in("candidate_id", candIds);
+    for (const v of vrows ?? []) {
+      const pc = (v.per_criterion as { score: number }[]) ?? [];
+      const avg = pc.length
+        ? pc.reduce((s, c) => s + (c.score || 0), 0) / pc.length
+        : 0;
+      summaries[v.candidate_id as string] = {
+        avg,
+        recommendation:
+          (v.overall as { recommendation?: string })?.recommendation ?? "",
+      };
+    }
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
@@ -54,7 +75,11 @@ export default async function RolePage({
             test_enabled: role.test_enabled,
           }}
         />
-        <CandidatePanel roleId={role.id} candidates={candidates} />
+        <CandidatePanel
+          roleId={role.id}
+          candidates={candidates}
+          summaries={summaries}
+        />
       </main>
     </div>
   );

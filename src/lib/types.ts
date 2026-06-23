@@ -35,6 +35,7 @@ export type Candidate = {
   join_code?: string | null;
   token_expires_at?: string | null;
   consent_at?: string | null;
+  appeal_requested_at?: string | null;
   created_at: string;
 };
 

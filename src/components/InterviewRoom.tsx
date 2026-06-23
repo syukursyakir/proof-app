@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import VoiceOrb from "@/components/VoiceOrb";
+import TextInterview from "@/components/TextInterview";
+import AppealButton from "@/components/AppealButton";
 import { supabaseBrowser } from "@/lib/supabase";
 import {
   buildInterviewPrompt,
@@ -38,6 +40,7 @@ function Room({
   agentConfigured,
 }: Props) {
   const [phase, setPhase] = useState<Phase>("consent");
+  const [mode, setMode] = useState<"voice" | "text">("voice");
   const [caption, setCaption] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -206,6 +209,17 @@ function Room({
   }
 
   // ---- Render ----
+  if (mode === "text") {
+    return (
+      <TextInterview
+        token={token}
+        roleTitle={roleTitle}
+        candidateName={candidateName}
+        questions={questions}
+      />
+    );
+  }
+
   if (phase === "consent") {
     return (
       <Shell>
@@ -228,6 +242,14 @@ function Room({
           >
             Start interview
           </button>
+          <div className="mt-4">
+            <button
+              onClick={() => setMode("text")}
+              className="text-sm text-muted underline hover:text-foreground"
+            >
+              Prefer not to use voice? Take the written interview instead
+            </button>
+          </div>
         </div>
       </Shell>
     );
@@ -262,6 +284,7 @@ function Room({
             Thanks, {candidateName}. Your responses have been recorded and sent to the
             employer. You can close this tab.
           </p>
+          <AppealButton token={token} />
         </div>
       </Shell>
     );
