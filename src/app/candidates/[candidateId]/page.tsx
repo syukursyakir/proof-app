@@ -39,6 +39,16 @@ export default async function CandidatePage({
     .limit(1)
     .maybeSingle();
 
+  const { data: rating } = await supa
+    .from("human_ratings")
+    .select("per_criterion")
+    .eq("candidate_id", candidateId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const humanRating =
+    (rating?.per_criterion as { name: string; score: number }[]) ?? null;
+
   const t = transcript as Transcript | null;
 
   // Recordings live in a private bucket; mint a short-lived signed URL for playback.
@@ -76,6 +86,7 @@ export default async function CandidatePage({
           fullText={t?.full_text ?? null}
           recordingUrl={recordingUrl}
           appealRequested={!!candidate.appeal_requested_at}
+          humanRating={humanRating}
         />
       </main>
     </div>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Candidate, CriterionVerdict, Verdict } from "@/lib/types";
+import { pairScores, agreement } from "@/lib/agreement";
 
 function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -51,6 +52,7 @@ export default function VerdictView({
   recordingUrl,
   readOnly = false,
   appealRequested = false,
+  humanRating = null,
 }: {
   candidate: Candidate;
   verdict: Verdict | null;
@@ -58,11 +60,42 @@ export default function VerdictView({
   recordingUrl: string | null;
   readOnly?: boolean;
   appealRequested?: boolean;
+  humanRating?: { name: string; score: number }[] | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState<number | null>(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scores, setScores] = useState<Record<string, number>>(() => {
+    const m: Record<string, number> = {};
+    (humanRating ?? []).forEach((r) => (m[r.name] = r.score));
+    return m;
+  });
+  const [savingRating, setSavingRating] = useState(false);
+
+  const agr = agreement(
+    pairScores(
+      (verdict?.per_criterion ?? []).map((c) => ({ name: c.name, score: c.score })),
+      humanRating ?? [],
+    ),
+  );
+
+  async function saveRating() {
+    setSavingRating(true);
+    try {
+      const per_criterion = (verdict?.per_criterion ?? [])
+        .map((c) => ({ name: c.name, score: scores[c.name] ?? 0 }))
+        .filter((x) => x.score > 0);
+      await fetch("/api/ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidate_id: candidate.id, per_criterion }),
+      });
+      router.refresh();
+    } finally {
+      setSavingRating(false);
+    }
+  }
 
   const allQuotes = useMemo(
     () => (verdict?.per_criterion ?? []).flatMap((c) => c.quotes ?? []),
@@ -217,6 +250,62 @@ export default function VerdictView({
                 )}
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {verdict?.per_criterion && verdict.per_criterion.length > 0 && !readOnly && (
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">
+            Calibration — score this candidate yourself
+          </h2>
+          <p className="mb-3 text-sm text-muted">
+            Rate each criterion to measure how closely Proof agrees with you — this is
+            your reliability evidence.
+          </p>
+          <div className="space-y-3">
+            {verdict.per_criterion.map((c, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-xl border border-border bg-card/50 px-4 py-3"
+              >
+                <span className="text-sm font-medium">{c.name}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted">Proof: {c.score}</span>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setScores((s) => ({ ...s, [c.name]: n }))}
+                        className={`h-7 w-7 rounded-full text-xs ${
+                          scores[c.name] === n
+                            ? "bg-accent text-white"
+                            : "border border-border text-foreground hover:border-accent"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <button
+              onClick={saveRating}
+              disabled={savingRating}
+              className="rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+            >
+              {savingRating ? "Saving…" : "Save my scores"}
+            </button>
+            {humanRating && humanRating.length > 0 && agr.n > 0 && (
+              <span className="text-sm text-muted">
+                You &amp; Proof: exact on {Math.round(agr.exact * 100)}%, within ±1 on{" "}
+                {Math.round(agr.within1 * 100)}% ({agr.n} criteria · avg diff{" "}
+                {agr.mae.toFixed(2)})
+              </span>
+            )}
           </div>
         </section>
       )}
