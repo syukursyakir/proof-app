@@ -25,6 +25,25 @@ export default async function RolesPage() {
     dbError = e instanceof Error ? e.message : "Database error";
   }
 
+  let dashStats = { total: 0, done: 0, pending: 0 };
+  if (roles.length > 0) {
+    try {
+      const { data: cands } = await sb
+        .from("candidates")
+        .select("status")
+        .in("role_id", roles.map((r) => r.id));
+      if (cands) {
+        dashStats.total = cands.length;
+        dashStats.done = cands.filter((c) =>
+          ["advanced", "rejected", "completed"].includes(c.status as string)
+        ).length;
+        dashStats.pending = cands.filter((c) => c.status === "completed").length;
+      }
+    } catch {
+      // non-critical
+    }
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
@@ -56,6 +75,29 @@ export default async function RolesPage() {
           <p className="mt-2 text-muted">
             Describe a role by voice and Clarion builds the assessment.
           </p>
+          {roles.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+              <span className="text-muted">
+                <span className="font-semibold text-foreground">{roles.length}</span>{" "}
+                role{roles.length !== 1 ? "s" : ""}
+              </span>
+              <span className="text-muted">
+                <span className="font-semibold text-foreground">{dashStats.total}</span>{" "}
+                candidate{dashStats.total !== 1 ? "s" : ""}
+              </span>
+              {dashStats.done > 0 && (
+                <span className="text-muted">
+                  <span className="font-semibold text-foreground">{dashStats.done}</span>{" "}
+                  interviewed
+                </span>
+              )}
+              {dashStats.pending > 0 && (
+                <span className="font-medium text-amber-600">
+                  {dashStats.pending} awaiting review
+                </span>
+              )}
+            </div>
+          )}
         </Reveal>
 
         {dbError && (

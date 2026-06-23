@@ -5,12 +5,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@/lib/types";
 
-const statusStyle: Record<string, string> = {
-  invited: "text-muted",
-  interviewing: "text-amber-600",
-  completed: "text-accent-soft",
-  advanced: "text-green-600",
-  rejected: "text-red-600",
+const statusPill: Record<string, string> = {
+  invited: "bg-slate-100 text-slate-600",
+  interviewing: "bg-amber-50 text-amber-700",
+  completed: "bg-blue-50 text-blue-700",
+  advanced: "bg-green-50 text-green-700",
+  rejected: "bg-red-50 text-red-700",
+};
+const statusLabel: Record<string, string> = {
+  invited: "Invited",
+  interviewing: "In progress",
+  completed: "Completed",
+  advanced: "Advanced",
+  rejected: "Rejected",
 };
 
 export default function CandidatePanel({
@@ -79,61 +86,61 @@ export default function CandidatePanel({
         </button>
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-6 space-y-3">
         {candidates.length === 0 && (
           <p className="text-sm text-muted">No candidates yet.</p>
         )}
-        {sorted.map((c) => (
-          <div
-            key={c.id}
-            className="flex items-center justify-between rounded-xl border border-border bg-card/50 px-4 py-3"
-          >
-            <div>
-              <span className="font-medium">{c.name}</span>
-              <span className={`ml-3 text-xs ${statusStyle[c.status] ?? "text-muted"}`}>
-                {c.status}
-              </span>
-              {c.join_code && (
-                <span className="ml-3 font-mono text-xs text-muted">
-                  code: {c.join_code}
-                </span>
-              )}
-              {summaries[c.id] && (
-                <span className="ml-3 rounded-full bg-accent/10 px-2 py-0.5 text-xs capitalize text-accent-soft">
-                  {summaries[c.id].recommendation || "scored"} ·{" "}
-                  {summaries[c.id].avg.toFixed(1)}/5
-                </span>
+        {sorted.map((c) => {
+          const shareable = c.join_code && c.access_token && (c.status === "invited" || c.status === "interviewing");
+          const decided = c.status === "completed" || c.status === "advanced" || c.status === "rejected";
+          return (
+            <div key={c.id} className="rounded-xl border border-border bg-card/50 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium">{c.name}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusPill[c.status] ?? "bg-slate-100 text-slate-600"}`}>
+                    {statusLabel[c.status] ?? c.status}
+                  </span>
+                  {summaries[c.id] && (
+                    <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs capitalize text-accent-soft">
+                      {summaries[c.id].recommendation || "scored"} · {summaries[c.id].avg.toFixed(1)}/5
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {decided && (
+                    <Link
+                      href={`/candidates/${c.id}`}
+                      className="rounded-full bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-soft"
+                    >
+                      View verdict
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {shareable && (
+                <div className="mt-3 flex items-center justify-between rounded-lg border border-border/60 bg-background px-4 py-2.5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted">Join code</span>
+                    <span className="font-mono text-sm font-bold tracking-widest text-foreground">
+                      {c.join_code}
+                    </span>
+                    <span className="hidden text-xs text-muted sm:inline">
+                      → clarion.fyi/join
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => copyLink(c.id, c.access_token)}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:border-accent"
+                  >
+                    {copied === c.id ? "✓ Copied" : "Copy link"}
+                  </button>
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <button
-                onClick={() => copyLink(c.id, c.access_token)}
-                disabled={!c.access_token}
-                className="rounded-full border border-border px-3 py-1 hover:border-accent disabled:opacity-50"
-              >
-                {copied === c.id ? "Copied!" : "Copy interview link"}
-              </button>
-              {c.access_token && (
-                <Link
-                  href={`/interview/${c.access_token}`}
-                  className="rounded-full border border-border px-3 py-1 hover:border-accent"
-                >
-                  Open
-                </Link>
-              )}
-              {(c.status === "completed" ||
-                c.status === "advanced" ||
-                c.status === "rejected") && (
-                <Link
-                  href={`/candidates/${c.id}`}
-                  className="rounded-full bg-accent px-3 py-1 font-medium text-white hover:bg-accent-soft"
-                >
-                  View verdict
-                </Link>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

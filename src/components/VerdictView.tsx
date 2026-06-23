@@ -48,6 +48,34 @@ const recColor: Record<string, string> = {
   reject: "bg-red-500/15 text-red-700",
 };
 
+const statusPill: Record<string, string> = {
+  invited: "bg-slate-100 text-slate-600",
+  interviewing: "bg-amber-50 text-amber-700",
+  completed: "bg-blue-50 text-blue-700",
+  advanced: "bg-green-50 text-green-700",
+  rejected: "bg-red-50 text-red-700",
+};
+const statusLabel: Record<string, string> = {
+  invited: "Invited",
+  interviewing: "In progress",
+  completed: "Completed",
+  advanced: "Advanced",
+  rejected: "Rejected",
+};
+
+function ScoreDots({ score, max = 5 }: { score: number; max?: number }) {
+  return (
+    <span className="flex items-center gap-1">
+      {Array.from({ length: max }, (_, i) => (
+        <span
+          key={i}
+          className={`h-2.5 w-2.5 rounded-full ${i < score ? "bg-accent-soft" : "bg-border"}`}
+        />
+      ))}
+    </span>
+  );
+}
+
 export default function VerdictView({
   candidate,
   verdict,
@@ -142,7 +170,9 @@ export default function VerdictView({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">{candidate.name}</h1>
-          <p className="mt-1 text-sm text-muted">Status: {candidate.status}</p>
+          <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${statusPill[candidate.status] ?? "bg-slate-100 text-slate-600"}`}>
+            {statusLabel[candidate.status] ?? candidate.status}
+          </span>
         </div>
         {!readOnly && (
           <div className="flex gap-2">
@@ -218,6 +248,24 @@ export default function VerdictView({
         </section>
       )}
 
+      {verdict?.per_criterion && verdict.per_criterion.length > 0 && (() => {
+        const avg =
+          verdict.per_criterion.reduce((s, c) => s + c.score, 0) /
+          verdict.per_criterion.length;
+        return (
+          <div className="flex items-center gap-5 rounded-xl border border-border bg-card/40 px-5 py-4">
+            <div>
+              <p className="text-xs text-muted">Average score</p>
+              <p className="text-3xl font-semibold leading-none">
+                {avg.toFixed(1)}
+                <span className="text-base font-normal text-muted">/5</span>
+              </p>
+            </div>
+            <ScoreDots score={Math.round(avg)} />
+          </div>
+        );
+      })()}
+
       {verdict?.per_criterion && verdict.per_criterion.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-semibold">Scores &amp; evidence</h2>
@@ -238,7 +286,8 @@ export default function VerdictView({
                         uncertain — review
                       </span>
                     )}
-                    <span className="text-sm font-semibold text-accent-soft">
+                    <ScoreDots score={c.score} />
+                    <span className="w-8 text-right text-sm font-semibold text-accent-soft">
                       {c.score}/5
                     </span>
                     <span className="text-xs text-muted">

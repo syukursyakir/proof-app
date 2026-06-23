@@ -72,11 +72,21 @@ export default function SamplePage() {
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.5)]" />
+          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+            <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.6)]" />
             Clarion
           </Link>
-          <span className="text-sm text-muted">Sample verdict</span>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full border border-border px-3 py-1 text-xs text-muted">
+              Sample verdict
+            </span>
+            <Link
+              href="/roles"
+              className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-soft"
+            >
+              Try it free
+            </Link>
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
