@@ -1,3 +1,17 @@
+export type TestQuestion = {
+  id: string;
+  category: "numerical" | "verbal" | "logical" | "sjt";
+  question: string;
+  options: [string, string, string, string];
+  correct: number; // 0-indexed
+};
+
+export type AptitudeResult = {
+  score: number;
+  max: number;
+  answers: Record<string, number>; // question id -> chosen option index
+};
+
 export type Criterion = {
   name: string;
   good: string;
@@ -24,6 +38,7 @@ export type Role = {
   occupation?: Occupation | null;
   rubric: Rubric | null;
   test_questions: string[] | null;
+  test_mcq: TestQuestion[] | null;
   interview_questions: string[] | null;
   test_enabled: boolean;
   created_at: string;
@@ -40,6 +55,8 @@ export type Candidate = {
   token_expires_at?: string | null;
   consent_at?: string | null;
   appeal_requested_at?: string | null;
+  aptitude_score?: number | null;
+  aptitude_max?: number | null;
   created_at: string;
 };
 

@@ -85,7 +85,7 @@ export default function VerdictView({
   appealRequested = false,
   humanRating = null,
 }: {
-  candidate: Candidate;
+  candidate: Candidate & { aptitude_score?: number | null; aptitude_max?: number | null };
   verdict: Verdict | null;
   fullText: string | null;
   recordingUrl: string | null;
@@ -196,6 +196,40 @@ export default function VerdictView({
       <p className="-mt-6 text-xs text-muted">
         Clarion assesses. You decide — the verdict is a recommendation, not a decision.
       </p>
+
+      {candidate.aptitude_score !== null &&
+        candidate.aptitude_score !== undefined &&
+        candidate.aptitude_max && (
+        <section className="rounded-2xl border border-border bg-card/50 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Part 1 — Aptitude</h2>
+              <p className="mt-0.5 text-xs text-muted">
+                Timed assessment · numerical, verbal, logical &amp; situational judgement
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-semibold leading-none">
+                {candidate.aptitude_score}
+                <span className="text-base font-normal text-muted">
+                  /{candidate.aptitude_max}
+                </span>
+              </p>
+              <p className="mt-0.5 text-sm text-muted">
+                {Math.round((candidate.aptitude_score / candidate.aptitude_max) * 100)}%
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-border">
+            <div
+              className="h-full rounded-full bg-accent-soft transition-all"
+              style={{
+                width: `${(candidate.aptitude_score / candidate.aptitude_max) * 100}%`,
+              }}
+            />
+          </div>
+        </section>
+      )}
 
       {appealRequested && (
         <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">

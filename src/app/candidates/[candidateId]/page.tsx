@@ -17,11 +17,11 @@ export default async function CandidatePage({
 
   const { data: cand } = await supa
     .from("candidates")
-    .select("*")
+    .select("*, aptitude_score, aptitude_max")
     .eq("id", candidateId)
     .single();
   if (!cand) notFound();
-  const candidate = cand as Candidate;
+  const candidate = cand as Candidate & { aptitude_score?: number | null; aptitude_max?: number | null };
 
   const { data: transcript } = await supa
     .from("transcripts")

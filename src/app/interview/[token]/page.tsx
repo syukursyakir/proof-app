@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveToken } from "@/lib/candidateToken";
 import InterviewRoom from "@/components/InterviewRoom";
-import type { Role } from "@/lib/types";
+import AptitudeGate from "@/components/AptitudeGate";
+import type { Role, TestQuestion } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,28 @@ export default async function InterviewPage({
   if (!roleData) notFound();
   const role = roleData as Role & { organizations?: { name: string } | null };
   const orgName = (role.organizations as { name?: string } | null)?.name ?? null;
+  const testMcq = (role.test_mcq as TestQuestion[] | null) ?? null;
+  const hasAptitude = role.test_enabled && testMcq && testMcq.length > 0;
+
+  // Check if the candidate already completed the aptitude test.
+  const { data: candRow } = await supabaseAdmin()
+    .from("candidates")
+    .select("aptitude_score")
+    .eq("id", candidate.id)
+    .single();
+  const aptitudeDone = candRow?.aptitude_score !== null && candRow?.aptitude_score !== undefined;
+
+  if (hasAptitude && !aptitudeDone) {
+    return (
+      <AptitudeGate
+        token={token}
+        roleTitle={role.title}
+        orgName={orgName}
+        questions={testMcq}
+        interviewQuestionCount={role.interview_questions?.length ?? 5}
+      />
+    );
+  }
 
   return (
     <InterviewRoom

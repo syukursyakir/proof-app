@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import AssessmentForm from "@/components/AssessmentForm";
 import { ease } from "@/lib/motion";
-import type { Assessment } from "@/lib/types";
+import type { Assessment, TestQuestion } from "@/lib/types";
 
 type Phase = "describe" | "followups" | "building" | "ready";
 
@@ -24,6 +24,7 @@ export default function NewRolePage() {
   const [followups, setFollowups] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [testMcq, setTestMcq] = useState<TestQuestion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [buildStep, setBuildStep] = useState(0);
@@ -126,6 +127,7 @@ export default function NewRolePage() {
         test_questions: data.test_questions ?? [],
         interview_questions: data.interview_questions ?? [],
       });
+      setTestMcq(Array.isArray(data.test_mcq) ? data.test_mcq : null);
       setPhase("ready");
     } catch {
       setError("Something went wrong. Try again.");
@@ -279,6 +281,7 @@ export default function NewRolePage() {
                 occupation: assessment.occupation,
                 rubric: assessment.rubric,
                 test_questions: assessment.test_questions,
+                test_mcq: testMcq,
                 interview_questions: assessment.interview_questions,
                 test_enabled: true,
               }}

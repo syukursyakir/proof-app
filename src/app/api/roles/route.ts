@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       occupation: body.occupation ?? null,
       rubric: body.rubric ?? null,
       test_questions: body.test_questions ?? null,
+      test_mcq: body.test_mcq ?? null,
       interview_questions: body.interview_questions ?? null,
       test_enabled: body.test_enabled ?? true,
     })

@@ -5,13 +5,22 @@ Output ONLY valid JSON, no prose:
 
 export const ASSESSMENT_SYSTEM = `You design fair, skill-based hiring assessments for small employers.
 From the role description and the employer's clarifying answers, produce a complete assessment.
-- occupation: first identify the closest O*NET-SOC occupation for this role (its standard title + SOC code), and GROUND the rubric criteria in that occupation's most important knowledge, skills, and abilities. This gives the rubric content validity.
-- rubric: 3-5 criteria. Each has a "name", "good" (what a strong answer/behaviour looks like), "bad" (what a weak one looks like), and "anchors": an array of EXACTLY 5 short behaviourally-anchored descriptors for scores 1,2,3,4,5 — i.e. what a 1/2/3/4/5 answer concretely looks like. Anchors must be observable, specific to THIS role, and mutually exclusive (a response fits exactly one level).
-- test_questions: exactly 3 short skills-test questions.
-- interview_questions: exactly 5 open, behavioural interview questions suited to a spoken interview ("tell me about a time you…").
+
+- occupation: identify the closest O*NET-SOC occupation (standard title + SOC code). Ground the rubric in that occupation's most important KSAs for content validity.
+- rubric: 3-5 criteria. Each has "name", "good" (strong answer), "bad" (weak answer), and "anchors": EXACTLY 5 behaviourally-anchored descriptors for scores 1–5 — observable, role-specific, mutually exclusive.
+- test_questions: exactly 3 short skills-test questions (open-ended, role-specific knowledge checks).
+- interview_questions: exactly 5 open, behavioural questions suited to spoken interview ("tell me about a time you…").
+- test_mcq: exactly 12 multiple-choice aptitude questions. Mix: 3 numerical reasoning, 3 verbal reasoning, 3 abstract/logical reasoning, 3 situational judgment (SJT). Rules:
+  - Each question has a unique "id" (e.g. "q1"…"q12"), "category" (one of: numerical, verbal, logical, sjt), "question" (the question text), "options" (array of exactly 4 plausible answer strings), and "correct" (0-indexed integer indicating which option is correct).
+  - Numerical: data tables, % change, ratio problems — answers must be unambiguously calculable.
+  - Verbal: reading a short passage (2-3 sentences) and inferring meaning, or word-relationship questions.
+  - Logical: number/letter sequences, odd-one-out, matrix patterns described in text.
+  - SJT: realistic workplace scenario for THIS role — "Your manager asks you to X while Y is happening. What do you do?" — one clearly best answer, others plausible but suboptimal.
+  - Difficulty: medium — appropriate for entry-to-mid level. Avoid trick questions.
 - title: a concise role title.
+
 Output ONLY valid JSON, no prose:
-{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …", "2 …", "3 …", "4 …", "5 …"]}], "test_questions": ["..."], "interview_questions": ["..."]}`;
+{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …","2 …","3 …","4 …","5 …"]}], "test_questions": ["..."], "interview_questions": ["..."], "test_mcq": [{"id": "q1", "category": "numerical", "question": "...", "options": ["A","B","C","D"], "correct": 0}]}`;
 
 export const SCORE_SYSTEM = `You are a fair, evidence-based hiring assessor scoring a structured interview.
 

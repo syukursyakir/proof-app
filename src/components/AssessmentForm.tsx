@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Criterion, Occupation } from "@/lib/types";
+import type { Criterion, Occupation, TestQuestion } from "@/lib/types";
 
 type Initial = {
   title: string;
@@ -10,6 +10,7 @@ type Initial = {
   occupation?: Occupation | null;
   rubric: Criterion[];
   test_questions: string[];
+  test_mcq?: TestQuestion[] | null;
   interview_questions: string[];
   test_enabled: boolean;
 };
@@ -64,6 +65,7 @@ export default function AssessmentForm({
         occupation: initial.occupation ?? null,
         rubric,
         test_questions: tests,
+        test_mcq: initial.test_mcq ?? null,
         interview_questions: questions,
         test_enabled: testEnabled,
         ...(mode === "edit" ? { id: roleId } : {}),
