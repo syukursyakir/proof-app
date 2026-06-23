@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
+import { Reveal, Stagger, Item } from "@/components/motion";
 import type { Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -50,8 +51,12 @@ export default async function RolesPage() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
-        <h1 className="text-3xl font-semibold tracking-tight">Roles</h1>
-        <p className="mt-2 text-muted">Describe a role by voice and Proof builds the assessment.</p>
+        <Reveal>
+          <h1 className="text-3xl font-semibold tracking-tight">Roles</h1>
+          <p className="mt-2 text-muted">
+            Describe a role by voice and Proof builds the assessment.
+          </p>
+        </Reveal>
 
         {dbError && (
           <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
@@ -72,13 +77,13 @@ export default async function RolesPage() {
           </div>
         )}
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
           {roles.map((r) => (
-            <Link
-              key={r.id}
-              href={`/roles/${r.id}`}
-              className="lift rounded-2xl border border-border bg-card/50 p-6 hover:border-accent"
-            >
+            <Item key={r.id} className="h-full">
+              <Link
+                href={`/roles/${r.id}`}
+                className="lift block h-full rounded-2xl border border-border bg-card/50 p-6 hover:border-accent"
+              >
               <h2 className="text-lg font-semibold">{r.title}</h2>
               <p className="mt-2 line-clamp-2 text-sm text-muted">
                 {r.description_raw ?? "—"}
@@ -87,9 +92,10 @@ export default async function RolesPage() {
                 {r.rubric?.length ?? 0} criteria ·{" "}
                 {r.interview_questions?.length ?? 0} interview questions
               </p>
-            </Link>
+              </Link>
+            </Item>
           ))}
-        </div>
+        </Stagger>
       </main>
     </div>
   );

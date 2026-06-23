@@ -2,8 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Candidate, CriterionVerdict, Verdict } from "@/lib/types";
 import { pairScores, agreement } from "@/lib/agreement";
+import { ease } from "@/lib/motion";
+import { Stagger, Item } from "@/components/motion";
 
 function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -213,9 +216,12 @@ export default function VerdictView({
       {verdict?.per_criterion && verdict.per_criterion.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-semibold">Scores &amp; evidence</h2>
-          <div className="space-y-3">
+          <Stagger className="space-y-3">
             {verdict.per_criterion.map((c: CriterionVerdict, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card/50">
+              <Item
+                key={i}
+                className="overflow-hidden rounded-xl border border-border bg-card/50"
+              >
                 <button
                   onClick={() => setOpen(open === i ? null : i)}
                   className="flex w-full items-center justify-between px-5 py-4 text-left"
@@ -235,8 +241,16 @@ export default function VerdictView({
                     </span>
                   </span>
                 </button>
-                {open === i && (
-                  <div className="border-t border-border/60 px-5 py-4">
+                <AnimatePresence initial={false}>
+                  {open === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: ease.out }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-border/60 px-5 py-4">
                     <p className="text-sm text-foreground/85">{c.justification}</p>
                     <div className="mt-3 space-y-2">
                       {(c.quotes ?? []).length === 0 && (
@@ -251,11 +265,13 @@ export default function VerdictView({
                         </p>
                       ))}
                     </div>
-                  </div>
-                )}
-              </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Item>
             ))}
-          </div>
+          </Stagger>
         </section>
       )}
 

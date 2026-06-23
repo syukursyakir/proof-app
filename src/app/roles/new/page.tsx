@@ -2,7 +2,9 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import AssessmentForm from "@/components/AssessmentForm";
+import { ease } from "@/lib/motion";
 import type { Assessment } from "@/lib/types";
 
 type Phase = "describe" | "followups" | "building" | "ready";
@@ -125,6 +127,14 @@ export default function NewRolePage() {
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={phase}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: ease.out }}
+          >
         {phase === "describe" && (
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">
@@ -236,6 +246,8 @@ export default function NewRolePage() {
             />
           </div>
         )}
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );
