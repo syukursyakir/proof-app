@@ -6,7 +6,11 @@ export const CHAT_MODEL = "gpt-4o";
 export const TRANSCRIBE_MODEL = "whisper-1";
 
 // JSON-only chat with a single retry on parse failure (per project rule).
-export async function jsonChat<T>(system: string, user: string): Promise<T> {
+export async function jsonChat<T>(
+  system: string,
+  user: string,
+  opts?: { temperature?: number },
+): Promise<T> {
   let lastText = "";
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await openai.chat.completions.create({
@@ -16,7 +20,7 @@ export async function jsonChat<T>(system: string, user: string): Promise<T> {
         { role: "user", content: user },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.4,
+      temperature: opts?.temperature ?? 0.4,
     });
     lastText = res.choices[0]?.message?.content ?? "";
     try {

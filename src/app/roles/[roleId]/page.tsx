@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import AssessmentForm from "@/components/AssessmentForm";
 import CandidatePanel from "@/components/CandidatePanel";
 import type { Candidate, Role } from "@/lib/types";
@@ -13,7 +13,7 @@ export default async function RolePage({
   params: Promise<{ roleId: string }>;
 }) {
   const { roleId } = await params;
-  const supa = supabaseAdmin();
+  const supa = await supabaseServer();
   const { data, error } = await supa
     .from("roles")
     .select("*")

@@ -1,44 +1,54 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
+import { getUserOrgId } from "@/lib/org";
 
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
+  const sb = await supabaseServer();
   const { searchParams } = new URL(req.url);
   const roleId = searchParams.get("role_id");
-  const supa = supabaseAdmin();
-  let query = supa.from("candidates").select("*").order("created_at", {
-    ascending: false,
-  });
+  let query = sb
+    .from("candidates")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (roleId) query = query.eq("role_id", roleId);
-  const { data, error } = await query;
+  const { data, error } = await query; // RLS scopes to the user's org
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
-export async function PATCH(req: Request) {
+export async function POST(req: Request) {
+  const sb = await supabaseServer();
+  const orgId = await getUserOrgId();
+  if (!orgId)
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+
   const body = await req.json();
-  if (!body.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  const supa = supabaseAdmin();
-  const { data, error } = await supa
+  if (!body.role_id) {
+    return NextResponse.json({ error: "Missing role_id" }, { status: 400 });
+  }
+  const { data, error } = await sb
     .from("candidates")
-    .update({ status: body.status })
-    .eq("id", body.id)
+    .insert({ role_id: body.role_id, name: body.name ?? "Candidate", org_id: orgId })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
-export async function POST(req: Request) {
+export async function PATCH(req: Request) {
+  const sb = await supabaseServer();
+  const orgId = await getUserOrgId();
+  if (!orgId)
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+
   const body = await req.json();
-  if (!body.role_id) {
-    return NextResponse.json({ error: "Missing role_id" }, { status: 400 });
-  }
-  const supa = supabaseAdmin();
-  const { data, error } = await supa
+  if (!body.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  const { data, error } = await sb
     .from("candidates")
-    .insert({ role_id: body.role_id, name: body.name ?? "Candidate" })
+    .update({ status: body.status })
+    .eq("id", body.id)
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import VerdictView from "@/components/VerdictView";
 import type { Candidate, Transcript, Verdict } from "@/lib/types";
 
@@ -12,7 +12,7 @@ export default async function CandidatePage({
   params: Promise<{ candidateId: string }>;
 }) {
   const { candidateId } = await params;
-  const supa = supabaseAdmin();
+  const supa = await supabaseServer();
 
   const { data: cand } = await supa
     .from("candidates")

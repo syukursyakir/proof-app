@@ -40,5 +40,5 @@ export async function middleware(req: NextRequest) {
 // Only the employer workspace is gated. Candidate interview, sample verdict,
 // landing, and APIs stay public.
 export const config = {
-  matcher: ["/roles", "/roles/:path*"],
+  matcher: ["/roles", "/roles/:path*", "/candidates", "/candidates/:path*"],
 };

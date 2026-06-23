@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { supabaseAdmin } from "@/lib/supabase";
 import { supabaseServer } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
 import type { Role } from "@/lib/types";
@@ -15,8 +14,7 @@ export default async function RolesPage() {
   let roles: Role[] = [];
   let dbError: string | null = null;
   try {
-    const supa = supabaseAdmin();
-    const { data, error } = await supa
+    const { data, error } = await sb
       .from("roles")
       .select("*")
       .order("created_at", { ascending: false });

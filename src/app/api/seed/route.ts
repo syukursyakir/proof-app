@@ -138,7 +138,12 @@ async function seed() {
   return { roleId: role.id, candidateId: candidate.id };
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  // Locked: requires ?key=<SEED_SECRET>. Disabled entirely if SEED_SECRET is unset.
+  const key = new URL(req.url).searchParams.get("key");
+  if (!process.env.SEED_SECRET || key !== process.env.SEED_SECRET) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   try {
     const ids = await seed();
     return NextResponse.json({
@@ -155,6 +160,6 @@ export async function GET() {
   }
 }
 
-export async function POST() {
-  return GET();
+export async function POST(req: Request) {
+  return GET(req);
 }

@@ -49,11 +49,13 @@ export default function VerdictView({
   verdict,
   fullText,
   recordingUrl,
+  readOnly = false,
 }: {
   candidate: Candidate;
   verdict: Verdict | null;
   fullText: string | null;
   recordingUrl: string | null;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState<number | null>(0);
@@ -104,22 +106,24 @@ export default function VerdictView({
           <h1 className="text-3xl font-semibold tracking-tight">{candidate.name}</h1>
           <p className="mt-1 text-sm text-muted">Status: {candidate.status}</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setStatus("advanced")}
-            disabled={busy}
-            className="rounded-full bg-green-500/90 px-5 py-2 text-sm font-medium text-white hover:bg-green-500 disabled:opacity-60"
-          >
-            Advance
-          </button>
-          <button
-            onClick={() => setStatus("rejected")}
-            disabled={busy}
-            className="rounded-full border border-border px-5 py-2 text-sm hover:border-red-500 hover:text-red-400 disabled:opacity-60"
-          >
-            Reject
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setStatus("advanced")}
+              disabled={busy}
+              className="rounded-full bg-green-500/90 px-5 py-2 text-sm font-medium text-white hover:bg-green-500 disabled:opacity-60"
+            >
+              Advance
+            </button>
+            <button
+              onClick={() => setStatus("rejected")}
+              disabled={busy}
+              className="rounded-full border border-border px-5 py-2 text-sm hover:border-red-500 hover:text-red-400 disabled:opacity-60"
+            >
+              Reject
+            </button>
+          </div>
+        )}
       </div>
       <p className="-mt-6 text-xs text-muted">
         Proof assesses. You decide — the verdict is a recommendation, not a decision.
