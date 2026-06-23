@@ -83,7 +83,7 @@ export function PrimaryButton({
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={spring.snappy}
-      className={`group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 font-medium text-white shadow-[0_8px_30px_-12px_rgba(109,94,248,0.7)] ${className}`}
+      className={`group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 font-medium text-white shadow-[0_8px_30px_-12px_rgba(109,94,248,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${className}`}
     >
       {children}
     </MotionLink>
@@ -105,7 +105,7 @@ export function SecondaryButton({
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={spring.snappy}
-      className={`group inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border px-7 font-medium text-foreground hover:border-accent ${className}`}
+      className={`group inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border px-7 font-medium text-foreground hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${className}`}
     >
       {children}
     </MotionLink>

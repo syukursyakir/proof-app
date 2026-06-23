@@ -9,9 +9,9 @@ export default function Template({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       className="flex flex-1 flex-col"
-      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }}
+      initial={reduce ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: ease.out }}
+      transition={{ duration: 0.28, ease: ease.out }}
     >
       {children}
     </motion.div>
