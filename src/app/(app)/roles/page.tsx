@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase-server";
 import { Reveal, Stagger, Item } from "@/components/motion";
+import RoleCodeBadge from "@/components/RoleCodeBadge";
+import { genCode } from "@/lib/candidateToken";
 import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +21,19 @@ export default async function RolesPage() {
     else roles = (data as Role[]) ?? [];
   } catch (e) {
     dbError = e instanceof Error ? e.message : "Database error";
+  }
+
+  // Backfill an open join code for any role created before the feature, so the
+  // code is visible/copyable right here on the list.
+  const missing = roles.filter((r) => !r.join_code);
+  if (missing.length > 0) {
+    await Promise.all(
+      missing.map(async (r) => {
+        const code = genCode();
+        await sb.from("roles").update({ join_code: code }).eq("id", r.id);
+        r.join_code = code;
+      }),
+    );
   }
 
   const perRole = new Map<string, { total: number; review: number }>();
@@ -77,27 +92,33 @@ export default async function RolesPage() {
           const t = perRole.get(r.id);
           return (
             <Item key={r.id} className="h-full">
-              <Link
-                href={`/roles/${r.id}`}
-                className="lift block h-full rounded-2xl border border-border bg-card/50 p-6 hover:border-accent"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{r.title}</h3>
-                  {t && t.review > 0 && (
-                    <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                      {t.review} to review
-                    </span>
-                  )}
-                </div>
-                <p className="mt-2 line-clamp-2 text-sm text-muted">
-                  {r.description_raw ?? "—"}
-                </p>
-                <p className="mt-4 text-xs text-muted">
-                  {t?.total ?? 0} candidate{(t?.total ?? 0) === 1 ? "" : "s"} ·{" "}
-                  {r.rubric?.length ?? 0} criteria ·{" "}
-                  {r.interview_questions?.length ?? 0} questions
-                </p>
-              </Link>
+              <div className="lift flex h-full flex-col rounded-2xl border border-border bg-card/50 p-6">
+                <Link href={`/roles/${r.id}`} className="block">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-lg font-semibold hover:text-accent-soft">
+                      {r.title}
+                    </h3>
+                    {t && t.review > 0 && (
+                      <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                        {t.review} to review
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 line-clamp-2 text-sm text-muted">
+                    {r.description_raw ?? "—"}
+                  </p>
+                  <p className="mt-4 text-xs text-muted">
+                    {t?.total ?? 0} candidate{(t?.total ?? 0) === 1 ? "" : "s"} ·{" "}
+                    {r.rubric?.length ?? 0} criteria ·{" "}
+                    {r.interview_questions?.length ?? 0} questions
+                  </p>
+                </Link>
+                {r.join_code && (
+                  <div className="mt-auto">
+                    <RoleCodeBadge code={r.join_code} roleTitle={r.title} />
+                  </div>
+                )}
+              </div>
             </Item>
           );
         })}
