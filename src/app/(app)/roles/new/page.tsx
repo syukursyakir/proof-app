@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import AssessmentForm from "@/components/AssessmentForm";
+import RolePicker from "@/components/RolePicker";
 import { ease } from "@/lib/motion";
 import type { Assessment, TestQuestion } from "@/lib/types";
 
-type Phase = "describe" | "followups" | "building" | "ready";
+type Phase = "pick" | "describe" | "followups" | "building" | "ready";
 
 const BUILDING_STEPS = [
   "Analysing your description…",
@@ -17,7 +18,7 @@ const BUILDING_STEPS = [
 ];
 
 export default function NewRolePage() {
-  const [phase, setPhase] = useState<Phase>("describe");
+  const [phase, setPhase] = useState<Phase>("pick");
   const [description, setDescription] = useState("");
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -107,17 +108,19 @@ export default function NewRolePage() {
     }
   }
 
-  async function buildAssessment() {
+  // Shared: turn a description + Q/A pairs into the full assessment draft.
+  async function generateAssessment(
+    desc: string,
+    qa: { q: string; a: string }[],
+    onError: () => void,
+  ) {
     setError(null);
     setPhase("building");
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          description,
-          answers: followups.map((q, i) => ({ q, a: answers[i] ?? "" })),
-        }),
+        body: JSON.stringify({ description: desc, answers: qa }),
       });
       if (!res.ok) throw new Error("Generation failed");
       const data = await res.json();
@@ -133,8 +136,31 @@ export default function NewRolePage() {
       setPhase("ready");
     } catch {
       setError("Something went wrong. Try again.");
-      setPhase("followups");
+      onError();
     }
+  }
+
+  function buildAssessment() {
+    void generateAssessment(
+      description,
+      followups.map((q, i) => ({ q, a: answers[i] ?? "" })),
+      () => setPhase("followups"),
+    );
+  }
+
+  // From the click-first picker: role + chosen skills -> assessment.
+  function buildFromPicks(role: string, skills: string[]) {
+    setDescription(`${role} — key skills: ${skills.join(", ")}`);
+    void generateAssessment(
+      `Hiring for the role: ${role}.`,
+      [
+        {
+          q: "The most important skills and qualities to assess for this role",
+          a: skills.join(", "),
+        },
+      ],
+      () => setPhase("pick"),
+    );
   }
 
   return (
@@ -151,8 +177,21 @@ export default function NewRolePage() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: ease.out }}
           >
+        {phase === "pick" && (
+          <RolePicker
+            onComplete={buildFromPicks}
+            onDescribeInstead={() => setPhase("describe")}
+          />
+        )}
+
         {phase === "describe" && (
           <div>
+            <button
+              onClick={() => setPhase("pick")}
+              className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-foreground"
+            >
+              ← Pick a role instead
+            </button>
             <h1 className="text-3xl font-semibold tracking-tight">
               Describe your ideal hire
             </h1>

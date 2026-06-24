@@ -79,3 +79,82 @@ export function LogOutIcon({ className }: P) {
     </svg>
   );
 }
+
+/* ---- Role-tile icons (Lucide-style) ---- */
+export function HeadsetIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M3 14v-3a9 9 0 0 1 18 0v3" />
+      <path d="M3 16a2 2 0 0 1 2-2h1v6H5a2 2 0 0 1-2-2z" />
+      <path d="M21 16a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" />
+      <path d="M18 19a4 4 0 0 1-4 3h-2" />
+    </svg>
+  );
+}
+export function TrendingUpIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M16 7h6v6" />
+      <path d="m22 7-8.5 8.5-5-5L2 17" />
+    </svg>
+  );
+}
+export function BellIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M10.27 21a2 2 0 0 0 3.46 0" />
+      <path d="M3.26 15.06a1 1 0 0 1-.26-.67V11a9 9 0 0 1 18 0v3.39a1 1 0 0 1-.26.67L19 17H5z" />
+    </svg>
+  );
+}
+export function BoxesIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <rect x="3" y="3" width="8" height="8" rx="1" />
+      <rect x="13" y="3" width="8" height="8" rx="1" />
+      <rect x="8" y="13" width="8" height="8" rx="1" />
+    </svg>
+  );
+}
+export function ClipboardIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <path d="M9 12h6M9 16h6" />
+    </svg>
+  );
+}
+export function ShoppingBagIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+      <path d="M3 6h18" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  );
+}
+export function CoffeeIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+      <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z" />
+      <path d="M6 2v2M10 2v2M14 2v2" />
+    </svg>
+  );
+}
+export function HeartIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z" />
+    </svg>
+  );
+}
+export function PencilIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z" />
+    </svg>
+  );
+}
