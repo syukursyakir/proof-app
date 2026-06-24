@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Candidate, CriterionVerdict, Verdict } from "@/lib/types";
 import { pairScores, agreement } from "@/lib/agreement";
+import { computeComposite, type CompositeBand } from "@/lib/composite";
 import { ease } from "@/lib/motion";
 import { Stagger, Item } from "@/components/motion";
 
@@ -61,6 +62,13 @@ const statusLabel: Record<string, string> = {
   completed: "Completed",
   advanced: "Advanced",
   rejected: "Rejected",
+};
+
+const bandStyle: Record<CompositeBand, { pill: string; bar: string; text: string }> = {
+  Strong: { pill: "bg-green-100 text-green-800", bar: "bg-green-500", text: "text-green-700" },
+  Recommended: { pill: "bg-accent/15 text-accent-soft", bar: "bg-accent", text: "text-accent-soft" },
+  Borderline: { pill: "bg-amber-100 text-amber-800", bar: "bg-amber-500", text: "text-amber-700" },
+  "Not recommended": { pill: "bg-red-100 text-red-700", bar: "bg-red-400", text: "text-red-600" },
 };
 
 function ScoreDots({ score, max = 5 }: { score: number; max?: number }) {
@@ -133,6 +141,16 @@ export default function VerdictView({
     [verdict],
   );
 
+  const composite = useMemo(
+    () =>
+      computeComposite(
+        (verdict?.per_criterion ?? []).map((c) => c.score),
+        candidate.aptitude_score,
+        candidate.aptitude_max,
+      ),
+    [verdict, candidate.aptitude_score, candidate.aptitude_max],
+  );
+
   async function generate() {
     setBusy(true);
     setError(null);
@@ -197,37 +215,76 @@ export default function VerdictView({
         Clarion assesses. You decide — the verdict is a recommendation, not a decision.
       </p>
 
-      {candidate.aptitude_score !== null &&
-        candidate.aptitude_score !== undefined &&
-        candidate.aptitude_max && (
+      {composite && (
         <section className="rounded-2xl border border-border bg-card/50 p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold">Part 1 — Aptitude</h2>
-              <p className="mt-0.5 text-xs text-muted">
-                Timed assessment · numerical, verbal, logical &amp; situational judgement
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                Overall recommendation
               </p>
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-semibold leading-none">
-                {candidate.aptitude_score}
-                <span className="text-base font-normal text-muted">
-                  /{candidate.aptitude_max}
+              <div className="mt-2 flex items-center gap-3">
+                <span className="text-4xl font-semibold leading-none">
+                  {Math.round(composite.composite)}
+                  <span className="text-lg font-normal text-muted">/100</span>
                 </span>
-              </p>
-              <p className="mt-0.5 text-sm text-muted">
-                {Math.round((candidate.aptitude_score / candidate.aptitude_max) * 100)}%
-              </p>
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${bandStyle[composite.band].pill}`}
+                >
+                  {composite.band}
+                </span>
+              </div>
             </div>
           </div>
-          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-border">
-            <div
-              className="h-full rounded-full bg-accent-soft transition-all"
-              style={{
-                width: `${(candidate.aptitude_score / candidate.aptitude_max) * 100}%`,
-              }}
-            />
+
+          {/* Component bars */}
+          <div className="mt-6 space-y-4">
+            {composite.interviewPct != null && (
+              <div>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="font-medium">
+                    Interview{" "}
+                    <span className="text-xs font-normal text-muted">
+                      · behavioural · {Math.round(composite.weights.interview * 100)}% weight
+                    </span>
+                  </span>
+                  <span className="text-muted">{Math.round(composite.interviewPct)}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-border">
+                  <div
+                    className="h-full rounded-full bg-accent transition-all"
+                    style={{ width: `${composite.interviewPct}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            {composite.aptitudePct != null && (
+              <div>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="font-medium">
+                    Aptitude{" "}
+                    <span className="text-xs font-normal text-muted">
+                      · screen · {candidate.aptitude_score}/{candidate.aptitude_max} ·{" "}
+                      {Math.round(composite.weights.aptitude * 100)}% weight
+                    </span>
+                  </span>
+                  <span className="text-muted">{Math.round(composite.aptitudePct)}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-border">
+                  <div
+                    className="h-full rounded-full bg-accent-soft transition-all"
+                    style={{ width: `${composite.aptitudePct}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
+
+          <p className="mt-5 border-t border-border/60 pt-4 text-xs leading-5 text-muted">
+            Mechanical composite — the interview (structured, ρ≈.42) is weighted
+            above the aptitude screen (ρ≈.31), per Sackett et al. (2022). Scores
+            within a band are statistically equivalent; don&apos;t over-read small
+            gaps. This is a recommendation — you make the decision.
+          </p>
         </section>
       )}
 

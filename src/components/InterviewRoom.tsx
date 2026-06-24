@@ -256,7 +256,9 @@ function Room({
           </p>
           <p className="mt-4 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
             🔴 This interview is recorded (audio &amp; video) so the employer can
-            review it. Your answers are scored against a fixed rubric.
+            review it. Your answers are scored against a fixed rubric — only what
+            you <span className="text-foreground">say</span> is assessed. No facial
+            analysis, no demographic inputs.
           </p>
           <DeviceCheck />
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
