@@ -117,7 +117,11 @@ export default function VerdictView({
     skills_score?: number | null;
     skills_max?: number | null;
     skills_answers?: SkillsAnswers | null;
-    proctor_flags?: { share_lost?: boolean; tab_switches?: number } | null;
+    proctor_flags?: {
+      share_lost?: boolean;
+      tab_switches?: number;
+      not_full_screen?: boolean;
+    } | null;
   };
   verdict: Verdict | null;
   fullText: string | null;
@@ -320,22 +324,28 @@ export default function VerdictView({
         </div>
       )}
 
-      {candidate.proctor_flags &&
-        ((candidate.proctor_flags.tab_switches ?? 0) > 0 ||
-          candidate.proctor_flags.share_lost) && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
-          ⚑ Aptitude proctoring flags:{" "}
-          {(candidate.proctor_flags.tab_switches ?? 0) > 0 && (
-            <>left the test tab {candidate.proctor_flags.tab_switches} time
-              {candidate.proctor_flags.tab_switches === 1 ? "" : "s"}</>
-          )}
-          {(candidate.proctor_flags.tab_switches ?? 0) > 0 &&
-            candidate.proctor_flags.share_lost &&
-            "; "}
-          {candidate.proctor_flags.share_lost && "stopped screen sharing"}. Review
-          the screen recording before relying on the aptitude score.
-        </div>
-      )}
+      {(() => {
+        const pf = candidate.proctor_flags;
+        if (!pf) return null;
+        const switches = pf.tab_switches ?? 0;
+        const phrases: string[] = [];
+        if (switches > 0)
+          phrases.push(`left the test tab ${switches} time${switches === 1 ? "" : "s"}`);
+        if (pf.not_full_screen)
+          phrases.push("shared a window/tab instead of the entire screen");
+        if (pf.share_lost) phrases.push("stopped screen sharing");
+        if (!phrases.length) return null;
+        const list =
+          phrases.length === 1
+            ? phrases[0]
+            : phrases.slice(0, -1).join(", ") + " and " + phrases.slice(-1);
+        return (
+          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
+            ⚑ Aptitude proctoring flags: {list}. Review the screen recording
+            before relying on the aptitude score.
+          </div>
+        );
+      })()}
 
       {!verdict && (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">

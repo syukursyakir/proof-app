@@ -33,6 +33,9 @@ export default function AptitudeTest({
   const [shareLost, setShareLost] = useState(false);
   const [recording, setRecording] = useState(false);
   const [tabSwitches, setTabSwitches] = useState(0);
+  // Latches true if, at any point mid-test, they're sharing a window/tab
+  // instead of the whole screen.
+  const [notFullScreen, setNotFullScreen] = useState(false);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -158,6 +161,24 @@ export default function AptitudeTest({
     return () => document.removeEventListener("visibilitychange", onHide);
   }, [started]);
 
+  // Keep checking — every 3s — that they're STILL sharing the whole screen and
+  // haven't switched to a window/tab mid-test (e.g. Chrome's "share this tab
+  // instead"). Latches the flag and nudges the candidate to re-share.
+  useEffect(() => {
+    if (!started) return;
+    const check = () => {
+      const track = screenStreamRef.current?.getVideoTracks()[0];
+      if (!track || track.readyState === "ended") return; // 'ended' → shareLost
+      const surface = (
+        track.getSettings() as { displaySurface?: string }
+      ).displaySurface;
+      if (surface && surface !== "monitor") setNotFullScreen(true);
+    };
+    check();
+    const id = setInterval(check, 3000);
+    return () => clearInterval(id);
+  }, [started]);
+
   useEffect(() => {
     if (!started) return;
     timerRef.current = setInterval(() => {
@@ -224,7 +245,11 @@ export default function AptitudeTest({
           token,
           answers: finalAnswers,
           proctor_recording_url: proctorPath,
-          proctor_flags: { share_lost: shareLost, tab_switches: tabSwitches },
+          proctor_flags: {
+            share_lost: shareLost,
+            tab_switches: tabSwitches,
+            not_full_screen: notFullScreen,
+          },
         }),
       });
     } catch {
@@ -318,6 +343,11 @@ export default function AptitudeTest({
             <span className="flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-red-600">
               <span className="h-2 w-2 rounded-full bg-red-500" />
               Screen sharing stopped — this will be flagged.
+            </span>
+          ) : notFullScreen ? (
+            <span className="flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-amber-700">
+              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              Share your ENTIRE screen, not a window/tab — this is flagged.
             </span>
           ) : recording ? (
             <span className="flex items-center gap-2 rounded-full bg-card/70 px-3 py-1 text-muted">
