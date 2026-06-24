@@ -48,6 +48,7 @@ export type Role = {
   interview_questions: string[] | null;
   terms: string[] | null;
   test_enabled: boolean;
+  resume_mode?: "off" | "optional" | "required";
   join_code?: string | null;
   created_at: string;
 };
@@ -63,6 +64,7 @@ export type Candidate = {
   token_expires_at?: string | null;
   consent_at?: string | null;
   appeal_requested_at?: string | null;
+  resume_url?: string | null;
   aptitude_score?: number | null;
   aptitude_max?: number | null;
   created_at: string;

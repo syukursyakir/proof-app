@@ -8,12 +8,15 @@ export const runtime = "nodejs";
 // candidate's browser can upload directly (no public bucket, no 4.5MB function
 // body limit). Authorized by the candidate's access token.
 export async function POST(req: Request) {
-  const { token } = await req.json();
+  const { token, ext } = await req.json();
   const cand = await resolveToken(token);
   if (!cand) {
     return NextResponse.json({ error: "Invalid or expired link" }, { status: 403 });
   }
-  const path = `${cand.org_id ?? "noorg"}/${cand.id}/${Date.now()}.webm`;
+  // Default to a recording; resume uploads pass their own extension (pdf/doc/docx).
+  const safeExt =
+    typeof ext === "string" && /^[a-z0-9]{1,5}$/i.test(ext) ? ext.toLowerCase() : "webm";
+  const path = `${cand.org_id ?? "noorg"}/${cand.id}/${Date.now()}.${safeExt}`;
   const admin = supabaseAdmin();
   const { data, error } = await admin.storage
     .from("recordings")

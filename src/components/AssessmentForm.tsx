@@ -27,6 +27,7 @@ type Initial = {
   interview_questions: string[];
   terms?: string[] | null;
   test_enabled: boolean;
+  resume_mode?: "off" | "optional" | "required";
 };
 
 const input =
@@ -76,6 +77,9 @@ export default function AssessmentForm({
   );
   const [terms, setTerms] = useState<string[]>(initial.terms ?? []);
   const [testEnabled, setTestEnabled] = useState(initial.test_enabled);
+  const [resumeMode, setResumeMode] = useState<"off" | "optional" | "required">(
+    initial.resume_mode ?? "optional",
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -135,6 +139,7 @@ export default function AssessmentForm({
         interview_questions: questions,
         terms: terms.length ? terms : null,
         test_enabled: testEnabled,
+        resume_mode: resumeMode,
         ...(mode === "edit" ? { id: roleId } : {}),
       };
       const res = await fetch("/api/roles", {
@@ -421,6 +426,37 @@ export default function AssessmentForm({
                 Remove
               </button>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Resume collection */}
+      <section>
+        <h2 className="text-lg font-semibold">Resume</h2>
+        <p className="mb-3 mt-1 text-sm text-muted">
+          Candidates are scored on their assessment, never their resume. This only
+          controls whether you also collect a resume as background for your review.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              { v: "off", label: "Don't collect" },
+              { v: "optional", label: "Optional" },
+              { v: "required", label: "Required" },
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => setResumeMode(opt.v)}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                resumeMode === opt.v
+                  ? "border-accent bg-accent text-white"
+                  : "border-border text-muted hover:border-accent"
+              }`}
+            >
+              {opt.label}
+            </button>
           ))}
         </div>
       </section>

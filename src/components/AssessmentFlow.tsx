@@ -5,11 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import AptitudeTest from "@/components/AptitudeTest";
 import SkillsTest from "@/components/SkillsTest";
 import InterviewRoom from "@/components/InterviewRoom";
+import ResumeUpload from "@/components/ResumeUpload";
 import Logo from "@/components/Logo";
 import { ease } from "@/lib/motion";
 import type { ClientTestQuestion } from "@/lib/types";
 
-type Phase = "intro" | "aptitude" | "skills" | "bridge" | "interview";
+type Phase = "intro" | "resume" | "aptitude" | "skills" | "bridge" | "interview";
 
 export default function AssessmentFlow({
   token,
@@ -18,6 +19,7 @@ export default function AssessmentFlow({
   aptitudeQuestions,
   skillsQuestions,
   interviewQuestionCount,
+  resumeMode = "off",
 }: {
   token: string;
   roleTitle: string;
@@ -25,6 +27,7 @@ export default function AssessmentFlow({
   aptitudeQuestions: ClientTestQuestion[]; // empty if not needed; answer key stripped
   skillsQuestions: string[]; // empty if not needed
   interviewQuestionCount: number;
+  resumeMode?: "off" | "optional" | "required";
 }) {
   const hasAptitude = aptitudeQuestions.length > 0;
   const hasSkills = skillsQuestions.length > 0;
@@ -39,6 +42,18 @@ export default function AssessmentFlow({
 
   // The first incomplete step after the intro.
   const firstStep: Phase = hasAptitude ? "aptitude" : hasSkills ? "skills" : "bridge";
+
+  // After the intro, go to the resume step first if the role asks for one.
+  const afterIntro: Phase = resumeMode !== "off" ? "resume" : firstStep;
+
+  function afterResume() {
+    if (hasAptitude) setPhase("aptitude");
+    else if (hasSkills) setPhase("skills");
+    else {
+      setPhase("bridge");
+      void loadInterview();
+    }
+  }
 
   function afterAptitude() {
     setPhase(hasSkills ? "skills" : "bridge");
@@ -62,6 +77,17 @@ export default function AssessmentFlow({
     setPhase("interview");
   }
 
+  if (phase === "resume" && resumeMode !== "off") {
+    return (
+      <ResumeUpload
+        token={token}
+        mode={resumeMode}
+        orgName={orgName}
+        onComplete={afterResume}
+      />
+    );
+  }
+
   if (phase === "aptitude") {
     return (
       <AptitudeTest token={token} questions={aptitudeQuestions} onComplete={afterAptitude} />
@@ -81,10 +107,13 @@ export default function AssessmentFlow({
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl font-semibold text-green-600">
             ✓
           </div>
-          <h1 className="text-2xl font-semibold">Written section complete</h1>
+          <h1 className="text-2xl font-semibold">
+            {hasAptitude || hasSkills ? "Written section complete" : "You're all set"}
+          </h1>
           <p className="mt-3 text-muted">
-            Great work. Now get ready for the final part — a short voice
-            conversation with Clarion about your experience and approach.
+            {hasAptitude || hasSkills ? "Great work. Now get ready" : "Get ready"}{" "}
+            for the final part — a short voice conversation with Clarion about your
+            experience and approach.
           </p>
           <p className="mt-2 text-sm text-muted">Loading your interview…</p>
         </div>
@@ -181,7 +210,7 @@ export default function AssessmentFlow({
           </p>
 
           <button
-            onClick={() => setPhase(firstStep)}
+            onClick={() => setPhase(afterIntro)}
             className="mt-8 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft"
           >
             Begin {parts[0].title}

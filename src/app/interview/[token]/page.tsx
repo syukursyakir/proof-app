@@ -74,7 +74,12 @@ export default async function InterviewPage({
   const needAptitude = role.test_enabled && testMcq.length > 0 && !aptitudeDone;
   const needSkills = role.test_enabled && skillsQs.length > 0 && !skillsDone;
 
-  if (needAptitude || needSkills) {
+  // Resume is asked for at the start, per the role's resume_mode, unless the
+  // candidate already submitted one. It's context for the employer, never scored.
+  const resumeMode = role.resume_mode ?? "off";
+  const needResume = resumeMode !== "off" && !candidate.resume_url;
+
+  if (needAptitude || needSkills || needResume) {
     // Strip the answer key — the candidate's browser must never receive `correct`.
     const safeMcq = needAptitude
       ? testMcq.map(({ correct: _correct, ...q }) => q)
@@ -87,6 +92,7 @@ export default async function InterviewPage({
         aptitudeQuestions={safeMcq}
         skillsQuestions={needSkills ? skillsQs : []}
         interviewQuestionCount={role.interview_questions?.length ?? 5}
+        resumeMode={needResume ? (resumeMode as "optional" | "required") : "off"}
       />
     );
   }

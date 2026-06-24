@@ -90,6 +90,14 @@ export default async function CandidatePage({
     proctorUrl = signed?.signedUrl ?? null;
   }
 
+  let resumeUrl: string | null = null;
+  if (candidate.resume_url) {
+    const { data: signed } = await supabaseAdmin()
+      .storage.from("recordings")
+      .createSignedUrl(candidate.resume_url, 3600);
+    resumeUrl = signed?.signedUrl ?? null;
+  }
+
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -101,13 +109,25 @@ export default async function CandidatePage({
             View role
           </Link>
         </div>
-        <DeleteButton
-          endpoint="/api/candidates"
-          id={candidate.id}
-          redirectTo="/candidates"
-          label="Delete candidate"
-          confirmLabel="Delete candidate?"
-        />
+        <div className="flex items-center gap-3">
+          {resumeUrl && (
+            <a
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted hover:border-accent hover:text-foreground"
+            >
+              📄 Resume
+            </a>
+          )}
+          <DeleteButton
+            endpoint="/api/candidates"
+            id={candidate.id}
+            redirectTo="/candidates"
+            label="Delete candidate"
+            confirmLabel="Delete candidate?"
+          />
+        </div>
       </div>
       <VerdictView
         candidate={candidate}

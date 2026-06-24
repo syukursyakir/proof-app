@@ -40,6 +40,7 @@ export async function POST(req: Request) {
       interview_questions: body.interview_questions ?? null,
       terms: body.terms ?? null,
       test_enabled: body.test_enabled ?? true,
+      resume_mode: body.resume_mode ?? "optional",
       join_code: genCode(),
     })
     .select()
