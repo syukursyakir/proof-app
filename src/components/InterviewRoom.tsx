@@ -297,11 +297,16 @@ function Room({
           </p>
 
           {rubric.length > 0 && (
-            <div className="mt-5 rounded-lg border border-border bg-card/60 p-4 text-left">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                What you&apos;ll be assessed on
+            <div className="mt-5 rounded-xl border border-border bg-card/60 p-5 text-left">
+              <p className="text-sm font-semibold">
+                How you&apos;re assessed — and why it&apos;s fair
               </p>
-              <ul className="mt-2 space-y-1">
+              <p className="mt-1.5 text-sm text-muted">
+                Clarion asks every candidate the same questions and scores against
+                the same rubric. You&apos;re judged on what you say — not your
+                school, your background, or who you know.
+              </p>
+              <ul className="mt-3 space-y-1">
                 {rubric.map((c) => (
                   <li key={c.name} className="flex items-start gap-2 text-sm">
                     <span className="mt-0.5 text-accent-soft">•</span>
@@ -309,10 +314,46 @@ function Room({
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 border-t border-border/60 pt-2 text-xs text-muted">
-                A real person on the hiring team makes the final decision —
-                Clarion&apos;s assessment is a recommendation, not a verdict.
-              </p>
+
+              {rubric.some((c) => c.anchors && c.anchors.length > 0) && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm font-medium text-accent-soft hover:underline">
+                    See exactly what a strong answer looks like
+                  </summary>
+                  <ul className="mt-2 space-y-2 border-l-2 border-border pl-3">
+                    {rubric
+                      .filter((c) => c.anchors && c.anchors.length > 0)
+                      .map((c) => (
+                        <li key={c.name} className="text-xs text-muted">
+                          <span className="font-medium text-foreground">
+                            {c.name}:
+                          </span>{" "}
+                          {c.anchors![c.anchors!.length - 1]}
+                        </li>
+                      ))}
+                  </ul>
+                </details>
+              )}
+
+              <div className="mt-4 space-y-1.5 border-t border-border/60 pt-3 text-xs text-muted">
+                <p className="flex gap-2">
+                  <span className="text-accent-sage">✓</span> A real person makes
+                  the final decision — this is a recommendation, not a verdict.
+                </p>
+                <p className="flex gap-2">
+                  <span className="text-accent-sage">✓</span> You can request a
+                  human review of your interview afterward.
+                </p>
+                <p className="flex gap-2">
+                  <span className="text-accent-sage">✓</span> Only what you say is
+                  scored — never your accent, appearance, mood, or background.
+                </p>
+                <p className="flex gap-2">
+                  <span className="text-accent-sage">✓</span> Ask Clarion
+                  &ldquo;what are you assessing me on?&rdquo; anytime — it&apos;ll
+                  tell you straight.
+                </p>
+              </div>
             </div>
           )}
 

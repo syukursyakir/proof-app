@@ -106,16 +106,21 @@ exact quotes.
 
 **The core feeling (every student relates to this):**
 3. Do you feel your grades actually capture what you're *good* at? What are you
-   good at that grades/your transcript don't show?
+   good at that grades/your transcript don't show? 
+
 4. Have you ever felt you'd be great at something but had no way to *prove* it on
    paper? Tell me about it.
+
 5. When you picture applying for your first real job, what worries you most?
+
 6. Do you think who you know / your school / your grades will matter more than
    what you can actually do? How does that feel?
+
 
 **If they HAVE applied for a job/internship (poly especially):**
 7. Walk me through it — how did they decide? Did you write your CV yourself or use
    a template/AI? Any online test? Did you hear back?
+
 
 *(JC students: lean on Q1-Q6 — they live the grades-vs-ability tension even with
 no job history. Poly students usually have internships/part-time to draw on Q7.)*
