@@ -25,6 +25,7 @@ type Initial = {
   test_questions: string[];
   test_mcq?: TestQuestion[] | null;
   interview_questions: string[];
+  terms?: string[] | null;
   test_enabled: boolean;
 };
 
@@ -49,6 +50,7 @@ export default function AssessmentForm({
   const [questions, setQuestions] = useState<string[]>(
     initial.interview_questions ?? [],
   );
+  const [terms, setTerms] = useState<string[]>(initial.terms ?? []);
   const [testEnabled, setTestEnabled] = useState(initial.test_enabled);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +109,7 @@ export default function AssessmentForm({
         test_questions: tests,
         test_mcq: mcq.length ? mcq : null,
         interview_questions: questions,
+        terms: terms.length ? terms : null,
         test_enabled: testEnabled,
         ...(mode === "edit" ? { id: roleId } : {}),
       };
@@ -317,6 +320,46 @@ export default function AssessmentForm({
         setItems={setQuestions}
         placeholder="Interview question"
       />
+
+      {/* Glossary / terms */}
+      <section>
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Glossary</h2>
+          <button
+            type="button"
+            onClick={() => setTerms((t) => [...t, ""])}
+            className="text-sm text-accent-soft hover:underline"
+          >
+            + Add term
+          </button>
+        </div>
+        <p className="mb-3 text-sm text-muted">
+          Terms, tools, and proper nouns the AI interviewer should recognise when a
+          candidate says them aloud — so speech-to-text mishearings (e.g. &ldquo;cloud
+          code&rdquo; → &ldquo;Claude Code&rdquo;) get corrected. Add any company-specific jargon.
+        </p>
+        <div className="space-y-2">
+          {terms.map((t, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                className={input}
+                placeholder="e.g. Claude Code, Salesforce, FIFO"
+                value={t}
+                onChange={(e) =>
+                  setTerms((arr) => arr.map((x, idx) => (idx === i ? e.target.value : x)))
+                }
+              />
+              <button
+                type="button"
+                onClick={() => setTerms((arr) => arr.filter((_, idx) => idx !== i))}
+                className="shrink-0 text-xs text-muted hover:text-foreground"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-3">

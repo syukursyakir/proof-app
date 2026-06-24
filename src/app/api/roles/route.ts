@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       test_questions: body.test_questions ?? null,
       test_mcq: body.test_mcq ?? null,
       interview_questions: body.interview_questions ?? null,
+      terms: body.terms ?? null,
       test_enabled: body.test_enabled ?? true,
     })
     .select()

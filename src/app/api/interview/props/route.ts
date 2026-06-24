@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
   const { data: role } = await supabaseAdmin()
     .from("roles")
-    .select("title, interview_questions, rubric")
+    .select("title, interview_questions, rubric, terms")
     .eq("id", candidate.role_id)
     .single();
 
@@ -25,5 +25,6 @@ export async function GET(req: Request) {
     candidateName: candidate.name ?? "Candidate",
     interviewQuestions: role.interview_questions ?? [],
     rubric: role.rubric ?? [],
+    terms: role.terms ?? [],
   });
 }

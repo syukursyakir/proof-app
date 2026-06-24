@@ -34,6 +34,7 @@ export type Assessment = {
   test_questions: string[];
   test_mcq?: TestQuestion[];
   interview_questions: string[];
+  terms?: string[];
 };
 
 export type Role = {
@@ -45,6 +46,7 @@ export type Role = {
   test_questions: string[] | null;
   test_mcq: TestQuestion[] | null;
   interview_questions: string[] | null;
+  terms: string[] | null;
   test_enabled: boolean;
   created_at: string;
 };

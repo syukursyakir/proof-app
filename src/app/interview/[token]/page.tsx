@@ -84,6 +84,7 @@ export default async function InterviewPage({
       rubric={role.rubric ?? []}
       agentConfigured={!!process.env.ELEVENLABS_AGENT_ID}
       orgName={orgName}
+      terms={role.terms ?? []}
     />
   );
 }

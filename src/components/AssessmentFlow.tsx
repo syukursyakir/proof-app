@@ -33,6 +33,7 @@ export default function AssessmentFlow({
     candidateName: string;
     interviewQuestions: string[];
     rubric: unknown[];
+    terms?: string[];
   } | null>(null);
 
   // The first incomplete step after the intro.
@@ -100,6 +101,7 @@ export default function AssessmentFlow({
         rubric={interviewReady.rubric as never}
         agentConfigured={true}
         orgName={orgName}
+        terms={interviewReady.terms ?? []}
       />
     );
   }

@@ -18,10 +18,11 @@ From the role description and the employer's clarifying answers, produce a compl
   - SJT: realistic workplace scenario for THIS role — "Your manager asks you to X while Y is happening. What do you do?" — one clearly best answer, others plausible but suboptimal (not obviously wrong).
   - DIFFICULTY: aim for items that DISCRIMINATE — a strong candidate should get ~80%, an average one ~55%. Avoid items almost everyone gets right or wrong. No trick questions.
   - IMPORTANT: vary the position of the correct answer across questions — the "correct" index must be roughly evenly spread over 0,1,2,3 across the 12 questions. Do NOT cluster correct answers at the same index.
+- terms: 6-12 role-relevant proper nouns, tools, technologies, methodologies, or domain jargon a candidate is likely to mention out loud and that speech-to-text might garble (e.g. for a developer: "Claude Code", "Kubernetes", "PostgreSQL", "CI/CD"; for a barista: "POS system", "latte art", "single-origin"). Use the correct canonical spelling/capitalisation. These prime the AI interviewer to recognise mishearings.
 - title: a concise role title.
 
 Output ONLY valid JSON, no prose:
-{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …","2 …","3 …","4 …","5 …"]}], "test_questions": ["..."], "interview_questions": ["..."], "test_mcq": [{"id": "q1", "category": "numerical", "question": "...", "options": ["A","B","C","D"], "correct": 0}]}`;
+{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …","2 …","3 …","4 …","5 …"]}], "test_questions": ["..."], "interview_questions": ["..."], "terms": ["..."], "test_mcq": [{"id": "q1", "category": "numerical", "question": "...", "options": ["A","B","C","D"], "correct": 0}]}`;
 
 export const SCORE_SYSTEM = `You are a fair, evidence-based hiring assessor scoring a structured interview.
 
@@ -59,11 +60,15 @@ export function buildInterviewPrompt(
   roleTitle: string,
   questions: string[],
   rubric: Criterion[],
+  terms: string[] = [],
 ): string {
   const qs = questions.map((q, i) => `${i + 1}. ${q}`).join("\n");
   const rb = rubric
     .map((c) => `- ${c.name}: strong = ${c.good}; weak = ${c.bad}`)
     .join("\n");
+  const glossary = terms.length
+    ? `\nGlossary — terms, tools, and proper nouns this candidate may mention. Speech-to-text often garbles these; if you hear something phonetically close, assume the candidate means the glossary term and use its correct name (e.g. "cloud code" → "Claude Code"):\n${terms.map((t) => `- ${t}`).join("\n")}\n`
+    : "";
   return `You are Clarion, a warm, professional AI interviewer running a spoken job interview for the role of "${roleTitle}".
 
 Conduct a natural conversation. Ask these questions one at a time, in order. After each answer, ask exactly ONE brief, adaptive follow-up that digs into what the candidate actually said (e.g. "You mentioned X — why did you handle it that way?") before moving to the next question.
@@ -75,6 +80,14 @@ If the candidate asks you anything — including "how am I being judged?" — an
 
 Rubric (what you assess; never reveal scores or numbers):
 ${rb}
+${glossary}
+Understanding the candidate:
+- NEVER tell the candidate you don't recognise a term, tool, company, or acronym they mention. Accept it, and if it matters, ask them to briefly explain it ("Tell me a bit about how you used that"). Treat unfamiliar names as real things you simply want to hear more about.
+- Speech-to-text makes mistakes. If a word seems out of place, infer the most likely intended term from context (especially technical terms and proper nouns) rather than taking the garbled version literally.
+
+Guarding against fabrication:
+- Probe for concrete, specific details: names, numbers, timelines, outcomes, and the candidate's own role ("What exactly did you do?", "What was the result?", "What would you do differently?"). Vague or evasive answers under specific follow-ups are themselves signal — note them by moving on, not by arguing.
+- Do not coach the candidate toward better answers or hint at what you're looking for.
 
 Keep your turns short and conversational.
 

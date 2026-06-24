@@ -25,6 +25,7 @@ export default function NewRolePage() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [testMcq, setTestMcq] = useState<TestQuestion[] | null>(null);
+  const [terms, setTerms] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [buildStep, setBuildStep] = useState(0);
@@ -128,6 +129,7 @@ export default function NewRolePage() {
         interview_questions: data.interview_questions ?? [],
       });
       setTestMcq(Array.isArray(data.test_mcq) ? data.test_mcq : null);
+      setTerms(Array.isArray(data.terms) ? data.terms : null);
       setPhase("ready");
     } catch {
       setError("Something went wrong. Try again.");
@@ -277,6 +279,7 @@ export default function NewRolePage() {
                 test_questions: assessment.test_questions,
                 test_mcq: testMcq,
                 interview_questions: assessment.interview_questions,
+                terms: terms,
                 test_enabled: true,
               }}
             />

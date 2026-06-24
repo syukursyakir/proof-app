@@ -71,6 +71,7 @@ export default async function RolePage({
             test_questions: role.test_questions ?? [],
             test_mcq: role.test_mcq ?? null,
             interview_questions: role.interview_questions ?? [],
+            terms: role.terms ?? [],
             test_enabled: role.test_enabled,
           }}
         />
