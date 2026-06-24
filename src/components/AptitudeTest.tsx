@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ease } from "@/lib/motion";
 import { supabaseBrowser } from "@/lib/supabase";
-import type { TestQuestion } from "@/lib/types";
+import type { ClientTestQuestion } from "@/lib/types";
 
 const MINUTES = 20;
 const CATEGORY_LABEL: Record<string, string> = {
@@ -24,13 +24,14 @@ export default function AptitudeTest({
   onComplete,
 }: {
   token: string;
-  questions: TestQuestion[];
+  questions: ClientTestQuestion[];
   onComplete: () => void;
 }) {
   const [started, setStarted] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [requesting, setRequesting] = useState(false);
   const [shareLost, setShareLost] = useState(false);
+  const [tabSwitches, setTabSwitches] = useState(0);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -86,6 +87,17 @@ export default function AptitudeTest({
       setRequesting(false);
     }
   }
+
+  // Flag tab/window switches during the test (the most common cheat: looking
+  // up answers). An honest signal, surfaced to the employer — not a hard block.
+  useEffect(() => {
+    if (!started) return;
+    const onHide = () => {
+      if (document.visibilityState === "hidden") setTabSwitches((n) => n + 1);
+    };
+    document.addEventListener("visibilitychange", onHide);
+    return () => document.removeEventListener("visibilitychange", onHide);
+  }, [started]);
 
   useEffect(() => {
     if (!started) return;
@@ -153,7 +165,7 @@ export default function AptitudeTest({
           token,
           answers: finalAnswers,
           proctor_recording_url: proctorPath,
-          proctor_share_lost: shareLost,
+          proctor_flags: { share_lost: shareLost, tab_switches: tabSwitches },
         }),
       });
     } catch {
@@ -293,36 +305,27 @@ export default function AptitudeTest({
               {q.options.map((opt, i) => {
                 const isSelected = selected === i;
                 const isLocked = confirmed;
-                const isCorrect = confirmed && i === q.correct;
-                const isWrong = confirmed && isSelected && i !== q.correct;
-
+                // No correctness reveal — the answer key never reaches the
+                // candidate's browser. Scoring is done server-side.
                 return (
                   <button
                     key={i}
                     disabled={isLocked}
                     onClick={() => !isLocked && setSelected(i)}
                     className={`flex w-full items-center gap-4 rounded-xl border px-5 py-4 text-left text-sm transition-all ${
-                      isCorrect
-                        ? "border-green-400 bg-green-50 text-green-800"
-                        : isWrong
-                          ? "border-red-300 bg-red-50 text-red-700"
-                          : isSelected
-                            ? "border-accent bg-accent/10 text-foreground"
-                            : "border-border bg-background hover:border-accent/60"
-                    }`}
+                      isSelected
+                        ? "border-accent bg-accent/10 text-foreground"
+                        : "border-border bg-background hover:border-accent/60"
+                    } ${isLocked ? "opacity-90" : ""}`}
                   >
                     <span
                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                        isCorrect
-                          ? "border-green-500 bg-green-500 text-white"
-                          : isWrong
-                            ? "border-red-400 bg-red-400 text-white"
-                            : isSelected
-                              ? "border-accent bg-accent text-white"
-                              : "border-border text-muted"
+                        isSelected
+                          ? "border-accent bg-accent text-white"
+                          : "border-border text-muted"
                       }`}
                     >
-                      {isCorrect ? "✓" : isWrong ? "✗" : String.fromCharCode(65 + i)}
+                      {String.fromCharCode(65 + i)}
                     </span>
                     {opt}
                   </button>

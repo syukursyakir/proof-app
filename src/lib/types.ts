@@ -6,6 +6,10 @@ export type TestQuestion = {
   correct: number; // 0-indexed
 };
 
+// The shape sent to the candidate's browser — the answer key (`correct`) is
+// stripped server-side so it can never be inspected.
+export type ClientTestQuestion = Omit<TestQuestion, "correct">;
+
 export type AptitudeResult = {
   score: number;
   max: number;

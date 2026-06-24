@@ -117,6 +117,7 @@ export default function VerdictView({
     skills_score?: number | null;
     skills_max?: number | null;
     skills_answers?: SkillsAnswers | null;
+    proctor_flags?: { share_lost?: boolean; tab_switches?: number } | null;
   };
   verdict: Verdict | null;
   fullText: string | null;
@@ -293,11 +294,12 @@ export default function VerdictView({
           </div>
 
           <p className="mt-5 border-t border-border/60 pt-4 text-xs leading-5 text-muted">
-            Mechanical composite — components are weighted by their predictive
-            validity (interview ρ≈.42, skills work-sample ρ≈.40, aptitude screen
-            ρ≈.31, per Sackett et al. 2022). Scores within a band are
-            statistically equivalent; don&apos;t over-read small gaps. This is a
-            recommendation — you make the decision.
+            A weighted score out of 100 — not a percentile or class rank. Weights
+            follow each method&apos;s predictive validity in the research literature
+            (interview ρ≈.42, skills work-sample ρ≈.40, aptitude screen ρ≈.31,
+            Sackett et al. 2022); these are method-level figures, not a measured
+            validity for this assessment. Treat the band, not the exact number, as
+            the signal — and treat it as a recommendation. You decide.
           </p>
         </section>
       )}
@@ -305,6 +307,23 @@ export default function VerdictView({
       {appealRequested && (
         <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
           ⚑ This candidate has requested a human review of their interview.
+        </div>
+      )}
+
+      {candidate.proctor_flags &&
+        ((candidate.proctor_flags.tab_switches ?? 0) > 0 ||
+          candidate.proctor_flags.share_lost) && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
+          ⚑ Aptitude proctoring flags:{" "}
+          {(candidate.proctor_flags.tab_switches ?? 0) > 0 && (
+            <>left the test tab {candidate.proctor_flags.tab_switches} time
+              {candidate.proctor_flags.tab_switches === 1 ? "" : "s"}</>
+          )}
+          {(candidate.proctor_flags.tab_switches ?? 0) > 0 &&
+            candidate.proctor_flags.share_lost &&
+            "; "}
+          {candidate.proctor_flags.share_lost && "stopped screen sharing"}. Review
+          the screen recording before relying on the aptitude score.
         </div>
       )}
 

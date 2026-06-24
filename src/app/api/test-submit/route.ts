@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const { token, answers, proctor_recording_url, proctor_share_lost } =
+    const { token, answers, proctor_recording_url, proctor_flags } =
       await req.json();
     if (!token || typeof answers !== "object") {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -39,9 +39,10 @@ export async function POST(req: Request) {
         aptitude_answers: answers,
         proctor_recording_url:
           typeof proctor_recording_url === "string" ? proctor_recording_url : null,
+        proctor_flags:
+          proctor_flags && typeof proctor_flags === "object" ? proctor_flags : null,
       })
       .eq("id", candidate.id);
-    void proctor_share_lost; // reserved: surface a share-interruption flag later
 
     return NextResponse.json({ score: correct, max: questions.length });
   } catch (e) {

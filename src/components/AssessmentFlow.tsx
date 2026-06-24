@@ -6,7 +6,7 @@ import AptitudeTest from "@/components/AptitudeTest";
 import SkillsTest from "@/components/SkillsTest";
 import InterviewRoom from "@/components/InterviewRoom";
 import { ease } from "@/lib/motion";
-import type { TestQuestion } from "@/lib/types";
+import type { ClientTestQuestion } from "@/lib/types";
 
 type Phase = "intro" | "aptitude" | "skills" | "bridge" | "interview";
 
@@ -21,7 +21,7 @@ export default function AssessmentFlow({
   token: string;
   roleTitle: string;
   orgName: string | null;
-  aptitudeQuestions: TestQuestion[]; // empty if not needed
+  aptitudeQuestions: ClientTestQuestion[]; // empty if not needed; answer key stripped
   skillsQuestions: string[]; // empty if not needed
   interviewQuestionCount: number;
 }) {

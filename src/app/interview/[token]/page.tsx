@@ -59,12 +59,16 @@ export default async function InterviewPage({
   const needSkills = role.test_enabled && skillsQs.length > 0 && !skillsDone;
 
   if (needAptitude || needSkills) {
+    // Strip the answer key — the candidate's browser must never receive `correct`.
+    const safeMcq = needAptitude
+      ? testMcq.map(({ correct: _correct, ...q }) => q)
+      : [];
     return (
       <AssessmentFlow
         token={token}
         roleTitle={role.title}
         orgName={orgName}
-        aptitudeQuestions={needAptitude ? testMcq : []}
+        aptitudeQuestions={safeMcq}
         skillsQuestions={needSkills ? skillsQs : []}
         interviewQuestionCount={role.interview_questions?.length ?? 5}
       />

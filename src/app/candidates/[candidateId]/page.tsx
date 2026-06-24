@@ -32,6 +32,7 @@ export default async function CandidatePage({
       overall: string | null;
     } | null;
     proctor_recording_url?: string | null;
+    proctor_flags?: { share_lost?: boolean; tab_switches?: number } | null;
   };
 
   const { data: transcript } = await supa
