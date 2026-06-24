@@ -371,6 +371,7 @@ function Room({
     return (
       <Shell>
         <div className="max-w-md text-center">
+          <Logo size={40} className="mx-auto mb-8 w-fit text-lg" />
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl font-semibold text-green-600">
             ✓
           </div>
