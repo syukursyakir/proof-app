@@ -31,7 +31,9 @@ export async function POST(req: Request) {
       if (answers[q.id] === q.correct) correct++;
     }
 
-    await supabaseAdmin()
+    // One attempt only: WHERE aptitude_score IS NULL makes this idempotent — a
+    // refresh-and-retake or double-submit can't overwrite the first result.
+    const { data: updated } = await supabaseAdmin()
       .from("candidates")
       .update({
         aptitude_score: correct,
@@ -42,7 +44,12 @@ export async function POST(req: Request) {
         proctor_flags:
           proctor_flags && typeof proctor_flags === "object" ? proctor_flags : null,
       })
-      .eq("id", candidate.id);
+      .eq("id", candidate.id)
+      .is("aptitude_score", null)
+      .select("id");
+    if (!updated || updated.length === 0) {
+      return NextResponse.json({ alreadySubmitted: true });
+    }
 
     return NextResponse.json({ score: correct, max: questions.length });
   } catch (e) {

@@ -25,6 +25,12 @@ export async function POST(req: Request) {
     if (!candidate) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
+    // Idempotent: if already scored, don't re-run GPT (prevents retake + repeated
+    // model spend on the same candidate).
+    const already = candidate as { skills_score?: number | null };
+    if (already.skills_score !== null && already.skills_score !== undefined) {
+      return NextResponse.json({ alreadySubmitted: true });
+    }
 
     const { data: role } = await supabaseAdmin()
       .from("roles")
@@ -54,7 +60,12 @@ export async function POST(req: Request) {
     }
 
     const perQ = scored?.per_question ?? [];
-    const sum = perQ.reduce((s, q) => s + (Number(q.score) || 0), 0);
+    // Clamp each per-question score to [0,5] so a misbehaving model can't push
+    // skills_score above skills_max (which would inflate the composite past 100).
+    const sum = perQ.reduce(
+      (s, q) => s + Math.max(0, Math.min(5, Number(q.score) || 0)),
+      0,
+    );
     const max = answers.length * 5;
 
     await supabaseAdmin()
@@ -68,7 +79,8 @@ export async function POST(req: Request) {
           overall: scored?.overall ?? null,
         },
       })
-      .eq("id", candidate.id);
+      .eq("id", candidate.id)
+      .is("skills_score", null);
 
     return NextResponse.json({ score: sum, max });
   } catch (e) {

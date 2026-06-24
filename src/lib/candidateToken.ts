@@ -36,16 +36,22 @@ export async function createCandidateForRole(
 ): Promise<string | null> {
   const token = genToken();
   const expires = new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString();
-  const { error } = await supabaseAdmin().from("candidates").insert({
-    role_id: role.id,
-    org_id: role.org_id,
-    name: (name || "").trim().slice(0, 80) || "Candidate",
-    status: "invited",
-    access_token: token,
-    join_code: genCode(),
-    token_expires_at: expires,
-  });
-  return error ? null : token;
+  const admin = supabaseAdmin();
+  // Retry on the (rare) join_code unique collision.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const { error } = await admin.from("candidates").insert({
+      role_id: role.id,
+      org_id: role.org_id,
+      name: (name || "").trim().slice(0, 80) || "Candidate",
+      status: "invited",
+      access_token: token,
+      join_code: genCode(),
+      token_expires_at: expires,
+    });
+    if (!error) return token;
+    if (error.code !== "23505") return null; // not a unique violation — give up
+  }
+  return null;
 }
 
 // Resolve a token to its candidate, enforcing expiry. Service-role (candidate

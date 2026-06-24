@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveToken } from "@/lib/candidateToken";
+import { scoreCandidate } from "@/lib/scoreCandidate";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 // Candidate-facing: the browser posts the transcript at the end of the interview.
 // Authorized by the access token (not a raw candidate_id). recording_url is a
@@ -28,7 +30,24 @@ export async function POST(req: Request) {
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  await supa.from("candidates").update({ status: "completed" }).eq("id", cand.id);
+  // Only mark complete + score if the candidate actually said something — an
+  // all-interviewer transcript shouldn't lock them out or get fabricated scores.
+  const turns = Array.isArray(body.turns) ? body.turns : [];
+  const candidateSpoke = turns.some(
+    (t: { role?: string; text?: string }) =>
+      t?.role === "user" && (t.text ?? "").trim().length > 0,
+  );
+
+  if (candidateSpoke) {
+    await supa.from("candidates").update({ status: "completed" }).eq("id", cand.id);
+    // Auto-score so the employer sees the verdict immediately. Best-effort:
+    // a scoring failure must never break the candidate's completion.
+    try {
+      await scoreCandidate(cand.id);
+    } catch {
+      /* employer can still trigger scoring manually */
+    }
+  }
 
   return NextResponse.json(data);
 }

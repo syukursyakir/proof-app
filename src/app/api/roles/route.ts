@@ -8,6 +8,9 @@ export const runtime = "nodejs";
 // All employer queries run through the user-scoped (cookie) client, so RLS
 // enforces org isolation.
 export async function GET() {
+  if (!(await getUserOrgId())) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+  }
   const sb = await supabaseServer();
   const { data, error } = await sb
     .from("roles")

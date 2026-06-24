@@ -6,6 +6,10 @@ import { genToken, genCode } from "@/lib/candidateToken";
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
+  // Defense-in-depth: don't rely on RLS alone for the org gate.
+  if (!(await getUserOrgId())) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+  }
   const sb = await supabaseServer();
   const { searchParams } = new URL(req.url);
   const roleId = searchParams.get("role_id");

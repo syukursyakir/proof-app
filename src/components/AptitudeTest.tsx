@@ -31,6 +31,7 @@ export default function AptitudeTest({
   const [shareError, setShareError] = useState<string | null>(null);
   const [requesting, setRequesting] = useState(false);
   const [shareLost, setShareLost] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [tabSwitches, setTabSwitches] = useState(0);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -43,6 +44,9 @@ export default function AptitudeTest({
   const screenStreamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  // Always points at the latest submit() so the timer's auto-submit uses CURRENT
+  // answers/flags (not a stale closure from when the test started).
+  const submitRef = useRef<(forced?: boolean) => void>(() => {});
 
   // Request screen share + start recording. Required to begin the test.
   async function requestScreenAndStart() {
@@ -75,6 +79,7 @@ export default function AptitudeTest({
         };
         rec.start();
         recorderRef.current = rec;
+        setRecording(true);
       } catch {
         // recording unsupported — proceed; the share itself is still the deterrent
       }
@@ -105,7 +110,7 @@ export default function AptitudeTest({
       setSecondsLeft((s) => {
         if (s <= 1) {
           clearInterval(timerRef.current!);
-          void submit(true);
+          submitRef.current(true); // latest closure → current answers/flags
           return 0;
         }
         return s - 1;
@@ -173,6 +178,7 @@ export default function AptitudeTest({
     }
     onComplete();
   }
+  submitRef.current = submit; // keep the timer's reference fresh every render
 
   function confirm() {
     if (selected === null) return;
@@ -248,12 +254,16 @@ export default function AptitudeTest({
           {shareLost ? (
             <span className="flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-red-600">
               <span className="h-2 w-2 rounded-full bg-red-500" />
-              Screen sharing stopped — this will be flagged. Re-share to continue fairly.
+              Screen sharing stopped — this will be flagged.
             </span>
-          ) : (
+          ) : recording ? (
             <span className="flex items-center gap-2 rounded-full bg-card/70 px-3 py-1 text-muted">
               <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
               Screen recording — proctored
+            </span>
+          ) : (
+            <span className="rounded-full bg-card/70 px-3 py-1 text-muted">
+              Timed assessment
             </span>
           )}
         </div>
