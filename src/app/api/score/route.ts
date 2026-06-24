@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { getUserOrgId } from "@/lib/org";
 import { scoreCandidate } from "@/lib/scoreCandidate";
 
 export const maxDuration = 60;
@@ -10,6 +11,10 @@ export async function POST(req: Request) {
     const { candidate_id } = await req.json();
     if (!candidate_id) {
       return NextResponse.json({ error: "Missing candidate_id" }, { status: 400 });
+    }
+    // Defense-in-depth: don't rely on RLS alone for the org gate.
+    if (!(await getUserOrgId())) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 401 });
     }
 
     // RLS: employer can only see/score their own org's candidates.

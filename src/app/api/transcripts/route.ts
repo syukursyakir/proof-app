@@ -15,6 +15,11 @@ export async function POST(req: Request) {
   if (!cand) {
     return NextResponse.json({ error: "Invalid or expired link" }, { status: 403 });
   }
+  // Already finished: ignore replays so we don't insert duplicate transcripts
+  // or re-trigger (paid) GPT scoring.
+  if (cand.status === "completed") {
+    return NextResponse.json({ alreadyCompleted: true });
+  }
   const supa = supabaseAdmin();
 
   const { data, error } = await supa

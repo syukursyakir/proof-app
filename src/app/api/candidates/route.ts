@@ -58,6 +58,10 @@ export async function PATCH(req: Request) {
 
   const body = await req.json();
   if (!body.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  const ALLOWED = ["invited", "in_progress", "completed", "advanced", "rejected"];
+  if (!ALLOWED.includes(body.status)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
   const { data, error } = await sb
     .from("candidates")
     .update({ status: body.status })

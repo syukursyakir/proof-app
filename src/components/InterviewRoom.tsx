@@ -423,7 +423,11 @@ function Room({
   const speaking = conversation.isSpeaking;
   return (
     <Shell>
-      <div className="relative flex w-full max-w-3xl flex-col items-center">
+      <div
+        className={`relative flex w-full max-w-3xl flex-col items-center transition-all duration-300 ${
+          phase === "live" && transcriptOpen ? "lg:mr-80" : ""
+        }`}
+      >
         {/* webcam tile — top left */}
         <div className="absolute left-0 top-0 h-28 w-40 overflow-hidden rounded-xl border border-border bg-black/60">
           <video

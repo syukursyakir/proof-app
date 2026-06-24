@@ -56,11 +56,12 @@ export default function KanbanBoard({
     // optimistic
     setCards((cs) => cs.map((c) => (c.id === id ? { ...c, status } : c)));
     try {
-      await fetch("/api/candidates", {
+      const res = await fetch("/api/candidates", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
       });
+      if (!res.ok) throw new Error("move failed");
       router.refresh();
     } catch {
       // revert on failure

@@ -33,9 +33,11 @@ export default function AptitudeTest({
   const [shareLost, setShareLost] = useState(false);
   const [recording, setRecording] = useState(false);
   const [tabSwitches, setTabSwitches] = useState(0);
-  // Latches true if, at any point mid-test, they're sharing a window/tab
-  // instead of the whole screen.
+  // notFullScreen = live state (drives the candidate nudge, clears when they
+  // re-share the whole screen). surfaceFlagged = latch sent to the employer:
+  // once they've shared a window/tab mid-test, that fact stays on the record.
   const [notFullScreen, setNotFullScreen] = useState(false);
+  const [surfaceFlagged, setSurfaceFlagged] = useState(false);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -172,7 +174,9 @@ export default function AptitudeTest({
       const surface = (
         track.getSettings() as { displaySurface?: string }
       ).displaySurface;
-      if (surface && surface !== "monitor") setNotFullScreen(true);
+      const bad = !!surface && surface !== "monitor";
+      setNotFullScreen(bad); // live → banner clears if they fix it
+      if (bad) setSurfaceFlagged(true); // latch → employer always sees it happened
     };
     check();
     const id = setInterval(check, 3000);
@@ -248,7 +252,7 @@ export default function AptitudeTest({
           proctor_flags: {
             share_lost: shareLost,
             tab_switches: tabSwitches,
-            not_full_screen: notFullScreen,
+            not_full_screen: surfaceFlagged,
           },
         }),
       });

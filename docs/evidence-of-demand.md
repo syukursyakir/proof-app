@@ -121,6 +121,7 @@ exact quotes.
 no job history. Poly students usually have internships/part-time to draw on Q7.)*
 
 ### 👔 Working adult who HIRES (the employer) — dig hard, most valuable
+Firstly I want to ask how you found
 1. Walk me through *exactly* how you hired the last person on your team.
 2. How did you decide who to interview, and who to actually hire?
    *(listen for: resume, referral, gut)*
