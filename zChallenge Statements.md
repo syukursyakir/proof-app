@@ -35,3 +35,28 @@ Choose one of the four themes. Each theme has 5–7 specific challenge statement
 3. **Poor fit of Western health defaults in Asian contexts** — How might we build health systems that are adapted to Asian genetics, diets, climates, and work cultures?
 4. **Hidden burnout among caregivers** — How might we better support caregivers' energy, resilience, and mental health before burnout becomes chronic?
 5. **Health literacy starts too late** — How might we help young people make informed long-term health decisions earlier, using empowering rather than fear-based systems?
+
+
+Challenge-Solution Fit (20%) 	1. Does the project meaningfully solve the challenge statement? Does it solve a meaningful problem or clearly improve a real-world task?
+2. Is the target audience or use case well-defined?
+3. Does the solution directly address the core bottleneck, not just symptoms?
+AI Leverage and Technological Execution (25%) 	1. Does the core product work reliably during the demo?
+2. Are APIs integrated in a way that adds real value (not superficial usage)?
+3. Is there evidence of custom logic, workflows, or system design (not just boilerplate)?
+4. Is the architecture sensible for the problem (data flow, modularity, etc.)?
+5. Does the solution go beyond a simple wrapper around an LLM?
+Product Thinking & UI/UX (20%) 	1. Is the user flow and interface clear, intuitive, and easy to navigate?
+2. Does the product reduce friction vs current alternatives?
+3. Is the output/actionable value obvious to the user?
+4. Does the solution feel like a complete experience, not just a feature?
+Originality & Insight (20%) 	1. Is the approach differentiated from typical solutions?
+2. Does it reframe the problem in an interesting way?
+3. Does it feel like something that could evolve into a strong product?
+Evidence of Real Demand (15%)
+(Not expected, but would be a differentiator) 	1. Did the team speak to users (interviews, surveys, quick validation)?
+2. Do they show evidence of:
+1. pain points
+2. user behaviour
+3. real workflows
+3. Have they validated assumptions, even lightly?
+4. Do they demonstrate insight beyond guesswork?

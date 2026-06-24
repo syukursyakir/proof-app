@@ -56,14 +56,28 @@ function Room({
   const chunksRef = useRef<Blob[]>([]);
   const turnsRef = useRef<Turn[]>([]);
   const finishingRef = useRef(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const aiPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const connectedAtRef = useRef(0);
 
   const conversation = useConversation({
-    onConnect: () => setPhase("live"),
+    onConnect: () => {
+      connectedAtRef.current = Date.now();
+      setPhase("live");
+    },
     onDisconnect: () => {
-      // Covers the AGENT ending the call (end-call tool) or a dropped session —
-      // still save the transcript + recording.
+      if (finishingRef.current) return;
+      // Guard against a premature/dropped session: if the candidate never spoke
+      // and we just connected, this isn't a real interview ending — don't mark
+      // it complete. Let them retry.
+      const hadUserTurn = turnsRef.current.some((t) => t.role === "user");
+      const elapsed = Date.now() - (connectedAtRef.current || Date.now());
+      if (!hadUserTurn && elapsed < 20000) {
+        setError(
+          "The interview disconnected before it really started. This is usually a brief network hiccup — please start it again.",
+        );
+        setPhase("error");
+        return;
+      }
+      // A genuine end (agent finished, or candidate ended) — save everything.
       void finalize();
     },
     onError: (msg) => {
@@ -130,57 +144,12 @@ function Room({
         await videoRef.current.play().catch(() => {});
       }
 
-      // Mix the AI interviewer's voice into the recording. The SDK plays its
-      // audio separately (often via an <audio> element), so we tap that and the
-      // mic into one mixed track. Fully defensive — any failure falls back to
-      // recording the candidate's stream alone.
-      let recordStream: MediaStream = stream;
-      try {
-        const Ctx =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext })
-            .webkitAudioContext;
-        const ac = new Ctx();
-        audioCtxRef.current = ac;
-        const dest = ac.createMediaStreamDestination();
-        if (stream.getAudioTracks().length) {
-          ac.createMediaStreamSource(stream).connect(dest);
-        }
-        // The AI playback element appears after the session connects; poll for it.
-        const tapAi = () => {
-          document.querySelectorAll("audio").forEach((el) => {
-            const node = el as HTMLAudioElement & {
-              _clarionTapped?: boolean;
-              captureStream?: () => MediaStream;
-              mozCaptureStream?: () => MediaStream;
-            };
-            if (node._clarionTapped) return;
-            try {
-              const s = node.captureStream?.() ?? node.mozCaptureStream?.();
-              if (s && s.getAudioTracks().length) {
-                ac.createMediaStreamSource(s).connect(dest);
-                node._clarionTapped = true;
-              }
-            } catch {
-              /* ignore this element */
-            }
-          });
-        };
-        aiPollRef.current = setInterval(tapAi, 800);
-        setTimeout(() => {
-          if (aiPollRef.current) clearInterval(aiPollRef.current);
-        }, 12000);
-        recordStream = new MediaStream([
-          ...stream.getVideoTracks(),
-          ...dest.stream.getAudioTracks(),
-        ]);
-      } catch {
-        recordStream = stream; // mixing unsupported — record candidate alone
-      }
-
+      // Record the candidate's own stream directly. (We do NOT tap the SDK's
+      // audio graph — doing so destabilised the live session. The interviewer's
+      // side is preserved in the saved transcript.)
       try {
         const mimeType = hasVideo ? "video/webm" : "audio/webm";
-        const rec = new MediaRecorder(recordStream, { mimeType });
+        const rec = new MediaRecorder(stream, { mimeType });
         chunksRef.current = [];
         rec.ondataavailable = (e) => {
           if (e.data.size > 0) chunksRef.current.push(e.data);
@@ -255,8 +224,6 @@ function Room({
     });
 
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    if (aiPollRef.current) clearInterval(aiPollRef.current);
-    audioCtxRef.current?.close().catch(() => {});
 
     const turns = turnsRef.current;
     const fullText = turns
