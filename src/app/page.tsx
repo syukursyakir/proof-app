@@ -133,7 +133,9 @@ export default function Home() {
             className="relative flex items-center justify-center"
           >
             <div className="relative flex h-[340px] w-full items-center justify-center">
-              <HeroOrb size={300} />
+              <div className="-translate-y-10">
+                <HeroOrb size={300} />
+              </div>
               <p className="absolute bottom-2 left-1/2 w-64 -translate-x-1/2 text-center text-xs text-muted">
                 Interviewing&hellip; &ldquo;Tell me about a time you calmed an angry customer.&rdquo;
               </p>
