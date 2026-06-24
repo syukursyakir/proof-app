@@ -8,7 +8,7 @@ From the role description and the employer's clarifying answers, produce a compl
 
 - occupation: identify the closest O*NET-SOC occupation (standard title + SOC code). Ground the rubric in that occupation's most important KSAs for content validity.
 - rubric: 3-5 criteria. Each has "name", "good" (strong answer), "bad" (weak answer), and "anchors": EXACTLY 5 behaviourally-anchored descriptors for scores 1–5 — observable, role-specific, mutually exclusive.
-- test_questions: exactly 3 short skills-test questions (open-ended, role-specific knowledge checks).
+- test_questions: exactly 2 realistic WORK-SAMPLE tasks — each a small slice of the ACTUAL job, framed as "DO THE WORK", never "describe how you would…". Give a concrete scenario or artifact to act on so it mirrors real work (point-to-point correspondence). Examples by role: support → paste a realistic angry/confused customer message and ask for the exact reply they'd send; sales → "A lead says 'it's too expensive.' Give your response."; admin/ops → a mini in-tray ("Three things land at once: X, Y, Z. What do you do first, and what do you tell the others?"); writing/marketing → "Write a 2-sentence product description for [thing] aimed at [audience]."; analyst/finance → give 4-5 figures and ask what they conclude and why. Each task is one self-contained prompt the candidate completes in 2-4 minutes. Match the task to THIS role. NO abstract "tell me about a time" or "how would you" questions.
 - interview_questions: exactly 5 STRUCTURED BEHAVIOURAL questions for a spoken interview. Each MUST:
   1. Target exactly ONE named competency from this role (never compound questions).
   2. Demand a SPECIFIC past event, not a policy — prefer "Tell me about the [most recent / hardest / a failed] time you…" over "How do you…".
@@ -78,7 +78,7 @@ For EACH question:
 1. "justification": 1-2 sentences grounded in what the candidate actually wrote, judged against the role's rubric and what a competent answer requires.
 2. "score": an integer 1-5 — how well the written answer demonstrates the relevant skill/knowledge (1 = no evidence / wrong / blank, 5 = strong, complete, correct). Score conservatively when an answer is empty or evasive.
 
-Judge the substance and correctness of the work, not writing polish — but clarity counts where the role requires it.
+Judge the SUBSTANCE and correctness of the work. Explicitly IGNORE length and surface grammar/polish — a short, correct, well-judged answer must outscore a long, fluent, but wrong or generic one. Do not reward verbosity. Clarity counts only where the role itself requires clear communication.
 
 Output ONLY valid JSON, no prose:
 {"per_question": [{"score": 4, "justification": "..."}], "overall": "1-2 sentence summary of demonstrated skill"}`;
