@@ -164,14 +164,3 @@ h3 {
 }
 .orb-pulse { animation: orbPulse 3.4s ease-in-out infinite; }
 .orb-glow { animation: orbGlow 3.4s ease-in-out infinite; }
-
-/* Logo pulse — brand mark as a live "loading" visualizer in the interview. */
-@keyframes clarionSonar {
-  0%   { transform: scale(0.5); opacity: 0.5; }
-  70%  { opacity: 0; }
-  100% { transform: scale(1.55); opacity: 0; }
-}
-@keyframes clarionBreathe {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.05); }
-}

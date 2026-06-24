@@ -11,7 +11,7 @@ import {
 } from "framer-motion";
 import SiteNav from "@/components/SiteNav";
 import HeroBackground from "@/components/HeroBackground";
-import LogoPulse from "@/components/LogoPulse";
+import HeroOrb from "@/components/HeroOrb";
 import ClarionFeatures from "@/components/ClarionFeatures";
 import {
   CountUp,
@@ -127,14 +127,14 @@ export default function Home() {
             </motion.p>
           </motion.div>
 
-          {/* money shot: brand mark + verdict card, gentle parallax */}
+          {/* money shot: orb + verdict card, gentle parallax */}
           <motion.div
             style={{ y: reduce ? 0 : orbY }}
             className="relative flex items-center justify-center"
           >
             <div className="relative flex h-[340px] w-full items-center justify-center">
               <div className="-translate-y-10">
-                <LogoPulse state="speaking" size={300} />
+                <HeroOrb size={300} />
               </div>
               <p className="absolute bottom-2 left-1/2 w-64 -translate-x-1/2 text-center text-xs text-muted">
                 Interviewing&hellip; &ldquo;Tell me about a time you calmed an angry customer.&rdquo;
