@@ -12,6 +12,7 @@ import {
   PencilIcon,
   MicIcon,
 } from "@/components/icons";
+import { skillsForCategory } from "@/lib/skillsLibrary";
 
 type Category = {
   label: string;
@@ -74,27 +75,60 @@ export default function RolePicker({
   const [suggested, setSuggested] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loadingSkills, setLoadingSkills] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [custom, setCustom] = useState("");
 
+  async function fetchAiSkills(r: string): Promise<string[]> {
+    const res = await fetch("/api/suggest-skills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: r }),
+    });
+    const data = await res.json();
+    return Array.isArray(data.skills) ? data.skills : [];
+  }
+
   async function pickRole(r: string) {
-    if (!r.trim()) return;
-    setRole(r.trim());
+    const role = r.trim();
+    if (!role) return;
+    setRole(role);
     setStep("skills");
+    setSelected([]);
+    setCustom("");
+
+    // Known category -> show the curated batch INSTANTLY (no AI wait).
+    if (category) {
+      setSuggested(skillsForCategory(category.label));
+      setLoadingSkills(false);
+      return;
+    }
+    // Custom "Other" role -> fall back to AI suggestions.
     setLoadingSkills(true);
     setSuggested([]);
-    setSelected([]);
     try {
-      const res = await fetch("/api/suggest-skills", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: r.trim() }),
-      });
-      const data = await res.json();
-      setSuggested(Array.isArray(data.skills) ? data.skills : []);
+      const ai = await fetchAiSkills(role);
+      setSuggested(ai.length ? ai : skillsForCategory(null));
     } catch {
-      setSuggested([]);
+      setSuggested(skillsForCategory(null));
     } finally {
       setLoadingSkills(false);
+    }
+  }
+
+  // Append AI ideas to the curated batch for anything we didn't pre-list.
+  async function suggestMore() {
+    setLoadingMore(true);
+    try {
+      const ai = await fetchAiSkills(role);
+      setSuggested((cur) => {
+        const seen = new Set(cur.map((s) => s.toLowerCase()));
+        const extra = ai.filter((s) => !seen.has(s.toLowerCase()));
+        return [...cur, ...extra];
+      });
+    } catch {
+      /* no-op */
+    } finally {
+      setLoadingMore(false);
     }
   }
 
@@ -301,6 +335,14 @@ export default function RolePicker({
               + Add
             </button>
           </div>
+
+          <button
+            onClick={suggestMore}
+            disabled={loadingMore}
+            className="mt-3 text-sm text-accent-soft hover:underline disabled:opacity-50"
+          >
+            {loadingMore ? "Thinking…" : "✦ Suggest more with AI"}
+          </button>
 
           <button
             onClick={() => onComplete(role, selected)}
