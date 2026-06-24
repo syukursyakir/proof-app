@@ -163,20 +163,69 @@ export default function NewRolePage() {
     );
   }
 
+  const stepIndex = phase === "ready" ? 1 : 0; // Build -> Review -> Invite
+  const STEPS = ["Build", "Review", "Invite"];
+
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
-      <Link href="/roles" className="text-sm text-muted hover:text-foreground">
-        ← Roles
-      </Link>
-      <div className="mt-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={phase}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: ease.out }}
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      {/* Focused top bar: title · step indicator · close */}
+      <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <Link
+            href="/roles"
+            aria-label="Close"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-card hover:text-foreground"
           >
+            ✕
+          </Link>
+          <span className="truncate font-medium">New role</span>
+        </div>
+
+        {/* Stepper */}
+        <ol className="hidden items-center gap-1 sm:flex">
+          {STEPS.map((label, i) => {
+            const done = i < stepIndex;
+            const active = i === stepIndex;
+            return (
+              <li key={label} className="flex items-center gap-1">
+                <span
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
+                    done
+                      ? "bg-accent text-white"
+                      : active
+                        ? "bg-accent/15 text-accent-soft ring-1 ring-accent"
+                        : "bg-card text-muted ring-1 ring-border"
+                  }`}
+                >
+                  {done ? "✓" : i + 1}
+                </span>
+                <span
+                  className={`text-sm ${active ? "font-medium text-foreground" : "text-muted"}`}
+                >
+                  {label}
+                </span>
+                {i < STEPS.length - 1 && (
+                  <span className="mx-2 h-px w-6 bg-border" />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="w-9 sm:w-24" aria-hidden />
+      </header>
+
+      {/* Scrollable focused content */}
+      <div className="flex-1 overflow-y-auto">
+        <main className="mx-auto w-full max-w-3xl px-6 py-10 sm:py-14">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={phase}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: ease.out }}
+            >
         {phase === "pick" && (
           <RolePicker
             onComplete={buildFromPicks}
@@ -326,7 +375,8 @@ export default function NewRolePage() {
         )}
           </motion.div>
         </AnimatePresence>
+        </main>
       </div>
-    </main>
+    </div>
   );
 }
