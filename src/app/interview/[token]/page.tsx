@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { resolveToken } from "@/lib/candidateToken";
 import InterviewRoom from "@/components/InterviewRoom";
 import AssessmentFlow from "@/components/AssessmentFlow";
+import CandidateStatus from "@/components/CandidateStatus";
 import type { Role, TestQuestion } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,21 @@ export default async function InterviewPage({
   if (!roleData) notFound();
   const role = roleData as Role & { organizations?: { name: string } | null };
   const orgName = (role.organizations as { name?: string } | null)?.name ?? null;
+
+  // Already finished? Show their status — don't let them redo, and close the
+  // loop (being ghosted after finishing is the #1 candidate complaint).
+  if (["completed", "advanced", "rejected"].includes(candidate.status)) {
+    return (
+      <CandidateStatus
+        status={candidate.status as "completed" | "advanced" | "rejected"}
+        orgName={orgName}
+        roleTitle={role.title}
+        rubric={role.rubric ?? []}
+        token={token}
+      />
+    );
+  }
+
   const testMcq = (role.test_mcq as TestQuestion[] | null) ?? [];
   const skillsQs = role.test_questions ?? [];
 

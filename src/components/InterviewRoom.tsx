@@ -287,6 +287,10 @@ function Room({
             you <span className="text-foreground">say</span> is assessed. No facial
             analysis, no demographic inputs.
           </p>
+          <p className="mt-2 text-xs text-muted">
+            Your recording is private to {orgName ?? "the hiring team"} — never sold,
+            shared, or used to train AI.
+          </p>
           <DeviceCheck />
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
           <button
@@ -363,6 +367,12 @@ function Room({
             </div>
           )}
 
+          <p className="mt-4 rounded-lg border border-border bg-card/40 px-4 py-3 text-sm text-muted">
+            <span className="font-medium text-foreground">What happens next:</span>{" "}
+            {orgName ?? "the hiring team"} reviews your assessment and a real person
+            makes the decision. Bookmark this page — you can return here anytime to
+            see your status.
+          </p>
           <p className="mt-4 text-sm text-muted">
             Feel something was missed or assessed unfairly?
           </p>
