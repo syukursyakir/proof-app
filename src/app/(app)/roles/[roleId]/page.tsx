@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase-server";
 import AssessmentForm from "@/components/AssessmentForm";
 import CandidatePanel from "@/components/CandidatePanel";
+import DeleteButton from "@/components/DeleteButton";
 import { genCode } from "@/lib/candidateToken";
 import type { Candidate, Role } from "@/lib/types";
 
@@ -61,12 +62,18 @@ export default async function RolePage({
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
-      <Link
-        href="/roles"
-        className="text-sm text-muted hover:text-foreground"
-      >
-        ← Roles
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link href="/roles" className="text-sm text-muted hover:text-foreground">
+          ← Roles
+        </Link>
+        <DeleteButton
+          endpoint="/api/roles"
+          id={role.id}
+          redirectTo="/roles"
+          label="Delete role"
+          confirmLabel="Delete role + all candidates?"
+        />
+      </div>
       <div className="mt-6">
         <AssessmentForm
           mode="edit"

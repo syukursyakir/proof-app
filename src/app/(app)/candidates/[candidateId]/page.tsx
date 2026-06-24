@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 import VerdictView from "@/components/VerdictView";
+import DeleteButton from "@/components/DeleteButton";
 import type { Candidate, Transcript, Verdict } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -87,13 +88,22 @@ export default async function CandidatePage({
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
-      <div className="mb-6 flex items-center gap-4 text-sm text-muted">
-        <Link href="/candidates" className="hover:text-foreground">
-          ← Candidates
-        </Link>
-        <Link href={`/roles/${candidate.role_id}`} className="hover:text-foreground">
-          View role
-        </Link>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-sm text-muted">
+          <Link href="/candidates" className="hover:text-foreground">
+            ← Candidates
+          </Link>
+          <Link href={`/roles/${candidate.role_id}`} className="hover:text-foreground">
+            View role
+          </Link>
+        </div>
+        <DeleteButton
+          endpoint="/api/candidates"
+          id={candidate.id}
+          redirectTo="/candidates"
+          label="Delete candidate"
+          confirmLabel="Delete candidate?"
+        />
       </div>
       <VerdictView
         candidate={candidate}

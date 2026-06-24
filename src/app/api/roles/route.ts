@@ -68,3 +68,17 @@ export async function PATCH(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
+
+export async function DELETE(req: Request) {
+  const sb = await supabaseServer();
+  if (!(await getUserOrgId())) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+  }
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  // RLS restricts the delete to the user's org. Candidates/transcripts/verdicts
+  // cascade automatically.
+  const { error } = await sb.from("roles").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
