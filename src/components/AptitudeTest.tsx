@@ -83,6 +83,29 @@ export default function AptitudeTest({
       } catch {
         // recording unsupported — proceed; the share itself is still the deterrent
       }
+
+      // Server-authoritative timer + resume. Best-effort: any failure falls back
+      // to the local countdown so the test always works.
+      try {
+        const res = await fetch("/api/aptitude-state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, action: "start" }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.done) {
+            onComplete(); // already submitted — don't allow a retake
+            return;
+          }
+          if (typeof data.remaining === "number") setSecondsLeft(data.remaining);
+          if (data.answers && typeof data.answers === "object") {
+            setAnswers(data.answers);
+          }
+        }
+      } catch {
+        /* fall back to the local MINUTES timer */
+      }
       setStarted(true);
     } catch {
       setShareError(
@@ -185,6 +208,12 @@ export default function AptitudeTest({
     const next = { ...answers, [q.id]: selected };
     setAnswers(next);
     setConfirmed(true);
+    // Autosave so a refresh/crash resumes with answers intact (best-effort).
+    fetch("/api/aptitude-state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, action: "save", answers: next }),
+    }).catch(() => {});
   }
 
   function advance() {
