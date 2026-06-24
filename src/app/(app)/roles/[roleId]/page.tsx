@@ -52,17 +52,14 @@ export default async function RolePage({
   }
 
   return (
-    <div className="flex flex-col flex-1">
-      <header className="border-b border-border/60">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-          <Link href="/roles" className="text-sm text-muted hover:text-foreground">
-            ← Roles
-          </Link>
-          <span className="text-sm text-muted">{role.title}</span>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
+      <Link
+        href="/roles"
+        className="text-sm text-muted hover:text-foreground"
+      >
+        ← Roles
+      </Link>
+      <div className="mt-6">
         <AssessmentForm
           mode="edit"
           roleId={role.id}
@@ -72,6 +69,7 @@ export default async function RolePage({
             occupation: role.occupation,
             rubric: role.rubric ?? [],
             test_questions: role.test_questions ?? [],
+            test_mcq: role.test_mcq ?? null,
             interview_questions: role.interview_questions ?? [],
             test_enabled: role.test_enabled,
           }}
@@ -81,7 +79,7 @@ export default async function RolePage({
           candidates={candidates}
           summaries={summaries}
         />
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

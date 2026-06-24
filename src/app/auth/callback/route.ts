@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function GET(req: Request) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/roles";
+  const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
     const supabase = await supabaseServer();

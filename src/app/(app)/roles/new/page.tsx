@@ -136,17 +136,11 @@ export default function NewRolePage() {
   }
 
   return (
-    <div className="flex flex-col flex-1">
-      <header className="border-b border-border/60">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-          <Link href="/roles" className="text-sm text-muted hover:text-foreground">
-            ← Roles
-          </Link>
-          <span className="text-sm font-medium">New role</span>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
+      <Link href="/roles" className="text-sm text-muted hover:text-foreground">
+        ← Roles
+      </Link>
+      <div className="mt-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={phase}
@@ -290,7 +284,7 @@ export default function NewRolePage() {
         )}
           </motion.div>
         </AnimatePresence>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

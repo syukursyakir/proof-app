@@ -12,7 +12,7 @@ export default function LoginPage() {
     setError(null);
     try {
       const next =
-        new URLSearchParams(window.location.search).get("next") ?? "/roles";
+        new URLSearchParams(window.location.search).get("next") ?? "/dashboard";
       const { error } = await supabaseClient().auth.signInWithOAuth({
         provider: "google",
         options: {

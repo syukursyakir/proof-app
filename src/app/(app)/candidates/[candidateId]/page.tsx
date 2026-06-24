@@ -86,30 +86,24 @@ export default async function CandidatePage({
   }
 
   return (
-    <div className="flex flex-col flex-1">
-      <header className="border-b border-border/60">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-          <Link
-            href={`/roles/${candidate.role_id}`}
-            className="text-sm text-muted hover:text-foreground"
-          >
-            ← Role
-          </Link>
-          <span className="text-sm font-medium">Verdict</span>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-        <VerdictView
-          candidate={candidate}
-          verdict={(verdict as Verdict | null) ?? null}
-          fullText={t?.full_text ?? null}
-          recordingUrl={recordingUrl}
-          proctorUrl={proctorUrl}
-          appealRequested={!!candidate.appeal_requested_at}
-          humanRating={humanRating}
-        />
-      </main>
-    </div>
+    <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
+      <div className="mb-6 flex items-center gap-4 text-sm text-muted">
+        <Link href="/candidates" className="hover:text-foreground">
+          ← Candidates
+        </Link>
+        <Link href={`/roles/${candidate.role_id}`} className="hover:text-foreground">
+          View role
+        </Link>
+      </div>
+      <VerdictView
+        candidate={candidate}
+        verdict={(verdict as Verdict | null) ?? null}
+        fullText={t?.full_text ?? null}
+        recordingUrl={recordingUrl}
+        proctorUrl={proctorUrl}
+        appealRequested={!!candidate.appeal_requested_at}
+        humanRating={humanRating}
+      />
+    </main>
   );
 }

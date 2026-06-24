@@ -17,6 +17,18 @@ export async function getUserOrgId(): Promise<string | null> {
   return data?.org_id ?? null;
 }
 
+// Returns the current user's org id + name (null if none).
+export async function getUserOrg(): Promise<{ id: string; name: string } | null> {
+  const orgId = await getUserOrgId();
+  if (!orgId) return null;
+  const { data } = await supabaseAdmin()
+    .from("organizations")
+    .select("id, name")
+    .eq("id", orgId)
+    .single();
+  return data ? { id: data.id as string, name: (data.name as string) ?? "" } : null;
+}
+
 // Ensures a signed-in user has a personal workspace; creates one on first login.
 // Uses the service-role client (org/membership creation bypasses RLS by design).
 export async function ensureOrgForUser(userId: string, email: string | null) {
