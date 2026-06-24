@@ -25,7 +25,7 @@ import { containerV, itemV } from "@/lib/motion";
 const pillars = [
   {
     title: "Consistent, not moody",
-    body: "Same questions, same scoring, every candidate — not how the interviewer felt that day.",
+    body: "Same assessment, same scoring, every candidate — not how the interviewer felt that day.",
   },
   {
     title: "Skill over social capital",
@@ -97,21 +97,22 @@ export default function Home() {
               variants={itemV}
               className="text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"
             >
-              Hear the proof,
+              Hire on proof,
               <br />
-              not the pedigree.
+              not pedigree.
             </motion.h1>
             <motion.p
               variants={itemV}
               className="mt-6 max-w-xl text-lg leading-8 text-muted"
             >
-              Clarion gives every candidate the same AI-run voice interview, scores them
-              consistently against <span className="text-foreground">your</span> rubric, and
-              shows you the exact words behind every judgment. You make the final call.
+              Clarion gives every candidate the same structured assessment — an aptitude
+              screen, a skills work-sample, and an AI interview — then shows you a ranked
+              verdict with the <span className="text-foreground">exact evidence</span> behind
+              every score. You make the final call.
             </motion.p>
             <motion.div variants={itemV} className="mt-9 flex flex-col gap-3 sm:flex-row">
               <MagneticButton href="/roles/new">
-                <span aria-hidden>🎙️</span> Describe your ideal hire
+                Build your assessment
               </MagneticButton>
               <SecondaryButton href="/sample">
                 See a sample verdict{" "}
@@ -119,7 +120,8 @@ export default function Home() {
               </SecondaryButton>
             </motion.div>
             <motion.p variants={itemV} className="mt-5 text-sm text-muted">
-              No resume screening. No gut calls. The same fair interview for everyone.
+              Set it up in minutes — describe the role by voice or text, edit anything,
+              then send. The same fair assessment for everyone.
             </motion.p>
           </motion.div>
 
@@ -230,9 +232,10 @@ export default function Home() {
               Most AI hiring tools score you in a black box. Clarion shows its work.
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted">
-              Every score expands to the transcript quote behind it. The AI assesses; the
-              human decides. No mystery verdicts, no unaccountable rejections — for the
-              employer<span className="text-foreground"> and</span> the candidate.
+              Every score expands to the evidence behind it — the transcript quote, the
+              written answer, the test result. The AI assesses; the human decides. No
+              mystery verdicts, no unaccountable rejections — for the employer
+              <span className="text-foreground"> and</span> the candidate.
             </p>
           </Reveal>
           <Reveal delay={0.1} className="lift rounded-2xl border border-border bg-card/70 p-6">
@@ -272,7 +275,7 @@ export default function Home() {
             </h2>
             <div className="mt-10 flex justify-center">
               <MagneticButton href="/roles/new">
-                <span aria-hidden>🎙️</span> Describe your ideal hire
+                Build your assessment
               </MagneticButton>
             </div>
           </Reveal>

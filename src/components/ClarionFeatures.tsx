@@ -5,11 +5,11 @@ export default function ClarionFeatures() {
     <div className="pf-shell">
       <div className="pf-container">
         <div className="pf-badge">How Clarion works</div>
-        <h2 className="pf-title">From a spoken role to a fair verdict</h2>
+        <h2 className="pf-title">From a role description to a fair verdict</h2>
         <p className="pf-subtitle">
-          Author by voice. Interview by AI.
+          Build the assessment in minutes.
           <br />
-          Decide with the evidence.
+          Assess everyone the same. Decide with the evidence.
         </p>
 
         <div className="pf-grid">
@@ -25,10 +25,10 @@ export default function ClarionFeatures() {
               <span className="pf-dot" />
               Recording…
             </div>
-            <h3>Author by voice</h3>
+            <h3>Build in minutes</h3>
             <p className="pf-sub">
-              Describe the role out loud — Clarion drafts the rubric and questions in
-              seconds.
+              Describe the role by voice or text — Clarion drafts the test, work-sample,
+              and questions. Review and edit everything.
             </p>
           </div>
 
@@ -36,10 +36,10 @@ export default function ClarionFeatures() {
           <div className="pf-card pf-card-2">
             <div className="pf-orb" />
             <div className="pf-caption">&ldquo;How am I being judged?&rdquo;</div>
-            <h3>Live AI interview</h3>
+            <h3>Assess every candidate</h3>
             <p className="pf-sub">
-              The same fair conversation for everyone — adaptive follow-ups, and it
-              answers candidates honestly.
+              Aptitude screen, skills work-sample, and an adaptive AI interview — the
+              same fair assessment for everyone.
             </p>
           </div>
 
