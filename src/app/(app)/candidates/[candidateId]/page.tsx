@@ -129,6 +129,29 @@ export default async function CandidatePage({
           />
         </div>
       </div>
+
+      {Array.isArray(candidate.resume_claims) &&
+        candidate.resume_claims.length > 0 && (
+          <div className="mb-6 rounded-xl border border-border bg-card/50 p-4 text-sm">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              Resume claims probed in the interview
+            </p>
+            <ul className="mt-2 space-y-1">
+              {candidate.resume_claims.map((c, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-0.5 text-accent-soft">•</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 border-t border-border/60 pt-2 text-xs text-muted">
+              Clarion asked the candidate to substantiate these resume claims
+              live. The resume itself is <span className="text-foreground">not
+              scored</span> — only what they demonstrated in the interview.
+            </p>
+          </div>
+        )}
+
       <VerdictView
         candidate={candidate}
         verdict={(verdict as Verdict | null) ?? null}
