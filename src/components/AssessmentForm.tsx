@@ -4,6 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Criterion, Occupation, TestQuestion } from "@/lib/types";
 
+const CATEGORIES: TestQuestion["category"][] = [
+  "numerical",
+  "verbal",
+  "logical",
+  "sjt",
+];
+const CATEGORY_LABEL: Record<TestQuestion["category"], string> = {
+  numerical: "Numerical",
+  verbal: "Verbal",
+  logical: "Logical",
+  sjt: "Situational",
+};
+
 type Initial = {
   title: string;
   description_raw?: string | null;
@@ -32,12 +45,39 @@ export default function AssessmentForm({
   const [title, setTitle] = useState(initial.title);
   const [rubric, setRubric] = useState<Criterion[]>(initial.rubric ?? []);
   const [tests, setTests] = useState<string[]>(initial.test_questions ?? []);
+  const [mcq, setMcq] = useState<TestQuestion[]>(initial.test_mcq ?? []);
   const [questions, setQuestions] = useState<string[]>(
     initial.interview_questions ?? [],
   );
   const [testEnabled, setTestEnabled] = useState(initial.test_enabled);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function updateMcq(i: number, patch: Partial<TestQuestion>) {
+    setMcq((m) => m.map((q, idx) => (idx === i ? { ...q, ...patch } : q)));
+  }
+  function updateMcqOption(i: number, oi: number, v: string) {
+    setMcq((m) =>
+      m.map((q, idx) => {
+        if (idx !== i) return q;
+        const options = [...q.options] as TestQuestion["options"];
+        options[oi] = v;
+        return { ...q, options };
+      }),
+    );
+  }
+  function addMcq() {
+    setMcq((m) => [
+      ...m,
+      {
+        id: `q${m.length + 1}-${Math.random().toString(36).slice(2, 6)}`,
+        category: "numerical",
+        question: "",
+        options: ["", "", "", ""],
+        correct: 0,
+      },
+    ]);
+  }
 
   function updateCriterion(i: number, key: "name" | "good" | "bad", v: string) {
     setRubric((r) => r.map((c, idx) => (idx === i ? { ...c, [key]: v } : c)));
@@ -65,7 +105,7 @@ export default function AssessmentForm({
         occupation: initial.occupation ?? null,
         rubric,
         test_questions: tests,
-        test_mcq: initial.test_mcq ?? null,
+        test_mcq: mcq.length ? mcq : null,
         interview_questions: questions,
         test_enabled: testEnabled,
         ...(mode === "edit" ? { id: roleId } : {}),
@@ -175,13 +215,99 @@ export default function AssessmentForm({
         </div>
       </section>
 
-      {/* Test questions */}
+      {/* Aptitude MCQ — review & edit the AI-drafted questions */}
+      <section>
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Aptitude test</h2>
+          <button
+            type="button"
+            onClick={addMcq}
+            className="text-sm text-accent-soft hover:underline"
+          >
+            + Add question
+          </button>
+        </div>
+        <p className="mb-3 text-sm text-muted">
+          AI drafted these — <span className="text-foreground">review every question
+          and mark the correct answer</span> before candidates take the test. Click an
+          option&apos;s circle to set it as correct.
+        </p>
+        {mcq.length === 0 && (
+          <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-sm text-muted">
+            No aptitude questions. Add one, or this part is skipped for candidates.
+          </p>
+        )}
+        <div className="space-y-4">
+          {mcq.map((q, i) => (
+            <div key={q.id} className="rounded-xl border border-border bg-card/50 p-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted">{i + 1}</span>
+                <select
+                  value={q.category}
+                  onChange={(e) =>
+                    updateMcq(i, { category: e.target.value as TestQuestion["category"] })
+                  }
+                  className="rounded-md border border-border bg-background px-2 py-1 text-xs outline-none focus:border-accent"
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {CATEGORY_LABEL[c]}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setMcq((m) => m.filter((_, idx) => idx !== i))}
+                  className="ml-auto text-xs text-muted hover:text-red-600"
+                >
+                  Remove
+                </button>
+              </div>
+              <textarea
+                className={`${input} mt-3 min-h-12`}
+                placeholder="Question text"
+                value={q.question}
+                onChange={(e) => updateMcq(i, { question: e.target.value })}
+              />
+              <div className="mt-3 space-y-2">
+                {q.options.map((opt, oi) => {
+                  const isCorrect = q.correct === oi;
+                  return (
+                    <div key={oi} className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        title="Mark as correct answer"
+                        onClick={() => updateMcq(i, { correct: oi })}
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition-colors ${
+                          isCorrect
+                            ? "border-green-500 bg-green-500 text-white"
+                            : "border-border text-muted hover:border-green-400"
+                        }`}
+                      >
+                        {isCorrect ? "✓" : String.fromCharCode(65 + oi)}
+                      </button>
+                      <input
+                        className={`${input} ${isCorrect ? "border-green-400" : ""}`}
+                        placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                        value={opt}
+                        onChange={(e) => updateMcqOption(i, oi, e.target.value)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Skills work-sample questions */}
       <StringList
-        title="Skills test"
+        title="Skills work-sample"
         items={tests}
         setItems={setTests}
-        placeholder="Test question"
-        toggle={{ value: testEnabled, set: setTestEnabled, label: "Include skills test" }}
+        placeholder="Open-ended skills question"
+        toggle={{ value: testEnabled, set: setTestEnabled, label: "Include written tests" }}
       />
 
       {/* Interview questions */}
