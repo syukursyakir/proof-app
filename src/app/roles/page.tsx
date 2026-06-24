@@ -2,7 +2,7 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase-server";
 import SignOutButton from "@/components/SignOutButton";
 import { Reveal, Stagger, Item } from "@/components/motion";
-import type { Role } from "@/lib/types";
+import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -25,24 +25,44 @@ export default async function RolesPage() {
     dbError = e instanceof Error ? e.message : "Database error";
   }
 
-  let dashStats = { total: 0, done: 0, pending: 0 };
+  let candidates: Candidate[] = [];
   if (roles.length > 0) {
     try {
-      const { data: cands } = await sb
+      const { data } = await sb
         .from("candidates")
-        .select("status")
-        .in("role_id", roles.map((r) => r.id));
-      if (cands) {
-        dashStats.total = cands.length;
-        dashStats.done = cands.filter((c) =>
-          ["advanced", "rejected", "completed"].includes(c.status as string)
-        ).length;
-        dashStats.pending = cands.filter((c) => c.status === "completed").length;
-      }
+        .select("id, role_id, name, status, created_at")
+        .in(
+          "role_id",
+          roles.map((r) => r.id),
+        )
+        .order("created_at", { ascending: false });
+      candidates = (data as Candidate[]) ?? [];
     } catch {
       // non-critical
     }
   }
+
+  const roleTitle = new Map(roles.map((r) => [r.id, r.title]));
+  const done = candidates.filter((c) =>
+    ["advanced", "rejected", "completed"].includes(c.status),
+  );
+  const needsReview = candidates.filter((c) => c.status === "completed");
+
+  // Per-role tallies for the cards.
+  const perRole = new Map<string, { total: number; review: number }>();
+  for (const c of candidates) {
+    const t = perRole.get(c.role_id) ?? { total: 0, review: 0 };
+    t.total += 1;
+    if (c.status === "completed") t.review += 1;
+    perRole.set(c.role_id, t);
+  }
+
+  const stats = [
+    { label: "Roles", value: roles.length },
+    { label: "Candidates", value: candidates.length },
+    { label: "Interviewed", value: done.length },
+    { label: "Awaiting review", value: needsReview.length, accent: true },
+  ];
 
   return (
     <div className="flex flex-col flex-1">
@@ -54,9 +74,7 @@ export default async function RolesPage() {
           </Link>
           <div className="flex items-center gap-3">
             {user?.email && (
-              <span className="hidden text-sm text-muted sm:inline">
-                {user.email}
-              </span>
+              <span className="hidden text-sm text-muted sm:inline">{user.email}</span>
             )}
             <Link
               href="/roles/new"
@@ -71,33 +89,11 @@ export default async function RolesPage() {
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12">
         <Reveal>
-          <h1 className="text-3xl font-semibold tracking-tight">Roles</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-2 text-muted">
-            Describe a role by voice and Clarion builds the assessment.
+            {user?.email ? `Signed in as ${user.email}. ` : ""}
+            Your roles, candidates, and what needs your attention.
           </p>
-          {roles.length > 0 && (
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
-              <span className="text-muted">
-                <span className="font-semibold text-foreground">{roles.length}</span>{" "}
-                role{roles.length !== 1 ? "s" : ""}
-              </span>
-              <span className="text-muted">
-                <span className="font-semibold text-foreground">{dashStats.total}</span>{" "}
-                candidate{dashStats.total !== 1 ? "s" : ""}
-              </span>
-              {dashStats.done > 0 && (
-                <span className="text-muted">
-                  <span className="font-semibold text-foreground">{dashStats.done}</span>{" "}
-                  interviewed
-                </span>
-              )}
-              {dashStats.pending > 0 && (
-                <span className="font-medium text-amber-600">
-                  {dashStats.pending} awaiting review
-                </span>
-              )}
-            </div>
-          )}
         </Reveal>
 
         {dbError && (
@@ -107,36 +103,112 @@ export default async function RolesPage() {
           </div>
         )}
 
+        {/* Stat cards */}
+        {roles.length > 0 && (
+          <Stagger className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {stats.map((s) => (
+              <Item
+                key={s.label}
+                className={`rounded-2xl border bg-card/50 p-5 ${
+                  s.accent && s.value > 0
+                    ? "border-amber-300 bg-amber-50/50"
+                    : "border-border"
+                }`}
+              >
+                <div
+                  className={`text-3xl font-semibold ${
+                    s.accent && s.value > 0 ? "text-amber-700" : "text-foreground"
+                  }`}
+                >
+                  {s.value}
+                </div>
+                <div className="mt-1 text-sm text-muted">{s.label}</div>
+              </Item>
+            ))}
+          </Stagger>
+        )}
+
+        {/* Needs your review */}
+        {needsReview.length > 0 && (
+          <Reveal className="mt-10">
+            <h2 className="text-lg font-semibold">Needs your review</h2>
+            <p className="mt-1 text-sm text-muted">
+              These candidates finished their assessment and are waiting on your
+              decision.
+            </p>
+            <div className="mt-4 space-y-2">
+              {needsReview.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/candidates/${c.id}`}
+                  className="lift flex items-center justify-between rounded-xl border border-border bg-card/50 px-4 py-3 hover:border-accent"
+                >
+                  <div>
+                    <span className="font-medium">{c.name ?? "Candidate"}</span>
+                    <span className="ml-3 text-sm text-muted">
+                      {roleTitle.get(c.role_id) ?? "—"}
+                    </span>
+                  </div>
+                  <span className="flex items-center gap-3">
+                    <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                      Awaiting review
+                    </span>
+                    <span className="text-sm font-medium text-accent-soft">
+                      Review verdict →
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
+        )}
+
+        {/* Roles */}
+        <div className="mt-12 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Roles</h2>
+        </div>
+
         {!dbError && roles.length === 0 && (
-          <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center">
+          <div className="mt-4 rounded-2xl border border-dashed border-border p-12 text-center">
             <p className="text-muted">No roles yet.</p>
             <Link
               href="/roles/new"
               className="mt-4 inline-block rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
             >
-              🎙️ Describe your first role
+              Build your first assessment
             </Link>
           </div>
         )}
 
-        <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
-          {roles.map((r) => (
-            <Item key={r.id} className="h-full">
-              <Link
-                href={`/roles/${r.id}`}
-                className="lift block h-full rounded-2xl border border-border bg-card/50 p-6 hover:border-accent"
-              >
-              <h2 className="text-lg font-semibold">{r.title}</h2>
-              <p className="mt-2 line-clamp-2 text-sm text-muted">
-                {r.description_raw ?? "—"}
-              </p>
-              <p className="mt-4 text-xs text-muted">
-                {r.rubric?.length ?? 0} criteria ·{" "}
-                {r.interview_questions?.length ?? 0} interview questions
-              </p>
-              </Link>
-            </Item>
-          ))}
+        <Stagger className="mt-4 grid gap-4 sm:grid-cols-2">
+          {roles.map((r) => {
+            const t = perRole.get(r.id);
+            return (
+              <Item key={r.id} className="h-full">
+                <Link
+                  href={`/roles/${r.id}`}
+                  className="lift block h-full rounded-2xl border border-border bg-card/50 p-6 hover:border-accent"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-lg font-semibold">{r.title}</h3>
+                    {t && t.review > 0 && (
+                      <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                        {t.review} to review
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 line-clamp-2 text-sm text-muted">
+                    {r.description_raw ?? "—"}
+                  </p>
+                  <p className="mt-4 text-xs text-muted">
+                    {t?.total ?? 0} candidate{(t?.total ?? 0) === 1 ? "" : "s"} ·{" "}
+                    {r.rubric?.length ?? 0} criteria ·{" "}
+                    {r.interview_questions?.length ?? 0} questions
+                  </p>
+                </Link>
+              </Item>
+            );
+          })}
         </Stagger>
       </main>
     </div>
