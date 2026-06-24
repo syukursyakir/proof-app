@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import VerdictView from "@/components/VerdictView";
 import type { Candidate, Verdict } from "@/lib/types";
 
@@ -72,9 +73,8 @@ export default function SamplePage() {
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-            <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.6)]" />
-            Clarion
+          <Link href="/">
+            <Logo />
           </Link>
           <div className="flex items-center gap-3">
             <span className="rounded-full border border-border px-3 py-1 text-xs text-muted">

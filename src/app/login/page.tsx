@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabaseClient } from "@/lib/supabase-client";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -29,9 +30,8 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card/50 p-8 text-center">
-        <div className="mx-auto mb-5 flex items-center justify-center gap-2 font-semibold">
-          <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.5)]" />
-          Clarion
+        <div className="mb-5 flex items-center justify-center">
+          <Logo />
         </div>
         <h1 className="text-xl font-semibold">Sign in to manage roles</h1>
         <p className="mt-2 text-sm text-muted">

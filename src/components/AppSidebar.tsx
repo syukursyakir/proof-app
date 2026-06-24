@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SignOutButton from "@/components/SignOutButton";
+import Logo from "@/components/Logo";
 import {
   DashboardIcon,
   RolesIcon,
@@ -47,9 +48,8 @@ export default function AppSidebar({ email }: { email?: string | null }) {
     >
       {/* Brand */}
       <div className="flex h-16 items-center gap-2 px-4">
-        <Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="inline-block h-6 w-6 shrink-0 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.5)]" />
-          {!collapsed && <span>Clarion</span>}
+        <Link href="/dashboard">
+          <Logo withText={!collapsed} />
         </Link>
       </div>
 

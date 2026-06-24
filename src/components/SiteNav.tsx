@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { ease } from "@/lib/motion";
+import Logo from "@/components/Logo";
 
 // Frosted-on-scroll, hide-on-scroll-down sticky header (Vercel/Linear pattern).
 export default function SiteNav() {
@@ -29,9 +30,8 @@ export default function SiteNav() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="inline-block h-5 w-5 rounded-full bg-accent shadow-[0_0_18px_4px_rgba(109,94,248,0.6)]" />
-          Clarion
+        <Link href="/">
+          <Logo />
         </Link>
         <div className="flex items-center gap-2">
           <Link

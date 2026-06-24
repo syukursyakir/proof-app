@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 import SiteNav from "@/components/SiteNav";
 import HeroBackground from "@/components/HeroBackground";
+import HeroOrb from "@/components/HeroOrb";
 import ClarionFeatures from "@/components/ClarionFeatures";
 import {
   CountUp,
@@ -132,7 +133,7 @@ export default function Home() {
             className="relative flex items-center justify-center"
           >
             <div className="relative flex h-[340px] w-full items-center justify-center">
-              <div className="orb-glow orb-pulse h-44 w-44 rounded-full bg-[radial-gradient(circle_at_35%_30%,#b9aefff2,#6d5ef8_45%,#3b2fb0_100%)]" />
+              <HeroOrb size={300} />
               <p className="absolute bottom-2 left-1/2 w-64 -translate-x-1/2 text-center text-xs text-muted">
                 Interviewing&hellip; &ldquo;Tell me about a time you calmed an angry customer.&rdquo;
               </p>
