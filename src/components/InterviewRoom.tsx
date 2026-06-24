@@ -56,6 +56,8 @@ function Room({
   const chunksRef = useRef<Blob[]>([]);
   const turnsRef = useRef<Turn[]>([]);
   const finishingRef = useRef(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const aiPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const conversation = useConversation({
     onConnect: () => setPhase("live"),
@@ -127,9 +129,58 @@ function Room({
         videoRef.current.srcObject = stream;
         await videoRef.current.play().catch(() => {});
       }
+
+      // Mix the AI interviewer's voice into the recording. The SDK plays its
+      // audio separately (often via an <audio> element), so we tap that and the
+      // mic into one mixed track. Fully defensive — any failure falls back to
+      // recording the candidate's stream alone.
+      let recordStream: MediaStream = stream;
+      try {
+        const Ctx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext })
+            .webkitAudioContext;
+        const ac = new Ctx();
+        audioCtxRef.current = ac;
+        const dest = ac.createMediaStreamDestination();
+        if (stream.getAudioTracks().length) {
+          ac.createMediaStreamSource(stream).connect(dest);
+        }
+        // The AI playback element appears after the session connects; poll for it.
+        const tapAi = () => {
+          document.querySelectorAll("audio").forEach((el) => {
+            const node = el as HTMLAudioElement & {
+              _clarionTapped?: boolean;
+              captureStream?: () => MediaStream;
+              mozCaptureStream?: () => MediaStream;
+            };
+            if (node._clarionTapped) return;
+            try {
+              const s = node.captureStream?.() ?? node.mozCaptureStream?.();
+              if (s && s.getAudioTracks().length) {
+                ac.createMediaStreamSource(s).connect(dest);
+                node._clarionTapped = true;
+              }
+            } catch {
+              /* ignore this element */
+            }
+          });
+        };
+        aiPollRef.current = setInterval(tapAi, 800);
+        setTimeout(() => {
+          if (aiPollRef.current) clearInterval(aiPollRef.current);
+        }, 12000);
+        recordStream = new MediaStream([
+          ...stream.getVideoTracks(),
+          ...dest.stream.getAudioTracks(),
+        ]);
+      } catch {
+        recordStream = stream; // mixing unsupported — record candidate alone
+      }
+
       try {
         const mimeType = hasVideo ? "video/webm" : "audio/webm";
-        const rec = new MediaRecorder(stream, { mimeType });
+        const rec = new MediaRecorder(recordStream, { mimeType });
         chunksRef.current = [];
         rec.ondataavailable = (e) => {
           if (e.data.size > 0) chunksRef.current.push(e.data);
@@ -204,6 +255,8 @@ function Room({
     });
 
     streamRef.current?.getTracks().forEach((t) => t.stop());
+    if (aiPollRef.current) clearInterval(aiPollRef.current);
+    audioCtxRef.current?.close().catch(() => {});
 
     const turns = turnsRef.current;
     const fullText = turns
