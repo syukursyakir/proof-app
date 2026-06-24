@@ -116,6 +116,14 @@ export default function AptitudeTest({
     }
   }
 
+  // Announce time-remaining milestones to screen readers (WCAG: timed tests
+  // must surface timing to assistive tech, not only visually).
+  const [announce, setAnnounce] = useState("");
+  useEffect(() => {
+    if (secondsLeft === 300) setAnnounce("5 minutes remaining");
+    else if (secondsLeft === 60) setAnnounce("1 minute remaining");
+  }, [secondsLeft]);
+
   // Flag tab/window switches during the test (the most common cheat: looking
   // up answers). An honest signal, surfaced to the employer — not a hard block.
   useEffect(() => {
@@ -277,6 +285,9 @@ export default function AptitudeTest({
 
   return (
     <div className="flex min-h-screen flex-1 flex-col items-center justify-center px-6 py-12">
+      <p className="sr-only" role="status" aria-live="assertive">
+        {announce}
+      </p>
       <div className="w-full max-w-2xl">
         {/* Proctoring indicator */}
         <div className="mb-4 flex items-center justify-center gap-2 text-xs">
