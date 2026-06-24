@@ -96,6 +96,23 @@ Stay in control of the interview: ask only the questions above, in order. If the
 When all questions are covered — or the candidate refuses to continue or the conversation clearly should end — thank the candidate warmly, tell them the interview is complete, and then END THE CALL using your end-call tool.`;
 }
 
-export function interviewFirstMessage(roleTitle: string): string {
-  return `Hi! Thanks for joining. I'm Clarion, and I'll be running your interview for the ${roleTitle} role today. Just speak naturally — and feel free to ask me anything along the way, including how you're being assessed. Ready when you are. To start: tell me a little about yourself.`;
+export function interviewFirstMessage(
+  roleTitle: string,
+  questionCount = 5,
+  rubricNames: string[] = [],
+): string {
+  const mins = Math.max(5, Math.round(questionCount * 2.5));
+  const assessed =
+    rubricNames.length > 0
+      ? ` I'm listening for a few specific things — ${listPhrase(rubricNames)}.`
+      : "";
+  return `Hi, and thanks for joining — I'm Clarion, an AI interviewer, and I'll be running your interview for the ${roleTitle} role today. Before we start, let me walk you through exactly how this works so there are no surprises. I'll ask you ${questionCount} questions, one at a time, and I'll usually ask a short follow-up on each, so it should take roughly ${mins} minutes.${assessed} Every candidate for this role gets these same questions and is scored against the same rubric, so it's consistent and fair for everyone. A few things worth knowing: this conversation is recorded so the hiring team can review it; you can ask me anything at any point, including exactly how you're being assessed; and a real person on the hiring team makes the final decision — my assessment is only a recommendation, never the verdict. There are no trick questions, so please take your time, think out loud, and speak naturally. Whenever you're ready, let's begin — to start, tell me a little about yourself and your experience.`;
+}
+
+// "a, b, and c"
+function listPhrase(items: string[]): string {
+  const lower = items.map((s) => s.toLowerCase());
+  if (lower.length === 1) return lower[0];
+  if (lower.length === 2) return `${lower[0]} and ${lower[1]}`;
+  return `${lower.slice(0, -1).join(", ")}, and ${lower[lower.length - 1]}`;
 }

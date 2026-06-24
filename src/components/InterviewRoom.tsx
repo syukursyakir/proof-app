@@ -146,7 +146,11 @@ function Room({
         overrides: {
           agent: {
             prompt: { prompt: buildInterviewPrompt(roleTitle, questions, rubric, terms ?? []) },
-            firstMessage: interviewFirstMessage(roleTitle),
+            firstMessage: interviewFirstMessage(
+              roleTitle,
+              questions.length,
+              rubric.map((c) => c.name),
+            ),
           },
         },
         dynamicVariables: {
@@ -256,6 +260,27 @@ function Room({
             Speak naturally — you can ask Clarion anything along the way,
             including exactly how you&apos;re being assessed.
           </p>
+
+          {rubric.length > 0 && (
+            <div className="mt-5 rounded-lg border border-border bg-card/60 p-4 text-left">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                What you&apos;ll be assessed on
+              </p>
+              <ul className="mt-2 space-y-1">
+                {rubric.map((c) => (
+                  <li key={c.name} className="flex items-start gap-2 text-sm">
+                    <span className="mt-0.5 text-accent-soft">•</span>
+                    <span>{c.name}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 border-t border-border/60 pt-2 text-xs text-muted">
+                A real person on the hiring team makes the final decision —
+                Clarion&apos;s assessment is a recommendation, not a verdict.
+              </p>
+            </div>
+          )}
+
           <p className="mt-4 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
             🔴 This interview is recorded (audio &amp; video) so the employer can
             review it. Your answers are scored against a fixed rubric — only what
