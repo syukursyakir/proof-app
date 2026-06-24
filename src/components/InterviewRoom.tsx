@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
-import VoiceOrb from "@/components/VoiceOrb";
+import LogoPulse from "@/components/LogoPulse";
 import TextInterview from "@/components/TextInterview";
 import AppealButton from "@/components/AppealButton";
 import DeviceCheck from "@/components/DeviceCheck";
@@ -425,9 +425,15 @@ function Room({
           />
         </div>
 
-        <VoiceOrb
+        <LogoPulse
           state={
-            phase === "live" ? (speaking ? "speaking" : "listening") : "thinking"
+            phase === "live"
+              ? speaking
+                ? "speaking"
+                : "listening"
+              : phase === "saving"
+                ? "saving"
+                : "connecting"
           }
           getLevel={getLevel}
           size={320}
