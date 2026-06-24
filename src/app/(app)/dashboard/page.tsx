@@ -69,7 +69,7 @@ export default async function DashboardPage() {
             }`}
           >
             <div
-              className={`text-3xl font-semibold ${
+              className={`tnum text-3xl font-semibold ${
                 s.accent && s.value > 0 ? "text-amber-700" : "text-foreground"
               }`}
             >

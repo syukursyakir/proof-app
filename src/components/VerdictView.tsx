@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Candidate, CriterionVerdict, Verdict } from "@/lib/types";
 import { pairScores, agreement } from "@/lib/agreement";
 import { computeComposite, type CompositeBand } from "@/lib/composite";
-import { ease } from "@/lib/motion";
-import { Stagger, Item } from "@/components/motion";
+import { ease, spring } from "@/lib/motion";
+import { Stagger, Item, CountUp } from "@/components/motion";
 
 type SkillsAnswers = {
   qa: { question: string; answer: string }[];
@@ -250,29 +250,37 @@ export default function VerdictView({
       </p>
 
       {composite && (
-        <section className="rounded-2xl border border-border bg-card/50 p-6">
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: ease.out }}
+          className="rounded-2xl border border-border bg-card/50 p-6"
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Overall recommendation
               </p>
               <div className="mt-2 flex items-center gap-3">
-                <span className="text-4xl font-semibold leading-none">
-                  {Math.round(composite.composite)}
+                <span className="tnum text-4xl font-semibold leading-none">
+                  <CountUp value={Math.round(composite.composite)} />
                   <span className="text-lg font-normal text-muted">/100</span>
                 </span>
-                <span
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ ...spring.bouncy, delay: 0.7 }}
                   className={`rounded-full px-3 py-1 text-sm font-medium ${bandStyle[composite.band].pill}`}
                 >
                   {composite.band}
-                </span>
+                </motion.span>
               </div>
             </div>
           </div>
 
-          {/* Component bars */}
+          {/* Component bars — assemble from zero, staggered */}
           <div className="mt-6 space-y-4">
-            {composite.components.map((c) => (
+            {composite.components.map((c, i) => (
               <div key={c.key}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="font-medium">
@@ -281,12 +289,14 @@ export default function VerdictView({
                       · {componentSubLabel[c.key]} · {Math.round(c.weight * 100)}% weight
                     </span>
                   </span>
-                  <span className="text-muted">{Math.round(c.pct)}%</span>
+                  <span className="tnum text-muted">{Math.round(c.pct)}%</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-border">
-                  <div
-                    className={`h-full rounded-full transition-all ${componentBarColor[c.key]}`}
-                    style={{ width: `${c.pct}%` }}
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${c.pct}%` }}
+                    transition={{ duration: 0.8, ease: ease.out, delay: 0.25 + i * 0.12 }}
+                    className={`h-full rounded-full ${componentBarColor[c.key]}`}
                   />
                 </div>
               </div>
@@ -301,7 +311,7 @@ export default function VerdictView({
             validity for this assessment. Treat the band, not the exact number, as
             the signal — and treat it as a recommendation. You decide.
           </p>
-        </section>
+        </motion.section>
       )}
 
       {appealRequested && (

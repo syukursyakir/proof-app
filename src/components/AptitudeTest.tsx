@@ -270,7 +270,7 @@ export default function AptitudeTest({
             </p>
           </div>
           <div
-            className={`rounded-full border px-4 py-1.5 font-mono text-sm font-semibold tabular-nums ${
+            className={`tnum rounded-full border px-4 py-1.5 font-mono text-sm font-semibold tabular-nums ${
               timerWarning
                 ? "border-red-300 bg-red-50 text-red-600"
                 : "border-border bg-card/50 text-foreground"
