@@ -310,16 +310,39 @@ function Room({
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl font-semibold text-green-600">
             ✓
           </div>
-          <h1 className="text-2xl font-semibold">Interview complete</h1>
+          <h1 className="text-2xl font-semibold">Assessment complete</h1>
           <p className="mt-3 text-muted">
-            Thanks, {candidateName}. Your responses have been saved and sent to
-            the hiring team for review.
+            Thanks, {candidateName}. Your responses have been saved and sent to{" "}
+            {orgName ?? "the hiring team"}.
           </p>
-          <p className="mt-2 text-sm text-muted">
-            If you feel any response was missed or assessed unfairly, you can
-            request a human review below.
+
+          {rubric.length > 0 && (
+            <div className="mt-6 rounded-xl border border-border bg-card/50 p-5 text-left">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                What you were assessed on
+              </p>
+              <ul className="mt-3 space-y-1.5">
+                {rubric.map((c) => (
+                  <li key={c.name} className="flex items-start gap-2 text-sm">
+                    <span className="mt-0.5 text-accent-soft">•</span>
+                    <span>{c.name}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 border-t border-border/60 pt-3 text-xs leading-5 text-muted">
+                You were scored against the same rubric as every other candidate.
+                A member of the hiring team — a real person — makes the final
+                decision; Clarion&apos;s assessment is a recommendation, not a
+                verdict.
+              </p>
+            </div>
+          )}
+
+          <p className="mt-4 text-sm text-muted">
+            Feel something was missed or assessed unfairly?
           </p>
           <AppealButton token={token} />
+          <p className="mt-6 text-xs text-muted">You can close this tab.</p>
         </div>
       </Shell>
     );
