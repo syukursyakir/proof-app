@@ -215,7 +215,7 @@ export default function AssessmentFlow({
             onClick={() => setPhase(afterIntro)}
             className="mt-8 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft"
           >
-            Begin {parts[0].title}
+            {afterIntro === "resume" ? "Get started" : `Begin ${parts[0].title}`}
           </button>
         </div>
       </motion.div>

@@ -468,7 +468,7 @@ function Room({
     <Shell>
       <div
         className={`relative flex w-full max-w-3xl flex-col items-center transition-all duration-300 ${
-          phase === "live" && transcriptOpen ? "lg:mr-80" : ""
+          phase === "live" && transcriptOpen ? "md:mr-80" : ""
         }`}
       >
         {/* webcam tile — top left */}

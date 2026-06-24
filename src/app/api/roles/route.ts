@@ -57,13 +57,29 @@ export async function PATCH(req: Request) {
 
   const body = await req.json();
   if (!body.id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  const { id, org_id: _ignore, ...fields } = body;
-  void _ignore;
+  // Whitelist updatable columns — never let a client overwrite id, org_id,
+  // join_code, or created_at via the request body.
+  const UPDATABLE = [
+    "title",
+    "description_raw",
+    "occupation",
+    "rubric",
+    "test_questions",
+    "test_mcq",
+    "interview_questions",
+    "terms",
+    "test_enabled",
+    "resume_mode",
+  ] as const;
+  const fields: Record<string, unknown> = {};
+  for (const k of UPDATABLE) {
+    if (body[k] !== undefined) fields[k] = body[k];
+  }
   // RLS restricts the update to rows in the user's org.
   const { data, error } = await sb
     .from("roles")
     .update(fields)
-    .eq("id", id)
+    .eq("id", body.id)
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
