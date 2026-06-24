@@ -2,29 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { ease } from "@/lib/motion";
+import { useMotionValueEvent, useScroll } from "framer-motion";
 import Logo from "@/components/Logo";
 
-// Frosted-on-scroll, hide-on-scroll-down sticky header (Vercel/Linear pattern).
+// Always-visible sticky header — frosts once you start scrolling, never hides.
 export default function SiteNav() {
   const { scrollY } = useScroll();
-  const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = scrollY.getPrevious() ?? 0;
-    setHidden(y > prev && y > 150);
     setScrolled(y > 16);
   });
 
   return (
-    <motion.header
-      initial={{ y: 0 }}
-      animate={{ y: hidden ? "-160%" : "0%" }}
-      transition={{ duration: 0.25, ease: ease.inOut }}
-      className="fixed inset-x-0 top-0 z-50 px-4 pt-4"
-    >
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
       {/* Floating frosted pill (Asme-style), tuned to the warm/light theme. */}
       <nav
         className={`mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full py-2.5 pl-4 pr-2.5 transition-all duration-300 ${
@@ -51,6 +42,6 @@ export default function SiteNav() {
           </Link>
         </div>
       </nav>
-    </motion.header>
+    </header>
   );
 }
