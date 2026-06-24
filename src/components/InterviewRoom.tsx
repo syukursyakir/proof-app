@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import VoiceOrb from "@/components/VoiceOrb";
 import Logo from "@/components/Logo";
@@ -47,9 +47,16 @@ function Room({
 }: Props) {
   const [phase, setPhase] = useState<Phase>("consent");
   const [mode, setMode] = useState<"voice" | "text">("voice");
-  const [caption, setCaption] = useState("");
+  const [, setCaption] = useState("");
   const [lines, setLines] = useState<Turn[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [transcriptOpen, setTranscriptOpen] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Keep the transcript pinned to the latest line as the conversation grows.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [lines]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -416,8 +423,8 @@ function Room({
   return (
     <Shell>
       <div className="relative flex w-full max-w-3xl flex-col items-center">
-        {/* webcam tile */}
-        <div className="absolute right-0 top-0 h-28 w-40 overflow-hidden rounded-xl border border-border bg-black/60">
+        {/* webcam tile — top left */}
+        <div className="absolute left-0 top-0 h-28 w-40 overflow-hidden rounded-xl border border-border bg-black/60">
           <video
             ref={videoRef}
             muted
@@ -444,31 +451,6 @@ function Room({
                 : "Listening…"}
         </p>
 
-        {caption && phase === "live" && (
-          <p className="mt-6 max-w-xl text-center text-foreground/90">
-            &ldquo;{caption}&rdquo;
-          </p>
-        )}
-
-        {phase === "live" && lines.length > 0 && (
-          <div className="mt-6 max-h-44 w-full max-w-xl space-y-2 overflow-y-auto rounded-xl border border-border bg-card/50 p-4 text-sm">
-            <p className="mb-1 text-xs uppercase tracking-wide text-muted">
-              Live transcript
-            </p>
-            {lines.map((l, i) => (
-              <p
-                key={i}
-                className={l.role === "user" ? "text-foreground" : "text-muted"}
-              >
-                <span className="font-medium">
-                  {l.role === "user" ? "You" : "Clarion"}:
-                </span>{" "}
-                {l.text}
-              </p>
-            ))}
-          </div>
-        )}
-
         {phase === "live" && (
           <button
             onClick={end}
@@ -478,6 +460,50 @@ function Room({
           </button>
         )}
       </div>
+
+      {/* Live transcript — collapsible side panel on the right */}
+      {phase === "live" && (
+        <>
+          <button
+            onClick={() => setTranscriptOpen((o) => !o)}
+            className="fixed right-4 top-4 z-20 rounded-full border border-border bg-card/80 px-3 py-1.5 text-xs font-medium text-muted backdrop-blur transition-colors hover:text-foreground"
+          >
+            {transcriptOpen ? "Hide transcript ›" : "‹ Live transcript"}
+          </button>
+          <aside
+            aria-hidden={!transcriptOpen}
+            className={`fixed right-0 top-0 z-10 flex h-full w-80 max-w-[85vw] flex-col border-l border-border bg-card/85 backdrop-blur transition-transform duration-300 ${
+              transcriptOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <p className="px-5 pb-3 pt-16 text-xs uppercase tracking-wide text-muted">
+              Live transcript
+            </p>
+            <div
+              ref={scrollRef}
+              className="flex-1 space-y-2 overflow-y-auto px-5 pb-6 text-sm"
+            >
+              {lines.length === 0 ? (
+                <p className="text-muted">The conversation will appear here…</p>
+              ) : (
+                lines.map((l, i) => (
+                  <p
+                    key={i}
+                    className={
+                      l.role === "user" ? "text-foreground" : "text-muted"
+                    }
+                  >
+                    <span className="font-medium">
+                      {l.role === "user" ? "You" : "Clarion"}:
+                    </span>{" "}
+                    {l.text}
+                  </p>
+                ))
+              )}
+            </div>
+          </aside>
+        </>
+      )}
     </Shell>
   );
 }
