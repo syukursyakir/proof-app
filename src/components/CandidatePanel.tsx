@@ -22,10 +22,12 @@ const statusLabel: Record<string, string> = {
 
 export default function CandidatePanel({
   roleId,
+  roleTitle,
   candidates,
   summaries = {},
 }: {
   roleId: string;
+  roleTitle?: string;
   candidates: Candidate[];
   summaries?: Record<string, { avg: number; recommendation: string }>;
 }) {
@@ -54,12 +56,22 @@ export default function CandidatePanel({
     }
   }
 
-  function copyLink(id: string, token: string | null | undefined) {
+  function copyInvite(
+    id: string,
+    token: string | null | undefined,
+    code: string | null | undefined,
+  ) {
     if (!token) return;
-    const url = `${window.location.origin}/interview/${token}`;
-    navigator.clipboard?.writeText(url);
+    const origin = window.location.origin;
+    const role = roleTitle ? ` for ${roleTitle}` : "";
+    const msg =
+      `You're invited to complete a short assessment${role}.\n\n` +
+      `Two ways to start (use a desktop browser):\n` +
+      (code ? `1. Go to ${origin}/join and enter code: ${code}\n` : "") +
+      `${code ? "2. " : ""}Or open this link directly: ${origin}/interview/${token}`;
+    navigator.clipboard?.writeText(msg);
     setCopied(id);
-    setTimeout(() => setCopied(null), 1500);
+    setTimeout(() => setCopied(null), 1800);
   }
 
   return (
@@ -127,14 +139,14 @@ export default function CandidatePanel({
                       {c.join_code}
                     </span>
                     <span className="hidden text-xs text-muted sm:inline">
-                      → clarion.fyi/join
+                      → they enter it at clarion.fyi/join
                     </span>
                   </div>
                   <button
-                    onClick={() => copyLink(c.id, c.access_token)}
+                    onClick={() => copyInvite(c.id, c.access_token, c.join_code)}
                     className="rounded-full border border-border px-3 py-1 text-xs hover:border-accent"
                   >
-                    {copied === c.id ? "✓ Copied" : "Copy link"}
+                    {copied === c.id ? "✓ Invite copied" : "Copy invite"}
                   </button>
                 </div>
               )}

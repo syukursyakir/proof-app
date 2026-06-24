@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef } from "react";
 import {
   motion,
@@ -155,6 +156,24 @@ export default function Home() {
               </motion.div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Candidate join band — Kahoot-style */}
+      <section className="border-t border-border/60 bg-card/40">
+        <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
+          <div className="text-center sm:text-left">
+            <p className="font-medium">Invited to an interview?</p>
+            <p className="text-sm text-muted">
+              Enter the code your employer sent you — no account needed.
+            </p>
+          </div>
+          <Link
+            href="/join"
+            className="rounded-full border border-accent/40 bg-white px-6 py-2.5 text-sm font-medium text-accent-soft transition-colors hover:bg-accent hover:text-white"
+          >
+            Enter your code →
+          </Link>
         </div>
       </section>
 

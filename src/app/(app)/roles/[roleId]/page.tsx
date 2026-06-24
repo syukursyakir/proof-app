@@ -77,6 +77,7 @@ export default async function RolePage({
         />
         <CandidatePanel
           roleId={role.id}
+          roleTitle={role.title}
           candidates={candidates}
           summaries={summaries}
         />
