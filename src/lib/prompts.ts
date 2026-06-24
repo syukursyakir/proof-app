@@ -52,6 +52,18 @@ Also give an "overall" with a 2-3 sentence "summary", a "recommendation" (one of
 Output ONLY valid JSON, no prose:
 {"overall": {"summary": "...", "recommendation": "advance", "integrity_flag": false}, "per_criterion": [{"name": "...", "justification": "...", "quotes": ["..."], "score": 4}]}`;
 
+export const CRITIQUE_MCQ_SYSTEM = `You are a strict psychometric reviewer judging multiple-choice aptitude items for pre-employment screening. Be harsh — most weak items should be caught.
+
+For EACH item, recompute the answer yourself, then assign:
+- "verdict": one of
+  - "good": genuinely multi-step / requires real reasoning, distractors are plausible (each a likely mistake), and roughly 50-70% of candidates would get it right.
+  - "easy": trivial — single-step arithmetic, obvious answer, vocabulary/recall, or distractors nobody would pick. Most candidates get it right.
+  - "flawed": the marked correct option is wrong, the item is ambiguous, or more than one option is defensible.
+- "note": <= 12 words — the reason, or how to fix it.
+
+Output ONLY valid JSON:
+{"items": [{"id": "q1", "verdict": "good", "note": "..."}]}`;
+
 export const SUGGEST_SKILLS_SYSTEM = `You help a small employer set up a hiring assessment with as little typing as possible.
 Given a job role, output 10-12 concise skills/qualities an employer would most want to assess for that role — a mix of behavioural traits and role-specific/hard skills.
 Each is a short chip label: 1-3 words, Title Case, no punctuation (e.g. "Empathy", "De-escalation", "Cash handling", "Written communication"). Order by importance. No duplicates.

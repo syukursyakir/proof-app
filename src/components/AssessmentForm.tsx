@@ -47,6 +47,30 @@ export default function AssessmentForm({
   const [rubric, setRubric] = useState<Criterion[]>(initial.rubric ?? []);
   const [tests, setTests] = useState<string[]>(initial.test_questions ?? []);
   const [mcq, setMcq] = useState<TestQuestion[]>(initial.test_mcq ?? []);
+  const [critique, setCritique] = useState<
+    Record<string, { verdict: "good" | "easy" | "flawed"; note: string }>
+  >({});
+  const [checking, setChecking] = useState(false);
+
+  async function checkDifficulty() {
+    if (!mcq.length) return;
+    setChecking(true);
+    try {
+      const res = await fetch("/api/critique-mcq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questions: mcq }),
+      });
+      const data = await res.json();
+      const map: typeof critique = {};
+      for (const it of data.items ?? []) {
+        if (it?.id) map[it.id] = { verdict: it.verdict, note: it.note };
+      }
+      setCritique(map);
+    } finally {
+      setChecking(false);
+    }
+  }
   const [questions, setQuestions] = useState<string[]>(
     initial.interview_questions ?? [],
   );
@@ -222,18 +246,31 @@ export default function AssessmentForm({
       <section>
         <div className="mb-1 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Aptitude test</h2>
-          <button
-            type="button"
-            onClick={addMcq}
-            className="text-sm text-accent-soft hover:underline"
-          >
-            + Add question
-          </button>
+          <div className="flex items-center gap-3">
+            {mcq.length > 0 && (
+              <button
+                type="button"
+                onClick={checkDifficulty}
+                disabled={checking}
+                className="text-sm text-accent-soft hover:underline disabled:opacity-50"
+              >
+                {checking ? "Checking…" : "✦ Check difficulty"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={addMcq}
+              className="text-sm text-accent-soft hover:underline"
+            >
+              + Add question
+            </button>
+          </div>
         </div>
         <p className="mb-3 text-sm text-muted">
           AI drafted these — <span className="text-foreground">review every question
           and mark the correct answer</span> before candidates take the test. Click an
-          option&apos;s circle to set it as correct.
+          option&apos;s circle to set it as correct, or run a difficulty check to flag
+          weak/incorrect items.
         </p>
         {mcq.length === 0 && (
           <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-sm text-muted">
@@ -258,6 +295,30 @@ export default function AssessmentForm({
                     </option>
                   ))}
                 </select>
+                {critique[q.id] &&
+                  (() => {
+                    const v = critique[q.id];
+                    const style =
+                      v.verdict === "good"
+                        ? "bg-green-100 text-green-700"
+                        : v.verdict === "easy"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-red-100 text-red-700";
+                    const label =
+                      v.verdict === "good"
+                        ? "Good"
+                        : v.verdict === "easy"
+                          ? "Too easy"
+                          : "Check answer";
+                    return (
+                      <span
+                        title={v.note}
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${style}`}
+                      >
+                        {label}
+                      </span>
+                    );
+                  })()}
                 <button
                   type="button"
                   onClick={() => setMcq((m) => m.filter((_, idx) => idx !== i))}
@@ -266,6 +327,9 @@ export default function AssessmentForm({
                   Remove
                 </button>
               </div>
+              {critique[q.id] && critique[q.id].verdict !== "good" && (
+                <p className="mt-1 pl-6 text-xs text-muted">{critique[q.id].note}</p>
+              )}
               <textarea
                 className={`${input} mt-3 min-h-12`}
                 placeholder="Question text"

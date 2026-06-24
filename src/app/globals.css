@@ -40,17 +40,10 @@ html {
 }
 
 body {
-  background: radial-gradient(
-      900px 460px at 15% -8%,
-      rgba(224, 146, 47, 0.1),
-      transparent 60%
-    ),
-    radial-gradient(
-      1000px 520px at 85% -6%,
-      rgba(42, 62, 98, 0.07),
-      transparent 64%
-    ),
-    var(--background);
+  /* Solid, consistent surface everywhere. The warm/navy glows live only on the
+     landing hero (HeroBackground) — keeping them on body tinted every app page
+     and looked like the background "changed" while scrolling. */
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-hanken), system-ui, -apple-system, sans-serif;
   font-optical-sizing: auto;
