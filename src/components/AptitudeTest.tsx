@@ -61,9 +61,32 @@ export default function AptitudeTest({
         return;
       }
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
+        // Ask for the whole monitor. Sharing a tab/window auto-stops when the
+        // page navigates between test steps — the monitor surface does not.
+        video: { displaySurface: "monitor" },
         audio: false,
-      });
+        // Non-standard hints honoured by Chromium: bias the picker to the
+        // full-screen option and hide the "current tab" shortcut.
+        monitorTypeSurfaces: "include",
+        preferCurrentTab: false,
+        selfBrowserSurface: "exclude",
+        surfaceSwitching: "exclude",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      // Enforce entire-screen: if the candidate picked a window or a tab,
+      // reject it and make them re-share the whole screen.
+      const surface = (
+        stream.getVideoTracks()[0]?.getSettings() as { displaySurface?: string }
+      )?.displaySurface;
+      if (surface && surface !== "monitor") {
+        stream.getTracks().forEach((t) => t.stop());
+        setShareError(
+          "Please share your ENTIRE SCREEN — not a single window or browser tab. Sharing just a tab or window stops the recording when the test moves between steps. Click below and choose your full screen.",
+        );
+        setRequesting(false);
+        return;
+      }
       screenStreamRef.current = stream;
 
       // If the candidate stops sharing mid-test, flag it.
