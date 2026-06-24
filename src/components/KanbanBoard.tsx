@@ -50,6 +50,7 @@ export default function KanbanBoard({
   const [overCol, setOverCol] = useState<string | null>(null);
 
   async function moveTo(id: string, status: KanbanCandidate["status"]) {
+    setDragId(null); // clear drag state so the moved card never stays greyed
     const card = cards.find((c) => c.id === id);
     if (!card || card.status === status) return;
     // optimistic
@@ -83,6 +84,7 @@ export default function KanbanBoard({
               e.preventDefault();
               setOverCol(null);
               const id = e.dataTransfer.getData("text/plain") || dragId;
+              setDragId(null);
               if (id) void moveTo(id, col.key);
             }}
             className={`rounded-2xl border p-3 transition-colors ${
