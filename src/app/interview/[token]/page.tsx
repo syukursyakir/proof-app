@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveToken } from "@/lib/candidateToken";
 import InterviewRoom from "@/components/InterviewRoom";
-import AptitudeGate from "@/components/AptitudeGate";
+import AssessmentFlow from "@/components/AssessmentFlow";
 import type { Role, TestQuestion } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -41,24 +41,31 @@ export default async function InterviewPage({
   if (!roleData) notFound();
   const role = roleData as Role & { organizations?: { name: string } | null };
   const orgName = (role.organizations as { name?: string } | null)?.name ?? null;
-  const testMcq = (role.test_mcq as TestQuestion[] | null) ?? null;
-  const hasAptitude = role.test_enabled && testMcq && testMcq.length > 0;
+  const testMcq = (role.test_mcq as TestQuestion[] | null) ?? [];
+  const skillsQs = role.test_questions ?? [];
 
-  // Check if the candidate already completed the aptitude test.
+  // Pre-interview written sections are gated by the role's test_enabled toggle.
   const { data: candRow } = await supabaseAdmin()
     .from("candidates")
-    .select("aptitude_score")
+    .select("aptitude_score, skills_score")
     .eq("id", candidate.id)
     .single();
-  const aptitudeDone = candRow?.aptitude_score !== null && candRow?.aptitude_score !== undefined;
+  const aptitudeDone =
+    candRow?.aptitude_score !== null && candRow?.aptitude_score !== undefined;
+  const skillsDone =
+    candRow?.skills_score !== null && candRow?.skills_score !== undefined;
 
-  if (hasAptitude && !aptitudeDone) {
+  const needAptitude = role.test_enabled && testMcq.length > 0 && !aptitudeDone;
+  const needSkills = role.test_enabled && skillsQs.length > 0 && !skillsDone;
+
+  if (needAptitude || needSkills) {
     return (
-      <AptitudeGate
+      <AssessmentFlow
         token={token}
         roleTitle={role.title}
         orgName={orgName}
-        questions={testMcq}
+        aptitudeQuestions={needAptitude ? testMcq : []}
+        skillsQuestions={needSkills ? skillsQs : []}
         interviewQuestionCount={role.interview_questions?.length ?? 5}
       />
     );

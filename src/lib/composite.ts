@@ -1,27 +1,27 @@
-// Composite scoring — combines the aptitude (cognitive) and interview
-// (structured/behavioral) signals into one defensible recommendation.
+// Composite scoring — combines up to three signals into one defensible
+// recommendation: the structured interview (behavioural), the skills
+// work-sample, and the aptitude screen (cognitive).
 //
 // Methodology (grounded in selection-science research):
-//  - MECHANICAL combination, never holistic. Statistical combination of
-//    predictors beats expert holistic judgment by >50% validity
-//    (Kuncel et al. 2013).
-//  - COMPENSATORY model: a strong interview can offset a weaker aptitude
-//    score and vice-versa (Ock & Oswald 2018). The aptitude test is a soft
-//    screen, not a hard cognitive cutoff — a high cognitive hurdle is the
-//    single biggest adverse-impact risk (cognitive d≈1.0 vs interview d≈.23).
-//  - WEIGHTS: a mild validity-proportional tilt toward the interview, since
-//    structured interviews (ρ≈.42, Sackett et al. 2022) out-predict cognitive
-//    ability (ρ≈.31). Unit weighting (50/50) is the safe default absent local
-//    validation data (Wainer 1976); we use 60/40 as a justified mild tilt.
-//  - Both predictors are normalised to a common 0–100 scale before weighting
-//    so the larger-range predictor can't silently dominate the composite.
-//
-// NOTE: true z-score standardisation needs a norm group (candidate pool mean
-// + SD) which a fresh deployment doesn't have. Percent-of-max is the honest
-// interim; swap in z-scores once a baseline pool exists.
+//  - MECHANICAL combination, never holistic — statistical combination beats
+//    expert holistic judgement by >50% validity (Kuncel et al. 2013).
+//  - COMPENSATORY model: strength in one part offsets weakness in another
+//    (Ock & Oswald 2018). The aptitude test is a soft screen, never a hard
+//    cognitive cutoff (cognitive d≈1.0 is the biggest adverse-impact risk).
+//  - WEIGHTS are validity-proportional, from Sackett et al. (2022):
+//    structured interview ρ≈.42, work sample / job-knowledge ρ≈.40, cognitive
+//    ability ρ≈.31. Normalised to sum to 1. Unit weighting (Wainer 1976) is the
+//    safe default absent local data; this mild tilt tracks the evidence.
+//  - Each predictor is normalised to a common 0–100 scale before weighting so a
+//    larger-range predictor can't silently dominate.
+//  - Weights re-normalise to whichever components are present, so a candidate
+//    with only an interview still gets a composite.
 
-export const INTERVIEW_WEIGHT = 0.6;
-export const APTITUDE_WEIGHT = 0.4;
+export const BASE_WEIGHTS = {
+  interview: 0.37, // ρ≈.42
+  skills: 0.35, //    ρ≈.40
+  aptitude: 0.28, //  ρ≈.31
+};
 
 export type CompositeBand =
   | "Strong"
@@ -29,12 +29,17 @@ export type CompositeBand =
   | "Borderline"
   | "Not recommended";
 
+export type CompositeComponent = {
+  key: "interview" | "skills" | "aptitude";
+  label: string;
+  pct: number; // 0–100
+  weight: number; // normalised, 0–1
+};
+
 export type CompositeResult = {
   composite: number; // 0–100
   band: CompositeBand;
-  aptitudePct: number | null; // 0–100, null if no aptitude test
-  interviewPct: number | null; // 0–100, null if no interview scores
-  weights: { interview: number; aptitude: number };
+  components: CompositeComponent[];
 };
 
 export function bandFor(score: number): CompositeBand {
@@ -47,12 +52,11 @@ export function bandFor(score: number): CompositeBand {
 // Mean interview rating (1–5) -> 0–100. A rating of 1 maps to 0, 5 maps to 100.
 export function interviewPercent(criterionScores: number[]): number | null {
   if (!criterionScores.length) return null;
-  const mean =
-    criterionScores.reduce((s, n) => s + n, 0) / criterionScores.length;
+  const mean = criterionScores.reduce((s, n) => s + n, 0) / criterionScores.length;
   return ((mean - 1) / 4) * 100;
 }
 
-export function aptitudePercent(
+export function percentOfMax(
   score: number | null | undefined,
   max: number | null | undefined,
 ): number | null {
@@ -60,36 +64,38 @@ export function aptitudePercent(
   return (score / max) * 100;
 }
 
-export function computeComposite(
-  interviewScores: number[],
-  aptitudeScore: number | null | undefined,
-  aptitudeMax: number | null | undefined,
-): CompositeResult | null {
-  const interviewPct = interviewPercent(interviewScores);
-  const aptitudePct = aptitudePercent(aptitudeScore, aptitudeMax);
+export type CompositeInput = {
+  interviewScores?: number[];
+  skillsScore?: number | null;
+  skillsMax?: number | null;
+  aptitudeScore?: number | null;
+  aptitudeMax?: number | null;
+};
 
-  // Re-normalise weights to whichever components are present, so a candidate
-  // with only an interview (no aptitude test configured) still gets a composite.
-  let composite: number;
-  let weights = { interview: INTERVIEW_WEIGHT, aptitude: APTITUDE_WEIGHT };
+export function computeComposite(input: CompositeInput): CompositeResult | null {
+  const raw: { key: CompositeComponent["key"]; label: string; pct: number }[] = [];
 
-  if (interviewPct != null && aptitudePct != null) {
-    composite = INTERVIEW_WEIGHT * interviewPct + APTITUDE_WEIGHT * aptitudePct;
-  } else if (interviewPct != null) {
-    composite = interviewPct;
-    weights = { interview: 1, aptitude: 0 };
-  } else if (aptitudePct != null) {
-    composite = aptitudePct;
-    weights = { interview: 0, aptitude: 1 };
-  } else {
-    return null;
-  }
+  const interviewPct = interviewPercent(input.interviewScores ?? []);
+  if (interviewPct != null)
+    raw.push({ key: "interview", label: "Interview", pct: interviewPct });
 
-  return {
-    composite,
-    band: bandFor(composite),
-    aptitudePct,
-    interviewPct,
-    weights,
-  };
+  const skillsPct = percentOfMax(input.skillsScore, input.skillsMax);
+  if (skillsPct != null) raw.push({ key: "skills", label: "Skills", pct: skillsPct });
+
+  const aptitudePct = percentOfMax(input.aptitudeScore, input.aptitudeMax);
+  if (aptitudePct != null)
+    raw.push({ key: "aptitude", label: "Aptitude", pct: aptitudePct });
+
+  if (raw.length === 0) return null;
+
+  // Re-normalise the base weights across whichever components are present.
+  const weightSum = raw.reduce((s, c) => s + BASE_WEIGHTS[c.key], 0);
+  const components: CompositeComponent[] = raw.map((c) => ({
+    ...c,
+    weight: BASE_WEIGHTS[c.key] / weightSum,
+  }));
+
+  const composite = components.reduce((s, c) => s + c.weight * c.pct, 0);
+
+  return { composite, band: bandFor(composite), components };
 }

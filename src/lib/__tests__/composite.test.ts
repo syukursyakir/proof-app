@@ -2,10 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   bandFor,
   interviewPercent,
-  aptitudePercent,
+  percentOfMax,
   computeComposite,
-  INTERVIEW_WEIGHT,
-  APTITUDE_WEIGHT,
+  BASE_WEIGHTS,
 } from "../composite";
 
 describe("bandFor", () => {
@@ -19,53 +18,73 @@ describe("bandFor", () => {
 });
 
 describe("interviewPercent", () => {
-  it("maps 1->0 and 5->100", () => {
+  it("maps 1->0, 5->100, averages", () => {
     expect(interviewPercent([1])).toBe(0);
     expect(interviewPercent([5])).toBe(100);
-    expect(interviewPercent([3])).toBe(50);
-  });
-  it("averages multiple criteria", () => {
     expect(interviewPercent([5, 3])).toBe(75); // mean 4 -> 75
-  });
-  it("returns null when empty", () => {
     expect(interviewPercent([])).toBeNull();
   });
 });
 
-describe("aptitudePercent", () => {
-  it("computes percent of max", () => {
-    expect(aptitudePercent(9, 12)).toBe(75);
-    expect(aptitudePercent(6, 12)).toBe(50);
-  });
-  it("returns null without data", () => {
-    expect(aptitudePercent(null, 12)).toBeNull();
-    expect(aptitudePercent(9, null)).toBeNull();
+describe("percentOfMax", () => {
+  it("computes percent / handles missing", () => {
+    expect(percentOfMax(9, 12)).toBe(75);
+    expect(percentOfMax(null, 12)).toBeNull();
+    expect(percentOfMax(9, null)).toBeNull();
   });
 });
 
 describe("computeComposite", () => {
-  it("weights interview 60 / aptitude 40 when both present", () => {
-    // interview mean 5 -> 100%, aptitude 6/12 -> 50%
-    const r = computeComposite([5, 5], 6, 12);
-    expect(r).not.toBeNull();
-    expect(r!.composite).toBeCloseTo(0.6 * 100 + 0.4 * 50, 5); // 80
-    expect(r!.band).toBe("Strong");
-    expect(r!.weights).toEqual({ interview: INTERVIEW_WEIGHT, aptitude: APTITUDE_WEIGHT });
+  it("weights three components by normalised base weights", () => {
+    // all at 100% -> composite 100 regardless of weights
+    const r = computeComposite({
+      interviewScores: [5],
+      skillsScore: 15,
+      skillsMax: 15,
+      aptitudeScore: 12,
+      aptitudeMax: 12,
+    });
+    expect(r!.composite).toBeCloseTo(100, 5);
+    expect(r!.components).toHaveLength(3);
+    // weights normalise to 1
+    const wsum = r!.components.reduce((s, c) => s + c.weight, 0);
+    expect(wsum).toBeCloseTo(1, 5);
   });
 
-  it("falls back to interview-only when no aptitude", () => {
-    const r = computeComposite([3, 3], null, null); // 50%
+  it("applies the validity tilt (interview > skills > aptitude)", () => {
+    const r = computeComposite({
+      interviewScores: [5], // 100
+      skillsScore: 0,
+      skillsMax: 15, // 0
+      aptitudeScore: 0,
+      aptitudeMax: 12, // 0
+    });
+    // only the interview contributes; its normalised weight * 100
+    const expected = (BASE_WEIGHTS.interview /
+      (BASE_WEIGHTS.interview + BASE_WEIGHTS.skills + BASE_WEIGHTS.aptitude)) *
+      100;
+    expect(r!.composite).toBeCloseTo(expected, 5);
+  });
+
+  it("re-normalises when only two components are present", () => {
+    const r = computeComposite({
+      interviewScores: [3], // 50%
+      aptitudeScore: 12,
+      aptitudeMax: 12, // 100%
+    });
+    const wI = BASE_WEIGHTS.interview / (BASE_WEIGHTS.interview + BASE_WEIGHTS.aptitude);
+    const wA = BASE_WEIGHTS.aptitude / (BASE_WEIGHTS.interview + BASE_WEIGHTS.aptitude);
+    expect(r!.composite).toBeCloseTo(wI * 50 + wA * 100, 5);
+    expect(r!.components).toHaveLength(2);
+  });
+
+  it("falls back to a single component", () => {
+    const r = computeComposite({ interviewScores: [3] });
     expect(r!.composite).toBe(50);
-    expect(r!.weights).toEqual({ interview: 1, aptitude: 0 });
+    expect(r!.components[0].weight).toBe(1);
   });
 
-  it("falls back to aptitude-only when no interview", () => {
-    const r = computeComposite([], 12, 12); // 100%
-    expect(r!.composite).toBe(100);
-    expect(r!.weights).toEqual({ interview: 0, aptitude: 1 });
-  });
-
-  it("returns null when neither signal exists", () => {
-    expect(computeComposite([], null, null)).toBeNull();
+  it("returns null when no signal exists", () => {
+    expect(computeComposite({})).toBeNull();
   });
 });

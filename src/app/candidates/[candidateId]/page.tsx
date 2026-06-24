@@ -17,13 +17,20 @@ export default async function CandidatePage({
 
   const { data: cand } = await supa
     .from("candidates")
-    .select("*, aptitude_score, aptitude_max, proctor_recording_url")
+    .select("*")
     .eq("id", candidateId)
     .single();
   if (!cand) notFound();
   const candidate = cand as Candidate & {
     aptitude_score?: number | null;
     aptitude_max?: number | null;
+    skills_score?: number | null;
+    skills_max?: number | null;
+    skills_answers?: {
+      qa: { question: string; answer: string }[];
+      per_question: { score: number; justification: string }[];
+      overall: string | null;
+    } | null;
     proctor_recording_url?: string | null;
   };
 

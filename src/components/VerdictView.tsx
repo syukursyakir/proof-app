@@ -9,6 +9,23 @@ import { computeComposite, type CompositeBand } from "@/lib/composite";
 import { ease } from "@/lib/motion";
 import { Stagger, Item } from "@/components/motion";
 
+type SkillsAnswers = {
+  qa: { question: string; answer: string }[];
+  per_question: { score: number; justification: string }[];
+  overall: string | null;
+};
+
+const componentBarColor: Record<string, string> = {
+  interview: "bg-accent",
+  skills: "bg-violet-500",
+  aptitude: "bg-accent-soft",
+};
+const componentSubLabel: Record<string, string> = {
+  interview: "behavioural",
+  skills: "work-sample",
+  aptitude: "cognitive screen",
+};
+
 function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -94,7 +111,13 @@ export default function VerdictView({
   appealRequested = false,
   humanRating = null,
 }: {
-  candidate: Candidate & { aptitude_score?: number | null; aptitude_max?: number | null };
+  candidate: Candidate & {
+    aptitude_score?: number | null;
+    aptitude_max?: number | null;
+    skills_score?: number | null;
+    skills_max?: number | null;
+    skills_answers?: SkillsAnswers | null;
+  };
   verdict: Verdict | null;
   fullText: string | null;
   recordingUrl: string | null;
@@ -145,12 +168,20 @@ export default function VerdictView({
 
   const composite = useMemo(
     () =>
-      computeComposite(
-        (verdict?.per_criterion ?? []).map((c) => c.score),
-        candidate.aptitude_score,
-        candidate.aptitude_max,
-      ),
-    [verdict, candidate.aptitude_score, candidate.aptitude_max],
+      computeComposite({
+        interviewScores: (verdict?.per_criterion ?? []).map((c) => c.score),
+        skillsScore: candidate.skills_score,
+        skillsMax: candidate.skills_max,
+        aptitudeScore: candidate.aptitude_score,
+        aptitudeMax: candidate.aptitude_max,
+      }),
+    [
+      verdict,
+      candidate.skills_score,
+      candidate.skills_max,
+      candidate.aptitude_score,
+      candidate.aptitude_max,
+    ],
   );
 
   async function generate() {
@@ -240,52 +271,33 @@ export default function VerdictView({
 
           {/* Component bars */}
           <div className="mt-6 space-y-4">
-            {composite.interviewPct != null && (
-              <div>
+            {composite.components.map((c) => (
+              <div key={c.key}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="font-medium">
-                    Interview{" "}
+                    {c.label}{" "}
                     <span className="text-xs font-normal text-muted">
-                      · behavioural · {Math.round(composite.weights.interview * 100)}% weight
+                      · {componentSubLabel[c.key]} · {Math.round(c.weight * 100)}% weight
                     </span>
                   </span>
-                  <span className="text-muted">{Math.round(composite.interviewPct)}%</span>
+                  <span className="text-muted">{Math.round(c.pct)}%</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-border">
                   <div
-                    className="h-full rounded-full bg-accent transition-all"
-                    style={{ width: `${composite.interviewPct}%` }}
+                    className={`h-full rounded-full transition-all ${componentBarColor[c.key]}`}
+                    style={{ width: `${c.pct}%` }}
                   />
                 </div>
               </div>
-            )}
-            {composite.aptitudePct != null && (
-              <div>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="font-medium">
-                    Aptitude{" "}
-                    <span className="text-xs font-normal text-muted">
-                      · screen · {candidate.aptitude_score}/{candidate.aptitude_max} ·{" "}
-                      {Math.round(composite.weights.aptitude * 100)}% weight
-                    </span>
-                  </span>
-                  <span className="text-muted">{Math.round(composite.aptitudePct)}%</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-border">
-                  <div
-                    className="h-full rounded-full bg-accent-soft transition-all"
-                    style={{ width: `${composite.aptitudePct}%` }}
-                  />
-                </div>
-              </div>
-            )}
+            ))}
           </div>
 
           <p className="mt-5 border-t border-border/60 pt-4 text-xs leading-5 text-muted">
-            Mechanical composite — the interview (structured, ρ≈.42) is weighted
-            above the aptitude screen (ρ≈.31), per Sackett et al. (2022). Scores
-            within a band are statistically equivalent; don&apos;t over-read small
-            gaps. This is a recommendation — you make the decision.
+            Mechanical composite — components are weighted by their predictive
+            validity (interview ρ≈.42, skills work-sample ρ≈.40, aptitude screen
+            ρ≈.31, per Sackett et al. 2022). Scores within a band are
+            statistically equivalent; don&apos;t over-read small gaps. This is a
+            recommendation — you make the decision.
           </p>
         </section>
       )}
@@ -419,6 +431,45 @@ export default function VerdictView({
               </Item>
             ))}
           </Stagger>
+        </section>
+      )}
+
+      {candidate.skills_answers?.qa && candidate.skills_answers.qa.length > 0 && (
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">Skills work-sample</h2>
+          {candidate.skills_answers.overall && (
+            <p className="mb-3 text-sm text-muted">
+              {candidate.skills_answers.overall}
+            </p>
+          )}
+          <div className="space-y-3">
+            {candidate.skills_answers.qa.map((qa, i) => {
+              const pq = candidate.skills_answers?.per_question?.[i];
+              return (
+                <div
+                  key={i}
+                  className="rounded-xl border border-border bg-card/50 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm font-medium">{qa.question}</p>
+                    {pq && (
+                      <span className="shrink-0 text-sm font-semibold text-accent-soft">
+                        {pq.score}/5
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 whitespace-pre-wrap rounded-md bg-background px-3 py-2 text-sm leading-6 text-foreground/85">
+                    {qa.answer || <span className="text-muted">(no answer)</span>}
+                  </p>
+                  {pq?.justification && (
+                    <p className="mt-2 text-xs leading-5 text-muted">
+                      {pq.justification}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </section>
       )}
 
