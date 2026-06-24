@@ -1,5 +1,5 @@
-import { supabaseServer } from "@/lib/supabase-server";
 import AppSidebar from "@/components/AppSidebar";
+import { currentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,10 +8,7 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const sb = await supabaseServer();
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
+  const user = await currentUser();
 
   return (
     <div className="flex min-h-screen">

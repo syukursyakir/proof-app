@@ -1,8 +1,10 @@
+import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 // Returns the current user's org id (null if not signed in / no membership).
-export async function getUserOrgId(): Promise<string | null> {
+// React-cached so repeated calls within one request hit the network once.
+export const getUserOrgId = cache(async (): Promise<string | null> => {
   const sb = await supabaseServer();
   const {
     data: { user },
@@ -15,7 +17,7 @@ export async function getUserOrgId(): Promise<string | null> {
     .limit(1)
     .maybeSingle();
   return data?.org_id ?? null;
-}
+});
 
 // Returns the current user's org id + name (null if none).
 export async function getUserOrg(): Promise<{ id: string; name: string } | null> {

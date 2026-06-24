@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase-server";
+import { currentUser } from "@/lib/auth";
 import { Reveal, Stagger, Item } from "@/components/motion";
 import type { Candidate, Role } from "@/lib/types";
 
@@ -7,9 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const sb = await supabaseServer();
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
+  const user = await currentUser();
 
   let roles: Role[] = [];
   let dbError: string | null = null;

@@ -1,16 +1,13 @@
-import { supabaseServer } from "@/lib/supabase-server";
 import { getUserOrg } from "@/lib/org";
+import { currentUser } from "@/lib/auth";
 import { Reveal } from "@/components/motion";
 import SettingsForm from "@/components/SettingsForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const sb = await supabaseServer();
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  const org = await getUserOrg();
+  // user + org in parallel (org no longer waits on a separate auth call).
+  const [user, org] = await Promise.all([currentUser(), getUserOrg()]);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-8 py-10">
