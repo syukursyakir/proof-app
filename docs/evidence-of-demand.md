@@ -80,6 +80,17 @@ The four interviewees cover both sides of the B5 thesis.
 
 ---
 
+## Run-of-show (per person, ~15 min)
+1. **Set up (30s):** "I'm researching how people get hired. No right answers — I
+   just want your real experiences. Mind if I take notes / record?"
+2. **Discovery (10 min):** the persona questions below. Keep digging with "why?"
+   and "tell me about a specific time…". Don't pitch.
+3. **Show the app (3 min):** quick demo, then the 3 reaction questions.
+4. **Wrap (90s):** "Would you actually use this? Would you tell a friend?"
+
+Tips: shut up and listen (aim 80% them). Chase the emotional moments. Capture
+exact quotes.
+
 ## Question scripts (discovery — ask about their PAST)
 
 ### 🎓 Students (poly + JC) — the socially-gated candidate
