@@ -7,22 +7,33 @@ import Logo from "@/components/Logo";
 export default function JoinPage() {
   const router = useRouter();
   const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [needName, setNeedName] = useState(false);
+  const [roleTitle, setRoleTitle] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function go() {
     if (!code.trim()) return;
+    if (needName && !name.trim()) return;
     setBusy(true);
     setError(null);
     try {
       const res = await fetch("/api/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, name: needName ? name : undefined }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Invalid code");
-      const { token } = await res.json();
-      router.push(`/interview/${token}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Invalid code");
+      if (data.needName) {
+        // Open role code — collect the candidate's name, then join.
+        setNeedName(true);
+        setRoleTitle(data.roleTitle ?? null);
+        setBusy(false);
+        return;
+      }
+      router.push(`/interview/${data.token}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid code");
       setBusy(false);
@@ -35,23 +46,60 @@ export default function JoinPage() {
         <div className="mb-5 flex items-center justify-center">
           <Logo />
         </div>
-        <h1 className="text-xl font-semibold">Join your interview</h1>
-        <p className="mt-2 text-sm text-muted">Enter the code your employer gave you.</p>
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
-          onKeyDown={(e) => e.key === "Enter" && go()}
-          placeholder="ABCD2345"
-          maxLength={8}
-          className="mt-6 w-full rounded-lg border border-border bg-background px-4 py-3 text-center font-mono text-lg tracking-widest outline-none focus:border-accent"
-        />
-        <button
-          onClick={go}
-          disabled={busy}
-          className="mt-4 w-full rounded-full bg-accent px-6 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
-        >
-          {busy ? "Joining…" : "Join interview"}
-        </button>
+        {!needName ? (
+          <>
+            <h1 className="text-xl font-semibold">Join your assessment</h1>
+            <p className="mt-2 text-sm text-muted">
+              Enter the code your employer shared.
+            </p>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === "Enter" && go()}
+              placeholder="ABCD2345"
+              maxLength={8}
+              className="mt-6 w-full rounded-lg border border-border bg-background px-4 py-3 text-center font-mono text-lg tracking-widest outline-none focus:border-accent"
+            />
+            <button
+              onClick={go}
+              disabled={busy}
+              className="mt-4 w-full rounded-full bg-accent px-6 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+            >
+              {busy ? "Checking…" : "Continue"}
+            </button>
+          </>
+        ) : (
+          <>
+            <h1 className="text-xl font-semibold">
+              {roleTitle ?? "Your assessment"}
+            </h1>
+            <p className="mt-2 text-sm text-muted">What&apos;s your name?</p>
+            <input
+              value={name}
+              autoFocus
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && go()}
+              placeholder="Your full name"
+              className="mt-6 w-full rounded-lg border border-border bg-background px-4 py-3 text-center text-base outline-none focus:border-accent"
+            />
+            <button
+              onClick={go}
+              disabled={busy || !name.trim()}
+              className="mt-4 w-full rounded-full bg-accent px-6 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+            >
+              {busy ? "Starting…" : "Start assessment"}
+            </button>
+            <button
+              onClick={() => {
+                setNeedName(false);
+                setError(null);
+              }}
+              className="mt-3 text-xs text-muted underline hover:text-foreground"
+            >
+              ← Use a different code
+            </button>
+          </>
+        )}
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       </div>
     </div>

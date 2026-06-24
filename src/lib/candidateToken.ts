@@ -16,6 +16,38 @@ export function genCode(): string {
   return s;
 }
 
+// Look up a role by its open join code (case-insensitive).
+export async function resolveRoleByCode(
+  code: string,
+): Promise<{ id: string; title: string; org_id: string | null } | null> {
+  if (!code) return null;
+  const { data } = await supabaseAdmin()
+    .from("roles")
+    .select("id, title, org_id")
+    .eq("join_code", code.toUpperCase().trim())
+    .maybeSingle();
+  return (data as { id: string; title: string; org_id: string | null }) ?? null;
+}
+
+// Self-register a candidate against a role's open code; returns their token.
+export async function createCandidateForRole(
+  role: { id: string; org_id: string | null },
+  name: string,
+): Promise<string | null> {
+  const token = genToken();
+  const expires = new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString();
+  const { error } = await supabaseAdmin().from("candidates").insert({
+    role_id: role.id,
+    org_id: role.org_id,
+    name: (name || "").trim().slice(0, 80) || "Candidate",
+    status: "invited",
+    access_token: token,
+    join_code: genCode(),
+    token_expires_at: expires,
+  });
+  return error ? null : token;
+}
+
 // Resolve a token to its candidate, enforcing expiry. Service-role (candidate
 // is unauthenticated) — authorization IS possession of a valid, unexpired token.
 export async function resolveToken(token: string): Promise<Candidate | null> {

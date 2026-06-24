@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase-server";
 import AssessmentForm from "@/components/AssessmentForm";
 import CandidatePanel from "@/components/CandidatePanel";
+import { genCode } from "@/lib/candidateToken";
 import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,13 @@ export default async function RolePage({
 
   if (error || !data) notFound();
   const role = data as Role;
+
+  // Backfill an open join code for roles created before this feature.
+  if (!role.join_code) {
+    const code = genCode();
+    await supa.from("roles").update({ join_code: code }).eq("id", role.id);
+    role.join_code = code;
+  }
 
   const { data: candData } = await supa
     .from("candidates")
@@ -78,6 +86,7 @@ export default async function RolePage({
         <CandidatePanel
           roleId={role.id}
           roleTitle={role.title}
+          roleCode={role.join_code ?? null}
           candidates={candidates}
           summaries={summaries}
         />

@@ -23,14 +23,28 @@ const statusLabel: Record<string, string> = {
 export default function CandidatePanel({
   roleId,
   roleTitle,
+  roleCode = null,
   candidates,
   summaries = {},
 }: {
   roleId: string;
   roleTitle?: string;
+  roleCode?: string | null;
   candidates: Candidate[];
   summaries?: Record<string, { avg: number; recommendation: string }>;
 }) {
+  const [codeCopied, setCodeCopied] = useState(false);
+  function copyRoleInvite() {
+    if (!roleCode) return;
+    const origin = window.location.origin;
+    const msg =
+      `You're invited to apply${roleTitle ? ` for ${roleTitle}` : ""}.\n` +
+      `Go to ${origin}/join and enter code: ${roleCode}\n` +
+      `(Use a desktop browser.)`;
+    navigator.clipboard?.writeText(msg);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 1800);
+  }
   const router = useRouter();
   // Rank scored candidates first, highest average score on top.
   const sorted = [...candidates].sort(
@@ -76,31 +90,71 @@ export default function CandidatePanel({
 
   return (
     <section className="mt-12 border-t border-border/60 pt-10">
-      <h2 className="text-lg font-semibold">Candidates</h2>
+      <h2 className="text-lg font-semibold">Invite candidates</h2>
       <p className="mt-1 text-sm text-muted">
-        Add a candidate to generate their interview link.
+        Share one code — anyone can join, no need to add them first.
       </p>
 
-      <div className="mt-4 flex gap-2">
-        <input
-          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-          placeholder="Candidate name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
-        />
-        <button
-          onClick={add}
-          disabled={adding}
-          className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-60"
-        >
-          {adding ? "Adding…" : "Add candidate"}
-        </button>
-      </div>
+      {/* Open role code — the primary, Kahoot-style share */}
+      {roleCode && (
+        <div className="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            Share this code
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span className="font-mono text-3xl font-bold tracking-[0.2em] text-foreground">
+              {roleCode}
+            </span>
+            <span className="text-sm text-muted">
+              candidates enter it at{" "}
+              <span className="text-foreground">clarion.fyi/join</span>
+            </span>
+            <button
+              onClick={copyRoleInvite}
+              className="ml-auto rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-soft"
+            >
+              {codeCopied ? "✓ Invite copied" : "Copy invite"}
+            </button>
+          </div>
+          <p className="mt-3 text-xs text-muted">
+            Everyone who joins with this code appears below automatically. Unlimited
+            candidates.
+          </p>
+        </div>
+      )}
 
-      <div className="mt-6 space-y-3">
+      {/* Secondary: invite one specific person by name */}
+      <details className="mt-4">
+        <summary className="cursor-pointer text-sm text-muted hover:text-foreground">
+          Or invite one specific person by name
+        </summary>
+        <div className="mt-3 flex gap-2">
+          <input
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+            placeholder="Candidate name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && add()}
+          />
+          <button
+            onClick={add}
+            disabled={adding}
+            className="rounded-full border border-border px-5 py-2 text-sm hover:border-accent disabled:opacity-60"
+          >
+            {adding ? "Adding…" : "Add candidate"}
+          </button>
+        </div>
+      </details>
+
+      <h3 className="mt-8 text-sm font-semibold">
+        Candidates{" "}
+        <span className="font-normal text-muted">({candidates.length})</span>
+      </h3>
+      <div className="mt-3 space-y-3">
         {candidates.length === 0 && (
-          <p className="text-sm text-muted">No candidates yet.</p>
+          <p className="text-sm text-muted">
+            No one yet — share the code above to start getting candidates.
+          </p>
         )}
         {sorted.map((c) => {
           const shareable = c.join_code && c.access_token && (c.status === "invited" || c.status === "interviewing");

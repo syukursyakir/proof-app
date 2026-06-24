@@ -48,6 +48,7 @@ export type Role = {
   interview_questions: string[] | null;
   terms: string[] | null;
   test_enabled: boolean;
+  join_code?: string | null;
   created_at: string;
 };
 

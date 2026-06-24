@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getUserOrgId } from "@/lib/org";
+import { genCode } from "@/lib/candidateToken";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
       interview_questions: body.interview_questions ?? null,
       terms: body.terms ?? null,
       test_enabled: body.test_enabled ?? true,
+      join_code: genCode(),
     })
     .select()
     .single();
