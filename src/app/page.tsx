@@ -164,7 +164,7 @@ export default function Home() {
 
       {/* Candidate join band — Kahoot-style */}
       <section className="border-t border-border/60 bg-card/40">
-        <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
           <div className="text-center sm:text-left">
             <p className="font-medium">Invited to an interview?</p>
             <p className="text-sm text-muted">
@@ -182,7 +182,7 @@ export default function Home() {
 
       {/* Problem */}
       <section className="border-t border-border/60">
-        <div className="mx-auto max-w-4xl px-6 py-20 text-center">
+        <div className="mx-auto max-w-6xl px-6 py-20 text-center">
           <Reveal>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               Small employers hire on the wrong signals.
@@ -289,7 +289,7 @@ export default function Home() {
       {/* Final CTA — the one dark, premium moment on the cream page */}
       <section className="px-4 py-16 sm:px-6 sm:py-24">
         <Reveal>
-          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-[#15233f] px-6 py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_40px_80px_-32px_rgba(21,35,63,0.6)] sm:px-12">
+          <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-[#15233f] px-6 py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_40px_80px_-32px_rgba(21,35,63,0.6)] sm:px-12">
             {/* warm + cool glows */}
             <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#e0922f]/20 blur-[90px]" />
             <div className="pointer-events-none absolute -bottom-28 -right-16 h-80 w-80 rounded-full bg-[#3a4f7a]/40 blur-[100px]" />
