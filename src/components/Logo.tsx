@@ -4,7 +4,7 @@
 // and the candidate-facing headers.
 export default function Logo({
   withText = true,
-  size = 24,
+  size = 34,
   className = "",
 }: {
   withText?: boolean;
@@ -12,7 +12,7 @@ export default function Logo({
   className?: string;
 }) {
   return (
-    <span className={`flex items-center gap-2 font-semibold tracking-tight ${className}`}>
+    <span className={`flex items-center gap-2.5 text-lg font-semibold tracking-tight ${className}`}>
       <img
         src="/icon.svg"
         alt="Clarion"

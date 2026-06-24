@@ -286,22 +286,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="border-t border-border/60">
-        <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-          <Reveal>
-            <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-              Stop guessing who can do the job.
-              <br />
-              Start with proof.
-            </h2>
-            <div className="mt-10 flex justify-center">
-              <MagneticButton href="/roles/new">
-                Build your assessment
-              </MagneticButton>
+      {/* Final CTA — the one dark, premium moment on the cream page */}
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <Reveal>
+          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-[#15233f] px-6 py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_40px_80px_-32px_rgba(21,35,63,0.6)] sm:px-12">
+            {/* warm + cool glows */}
+            <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#e0922f]/20 blur-[90px]" />
+            <div className="pointer-events-none absolute -bottom-28 -right-16 h-80 w-80 rounded-full bg-[#3a4f7a]/40 blur-[100px]" />
+            <div className="grain absolute inset-0 opacity-[0.04]" />
+
+            <div className="relative">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#e0922f]">
+                Hear the proof, not the pedigree
+              </p>
+              <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-6xl">
+                Stop guessing who can
+                <br />
+                do the job.
+              </h2>
+              <p className="mx-auto mt-5 max-w-lg text-base leading-7 text-white/65">
+                Set up a fair, evidence-based assessment in minutes — and decide with
+                proof, not gut feel.
+              </p>
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/roles/new"
+                  className="rounded-full bg-[#e0922f] px-7 py-3 font-medium text-[#15233f] shadow-lg transition-transform hover:scale-[1.03]"
+                >
+                  Build your assessment
+                </Link>
+                <Link
+                  href="/sample"
+                  className="rounded-full border border-white/20 px-7 py-3 font-medium text-white/90 transition-colors hover:bg-white/5"
+                >
+                  See a sample verdict →
+                </Link>
+              </div>
             </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </section>
 
       <footer className="border-t border-border/60">
