@@ -83,18 +83,31 @@ The four interviewees cover both sides of the B5 thesis.
 ## Question scripts (discovery — ask about their PAST)
 
 ### 🎓 Students (poly + JC) — the socially-gated candidate
-1. Tell me about the last time you applied for a job, internship, or part-time
-   role. Walk me through it.
-2. How do you think the employer decided between you and everyone else?
-3. Have you ever felt you'd be *great* at something but never got the chance to
-   show it? Tell me about it.
-4. Do you feel your school / grades / who you know matters more than what you can
-   actually do?
-5. Did you write your resume yourself, or use AI / a template? Do you tweak it for
-   each application?
-6. Have you ever done an online test or assessment to get a job? How did it feel?
-   *(listen for: irrelevant, stressful, ghosted)*
-7. After applying/testing — did you ever hear back? How did that feel?
+> Note: most students mainly *study* — don't assume job/interview experience.
+> Anchor on selection experiences they HAVE had (grades, admissions, scholarships,
+> CCA roles, internships, part-time jobs) and the *feeling* of being judged on
+> paper. Lead with whatever they've actually done.
+
+**Warm-up — find their real experience:**
+1. Have you ever applied for anything competitive — a part-time job, internship,
+   scholarship, a CCA leadership role, a course/uni place? Tell me about one.
+2. How were people chosen? What do you think it came down to?
+
+**The core feeling (every student relates to this):**
+3. Do you feel your grades actually capture what you're *good* at? What are you
+   good at that grades/your transcript don't show?
+4. Have you ever felt you'd be great at something but had no way to *prove* it on
+   paper? Tell me about it.
+5. When you picture applying for your first real job, what worries you most?
+6. Do you think who you know / your school / your grades will matter more than
+   what you can actually do? How does that feel?
+
+**If they HAVE applied for a job/internship (poly especially):**
+7. Walk me through it — how did they decide? Did you write your CV yourself or use
+   a template/AI? Any online test? Did you hear back?
+
+*(JC students: lean on Q1-Q6 — they live the grades-vs-ability tension even with
+no job history. Poly students usually have internships/part-time to draw on Q7.)*
 
 ### 👔 Working adult who HIRES (the employer) — dig hard, most valuable
 1. Walk me through *exactly* how you hired the last person on your team.
