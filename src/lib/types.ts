@@ -28,6 +28,7 @@ export type Assessment = {
   occupation?: Occupation | null;
   rubric: Rubric;
   test_questions: string[];
+  test_mcq?: TestQuestion[];
   interview_questions: string[];
 };
 

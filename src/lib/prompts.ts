@@ -12,11 +12,12 @@ From the role description and the employer's clarifying answers, produce a compl
 - interview_questions: exactly 5 open, behavioural questions suited to spoken interview ("tell me about a time you…").
 - test_mcq: exactly 12 multiple-choice aptitude questions. Mix: 3 numerical reasoning, 3 verbal reasoning, 3 abstract/logical reasoning, 3 situational judgment (SJT). Rules:
   - Each question has a unique "id" (e.g. "q1"…"q12"), "category" (one of: numerical, verbal, logical, sjt), "question" (the question text), "options" (array of exactly 4 plausible answer strings), and "correct" (0-indexed integer indicating which option is correct).
-  - Numerical: data tables, % change, ratio problems — answers must be unambiguously calculable.
-  - Verbal: reading a short passage (2-3 sentences) and inferring meaning, or word-relationship questions.
-  - Logical: number/letter sequences, odd-one-out, matrix patterns described in text.
-  - SJT: realistic workplace scenario for THIS role — "Your manager asks you to X while Y is happening. What do you do?" — one clearly best answer, others plausible but suboptimal.
-  - Difficulty: medium — appropriate for entry-to-mid level. Avoid trick questions.
+  - Numerical: multi-step reasoning — interpreting a small data set, percentage change, ratios, or rate problems. NOT single-operation arithmetic. A capable person should need to think for 20-40 seconds.
+  - Verbal: reading a short passage (2-3 sentences) and drawing a non-obvious inference, or analogies. The 3 distractor options must be genuinely plausible — NEVER make the wrong options synonyms of each other or otherwise give the answer away.
+  - Logical: non-trivial sequences, matrix/pattern reasoning, or syllogisms described in text. Avoid clichéd sequences like "2,4,8,16".
+  - SJT: realistic workplace scenario for THIS role — "Your manager asks you to X while Y is happening. What do you do?" — one clearly best answer, others plausible but suboptimal (not obviously wrong).
+  - DIFFICULTY: aim for items that DISCRIMINATE — a strong candidate should get ~80%, an average one ~55%. Avoid items almost everyone gets right or wrong. No trick questions.
+  - IMPORTANT: vary the position of the correct answer across questions — the "correct" index must be roughly evenly spread over 0,1,2,3 across the 12 questions. Do NOT cluster correct answers at the same index.
 - title: a concise role title.
 
 Output ONLY valid JSON, no prose:

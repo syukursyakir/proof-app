@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonChat } from "@/lib/openai";
 import { FOLLOWUP_SYSTEM, ASSESSMENT_SYSTEM } from "@/lib/prompts";
 import { getUserOrgId } from "@/lib/org";
+import { shuffleMcqOptions } from "@/lib/shuffle";
 import type { Assessment } from "@/lib/types";
 
 export const maxDuration = 60;
@@ -37,6 +38,11 @@ export async function POST(req: Request) {
         answers,
       )}`,
     );
+    // Defensively shuffle MCQ option positions so the correct answer is never
+    // clustered at one index (the model sometimes biases toward option A).
+    if (Array.isArray(out.test_mcq)) {
+      out.test_mcq = out.test_mcq.map(shuffleMcqOptions);
+    }
     return NextResponse.json({ stage: "assessment", ...out });
   } catch (e) {
     console.error("generate error", e);
