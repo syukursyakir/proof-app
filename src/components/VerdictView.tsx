@@ -558,7 +558,7 @@ export default function VerdictView({
         </section>
       )}
 
-      {recordingUrl && (
+      {recordingUrl ? (
         <section>
           <h2 className="mb-3 text-lg font-semibold">Interview recording</h2>
           <video
@@ -567,6 +567,17 @@ export default function VerdictView({
             className="w-full max-w-xl rounded-xl border border-border"
           />
         </section>
+      ) : (
+        fullText && (
+          <section>
+            <h2 className="mb-1 text-lg font-semibold">Interview recording</h2>
+            <p className="text-sm text-muted">
+              No recording was captured for this interview — the candidate may have
+              declined camera/microphone access or taken the written interview. The
+              full transcript is below.
+            </p>
+          </section>
+        )
       )}
 
       {proctorUrl && (

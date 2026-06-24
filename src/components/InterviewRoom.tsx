@@ -108,19 +108,28 @@ function Room({
       body: JSON.stringify({ token }),
     }).catch(() => {});
 
-    // Camera + mic for the webcam tile and recording (best-effort).
+    // Camera + mic for the webcam tile and recording. If video is blocked, fall
+    // back to audio-only so we still capture *something* (best-effort).
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch {
+        stream = null; // both denied — interview still runs via the SDK
+      }
+    }
+    if (stream) {
       streamRef.current = stream;
-      if (videoRef.current) {
+      const hasVideo = stream.getVideoTracks().length > 0;
+      if (videoRef.current && hasVideo) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play().catch(() => {});
       }
       try {
-        const rec = new MediaRecorder(stream, { mimeType: "video/webm" });
+        const mimeType = hasVideo ? "video/webm" : "audio/webm";
+        const rec = new MediaRecorder(stream, { mimeType });
         chunksRef.current = [];
         rec.ondataavailable = (e) => {
           if (e.data.size > 0) chunksRef.current.push(e.data);
@@ -130,8 +139,6 @@ function Room({
       } catch {
         // recording unsupported — continue without it
       }
-    } catch {
-      // camera/mic denied — the voice interview can still run via the SDK
     }
 
     try {
