@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ease } from "@/lib/motion";
+import { supabaseBrowser } from "@/lib/supabase";
 import type { TestQuestion } from "@/lib/types";
 
 const MINUTES = 20;
@@ -26,6 +27,10 @@ export default function AptitudeTest({
   questions: TestQuestion[];
   onComplete: () => void;
 }) {
+  const [started, setStarted] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [requesting, setRequesting] = useState(false);
+  const [shareLost, setShareLost] = useState(false);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -34,7 +39,56 @@ export default function AptitudeTest({
   const [secondsLeft, setSecondsLeft] = useState(MINUTES * 60);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const screenStreamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  // Request screen share + start recording. Required to begin the test.
+  async function requestScreenAndStart() {
+    setShareError(null);
+    setRequesting(true);
+    try {
+      if (!navigator.mediaDevices?.getDisplayMedia) {
+        setShareError(
+          "Screen sharing isn't supported in this browser. Please use a desktop browser (Chrome, Edge, or Firefox) to take the timed test.",
+        );
+        setRequesting(false);
+        return;
+      }
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: false,
+      });
+      screenStreamRef.current = stream;
+
+      // If the candidate stops sharing mid-test, flag it.
+      stream.getVideoTracks()[0]?.addEventListener("ended", () => {
+        setShareLost(true);
+      });
+
+      try {
+        const rec = new MediaRecorder(stream, { mimeType: "video/webm" });
+        chunksRef.current = [];
+        rec.ondataavailable = (e) => {
+          if (e.data.size > 0) chunksRef.current.push(e.data);
+        };
+        rec.start();
+        recorderRef.current = rec;
+      } catch {
+        // recording unsupported — proceed; the share itself is still the deterrent
+      }
+      setStarted(true);
+    } catch {
+      setShareError(
+        "Screen sharing was declined. It's required for this timed assessment — please share your entire screen to begin.",
+      );
+    } finally {
+      setRequesting(false);
+    }
+  }
+
   useEffect(() => {
+    if (!started) return;
     timerRef.current = setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -47,7 +101,38 @@ export default function AptitudeTest({
     }, 1000);
     return () => clearInterval(timerRef.current!);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [started]);
+
+  // Stop screen capture and upload the recording; returns the storage path.
+  async function uploadProctorRecording(): Promise<string | null> {
+    const rec = recorderRef.current;
+    const stream = screenStreamRef.current;
+    const path = await new Promise<string | null>((resolve) => {
+      if (!rec || rec.state === "inactive") return resolve(null);
+      rec.onstop = async () => {
+        try {
+          const blob = new Blob(chunksRef.current, { type: "video/webm" });
+          const signRes = await fetch("/api/recordings/sign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+          if (!signRes.ok) return resolve(null);
+          const { path: p, signedToken } = await signRes.json();
+          const supa = supabaseBrowser();
+          const { error } = await supa.storage
+            .from("recordings")
+            .uploadToSignedUrl(p, signedToken, blob);
+          resolve(error ? null : p);
+        } catch {
+          resolve(null);
+        }
+      };
+      rec.stop();
+    });
+    stream?.getTracks().forEach((t) => t.stop());
+    return path;
+  }
 
   const q = questions[current];
   const isLast = current === questions.length - 1;
@@ -59,11 +144,17 @@ export default function AptitudeTest({
     const finalAnswers = forced
       ? { ...answers, ...(selected !== null ? { [q.id]: selected } : {}) }
       : answers;
+    const proctorPath = await uploadProctorRecording();
     try {
       await fetch("/api/test-submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, answers: finalAnswers }),
+        body: JSON.stringify({
+          token,
+          answers: finalAnswers,
+          proctor_recording_url: proctorPath,
+          proctor_share_lost: shareLost,
+        }),
       });
     } catch {
       // best effort
@@ -92,9 +183,69 @@ export default function AptitudeTest({
   const secs = secondsLeft % 60;
   const timerWarning = secondsLeft < 120;
 
+  // Screen-share gate — must share before the timed test begins.
+  if (!started) {
+    return (
+      <div className="flex min-h-screen flex-1 items-center justify-center px-6 py-12">
+        <div className="max-w-md text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-3xl">
+            🖥️
+          </div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            Part 1 of 2 — Aptitude assessment
+          </p>
+          <h1 className="mt-2 text-2xl font-semibold">
+            Share your screen to begin
+          </h1>
+          <p className="mt-3 text-muted">
+            This is a timed, proctored test. To keep it fair for everyone, your
+            screen is recorded while you answer — so the employer can see the
+            test was taken honestly, without help or lookups.
+          </p>
+          <ul className="mx-auto mt-5 max-w-sm space-y-2 text-left text-sm text-muted">
+            <li>• {questions.length} questions · {MINUTES} minutes</li>
+            <li>• Choose <span className="text-foreground">your entire screen</span> when prompted</li>
+            <li>• Keep this tab focused — answers lock when confirmed</li>
+          </ul>
+          {shareError && (
+            <p className="mt-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {shareError}
+            </p>
+          )}
+          <button
+            onClick={requestScreenAndStart}
+            disabled={requesting}
+            className="mt-6 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+          >
+            {requesting ? "Waiting for screen share…" : "Share screen & start test"}
+          </button>
+          <p className="mt-4 text-xs text-muted">
+            Desktop browser required for Part 1. Your recording is private to the
+            employer.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-1 flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-2xl">
+        {/* Proctoring indicator */}
+        <div className="mb-4 flex items-center justify-center gap-2 text-xs">
+          {shareLost ? (
+            <span className="flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-red-600">
+              <span className="h-2 w-2 rounded-full bg-red-500" />
+              Screen sharing stopped — this will be flagged. Re-share to continue fairly.
+            </span>
+          ) : (
+            <span className="flex items-center gap-2 rounded-full bg-card/70 px-3 py-1 text-muted">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+              Screen recording — proctored
+            </span>
+          )}
+        </div>
+
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>

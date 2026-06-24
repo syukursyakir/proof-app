@@ -17,11 +17,15 @@ export default async function CandidatePage({
 
   const { data: cand } = await supa
     .from("candidates")
-    .select("*, aptitude_score, aptitude_max")
+    .select("*, aptitude_score, aptitude_max, proctor_recording_url")
     .eq("id", candidateId)
     .single();
   if (!cand) notFound();
-  const candidate = cand as Candidate & { aptitude_score?: number | null; aptitude_max?: number | null };
+  const candidate = cand as Candidate & {
+    aptitude_score?: number | null;
+    aptitude_max?: number | null;
+    proctor_recording_url?: string | null;
+  };
 
   const { data: transcript } = await supa
     .from("transcripts")
@@ -65,6 +69,14 @@ export default async function CandidatePage({
     }
   }
 
+  let proctorUrl: string | null = null;
+  if (candidate.proctor_recording_url) {
+    const { data: signed } = await supabaseAdmin()
+      .storage.from("recordings")
+      .createSignedUrl(candidate.proctor_recording_url, 3600);
+    proctorUrl = signed?.signedUrl ?? null;
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
@@ -85,6 +97,7 @@ export default async function CandidatePage({
           verdict={(verdict as Verdict | null) ?? null}
           fullText={t?.full_text ?? null}
           recordingUrl={recordingUrl}
+          proctorUrl={proctorUrl}
           appealRequested={!!candidate.appeal_requested_at}
           humanRating={humanRating}
         />

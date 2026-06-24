@@ -141,8 +141,9 @@ export default function AptitudeGate({
           </div>
 
           <p className="mt-6 text-sm text-muted">
-            Complete both parts in one sitting. Part 1 is timed — once you
-            start, the clock begins. Answers lock when you confirm them.
+            Complete both parts in one sitting. Part 1 is timed and{" "}
+            <span className="text-foreground">proctored via screen share</span> —
+            use a desktop browser. Answers lock when you confirm them.
           </p>
 
           <button

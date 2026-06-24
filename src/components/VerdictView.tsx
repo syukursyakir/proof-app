@@ -89,6 +89,7 @@ export default function VerdictView({
   verdict,
   fullText,
   recordingUrl,
+  proctorUrl = null,
   readOnly = false,
   appealRequested = false,
   humanRating = null,
@@ -97,6 +98,7 @@ export default function VerdictView({
   verdict: Verdict | null;
   fullText: string | null;
   recordingUrl: string | null;
+  proctorUrl?: string | null;
   readOnly?: boolean;
   appealRequested?: boolean;
   humanRating?: { name: string; score: number }[] | null;
@@ -478,10 +480,25 @@ export default function VerdictView({
 
       {recordingUrl && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold">Recording</h2>
+          <h2 className="mb-3 text-lg font-semibold">Interview recording</h2>
           <video
             controls
             src={recordingUrl}
+            className="w-full max-w-xl rounded-xl border border-border"
+          />
+        </section>
+      )}
+
+      {proctorUrl && (
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">Aptitude test — screen recording</h2>
+          <p className="mb-3 text-sm text-muted">
+            Proctoring capture from Part 1, so you can confirm the timed test was
+            taken honestly.
+          </p>
+          <video
+            controls
+            src={proctorUrl}
             className="w-full max-w-xl rounded-xl border border-border"
           />
         </section>
