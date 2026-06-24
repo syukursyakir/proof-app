@@ -246,7 +246,7 @@ function Room({
     return (
       <Shell>
         <div className="max-w-md text-center">
-          <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_30%,#d6d0ff,#6d5ef8_50%,#3b2fb0)] shadow-[0_0_40px_8px_rgba(109,94,248,0.5)]" />
+          <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_30%,#c5cfe0,#2a3e62_50%,#16233d)] shadow-[0_0_40px_8px_rgba(42,62,98,0.5)]" />
           <h1 className="text-2xl font-semibold">{roleTitle}</h1>
           {orgName && (
             <p className="mt-1 text-sm text-muted">with {orgName}</p>

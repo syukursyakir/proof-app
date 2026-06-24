@@ -2,14 +2,20 @@
 
 /* Light, trust-anchored theme. Indigo/violet primary; warm gradients used as
    accents elsewhere (e.g. the Core Features cards). */
+/* "Trust Navy + Amber" — warm neutrals (Mercury/Ramp-style), navy primary for
+   trust, amber as the warm secondary accent. Token-based so it cascades. */
 :root {
-  --background: #fcfcfd; /* off-white, not pure #fff — reads premium */
-  --foreground: #0b1020; /* near-black with a cool cast, not pure #000 */
-  --muted: #64748b;
-  --card: #f8fafc;
-  --border: #e6e8ef;
-  --accent: #6d5ef8;
-  --accent-soft: #4f46e5;
+  --background: #fcfbf8; /* warm white, not pure #fff */
+  --foreground: #15181e; /* warm ink */
+  --muted: #6e6a60; /* warm gray, not cool slate */
+  --card: #f4f1ea; /* warm card surface */
+  --border: #e6e2da; /* warm gray border */
+  --accent: #2a3e62; /* 1. navy — primary / trust */
+  --accent-soft: #1b2c4a; /* darker navy — hover + emphasis text */
+  --accent-warm: #e0922f; /* 2. amber — warm secondary */
+  --accent-warm-soft: #c47d22; /* darker amber — hover */
+  --accent-clay: #c2613c; /* 3. terracotta — warm highlight */
+  --accent-sage: #4f7a68; /* 4. sage — calm / positive */
 }
 
 @theme inline {
@@ -20,7 +26,12 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-inter);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-warm-soft: var(--accent-warm-soft);
+  --color-accent-clay: var(--accent-clay);
+  --color-accent-sage: var(--accent-sage);
+  --font-sans: var(--font-hanken);
+  --font-display: var(--font-fraunces);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -30,24 +41,31 @@ html {
 
 body {
   background: radial-gradient(
-      1100px 520px at 50% -8%,
-      rgba(109, 94, 248, 0.06),
-      transparent 70%
+      900px 460px at 15% -8%,
+      rgba(224, 146, 47, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 520px at 85% -6%,
+      rgba(42, 62, 98, 0.07),
+      transparent 64%
     ),
     var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  /* Inter OpenType refinements — optical sizing + alternates read premium */
+  font-family: var(--font-hanken), system-ui, -apple-system, sans-serif;
   font-optical-sizing: auto;
-  font-feature-settings: "cv11", "ss01";
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Tighten tracking on large display headings (the #1 premium tell). */
+/* Headings use the soft display serif (Fraunces) for editorial warmth + trust.
+   Serifs want gentler negative tracking than a grotesque. */
 h1,
-h2 {
-  letter-spacing: -0.021em;
+h2,
+h3 {
+  font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  letter-spacing: -0.012em;
+  font-optical-sizing: auto;
 }
 
 /* Data/scores/timers shouldn't jitter as digits change. */
@@ -58,7 +76,7 @@ h2 {
 /* Visible, on-brand focus ring everywhere (a11y + polish). */
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(109, 94, 248, 0.35);
+  box-shadow: 0 0 0 3px rgba(42, 62, 98, 0.35);
   border-radius: 6px;
 }
 
@@ -74,9 +92,9 @@ h2 {
 .lift:hover {
   transform: translateY(-4px);
   box-shadow:
-    0 1px 2px hsl(245deg 40% 50% / 0.06),
-    0 6px 14px -4px hsl(245deg 40% 50% / 0.1),
-    0 16px 32px -12px hsl(245deg 45% 45% / 0.16);
+    0 1px 2px hsl(220deg 25% 20% / 0.06),
+    0 6px 14px -4px hsl(220deg 30% 25% / 0.1),
+    0 16px 32px -12px hsl(218deg 45% 25% / 0.18);
 }
 
 /* On-load entrance */
@@ -143,12 +161,12 @@ h2 {
 }
 @keyframes orbGlow {
   0%, 100% {
-    box-shadow: 0 0 50px 8px rgba(109, 94, 248, 0.35),
-                0 0 130px 28px rgba(109, 94, 248, 0.16);
+    box-shadow: 0 0 50px 8px rgba(42, 62, 98, 0.35),
+                0 0 130px 28px rgba(224, 146, 47, 0.14);
   }
   50% {
-    box-shadow: 0 0 85px 18px rgba(124, 111, 240, 0.45),
-                0 0 190px 46px rgba(109, 94, 248, 0.22);
+    box-shadow: 0 0 85px 18px rgba(58, 80, 122, 0.42),
+                0 0 190px 46px rgba(224, 146, 47, 0.18);
   }
 }
 .orb-pulse { animation: orbPulse 3.4s ease-in-out infinite; }

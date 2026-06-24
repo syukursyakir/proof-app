@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-inter), "Inter", sans-serif;
+  font-family: var(--font-hanken), system-ui, sans-serif;
 }
 .c1-shell * {
   box-sizing: border-box;

@@ -16,9 +16,9 @@ type SkillsAnswers = {
 };
 
 const componentBarColor: Record<string, string> = {
-  interview: "bg-accent",
-  skills: "bg-violet-500",
-  aptitude: "bg-accent-soft",
+  interview: "bg-accent", // navy
+  skills: "bg-accent-warm", // amber
+  aptitude: "bg-accent-clay", // terracotta
 };
 const componentSubLabel: Record<string, string> = {
   interview: "behavioural",
@@ -262,7 +262,7 @@ export default function VerdictView({
                 Overall recommendation
               </p>
               <div className="mt-2 flex items-center gap-3">
-                <span className="tnum text-4xl font-semibold leading-none">
+                <span className="tnum font-display text-5xl font-semibold leading-none">
                   <CountUp value={Math.round(composite.composite)} />
                   <span className="text-lg font-normal text-muted">/100</span>
                 </span>

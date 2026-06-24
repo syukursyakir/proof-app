@@ -201,7 +201,7 @@ export default function NewRolePage() {
 
         {phase === "building" && (
           <div className="flex flex-col items-center gap-5 py-24 text-center">
-            <div className="orb-pulse orb-glow h-20 w-20 rounded-full bg-[radial-gradient(circle_at_35%_30%,#b9aefff2,#6d5ef8_45%,#3b2fb0_100%)]" />
+            <div className="orb-pulse orb-glow h-20 w-20 rounded-full bg-[radial-gradient(circle_at_35%_30%,#aebfd8f2,#2a3e62_45%,#16233d_100%)]" />
             <p className="min-h-[1.5rem] text-muted transition-all duration-500">
               {BUILDING_STEPS[buildStep]}
             </p>

@@ -17,7 +17,7 @@ export default function HeroBackground() {
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute right-[8%] top-[6%] h-[36vw] w-[36vw] rounded-full bg-[#8b7cff]/20 blur-[120px]"
+        className="absolute right-[8%] top-[6%] h-[36vw] w-[36vw] rounded-full bg-[#5a6e96]/20 blur-[120px]"
         animate={drift([0, -36, 0], [0, 44, 0], 18)}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />

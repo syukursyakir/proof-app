@@ -101,7 +101,7 @@ export function PrimaryButton({
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={spring.snappy}
-      className={`group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-full bg-accent px-7 font-medium text-white shadow-[0_8px_30px_-12px_rgba(109,94,248,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${className}`}
+      className={`group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-full bg-accent px-7 font-medium text-white shadow-[0_8px_30px_-12px_rgba(42,62,98,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${className}`}
     >
       <Shimmer />
       {children}
@@ -232,7 +232,7 @@ export function MagneticButton({
       style={{ x: sx, y: sy }}
       whileTap={{ scale: 0.97 }}
       transition={spring.snappy}
-      className={`group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-full bg-accent px-7 font-medium text-white shadow-[0_8px_30px_-12px_rgba(109,94,248,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${className}`}
+      className={`group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-full bg-accent px-7 font-medium text-white shadow-[0_8px_30px_-12px_rgba(42,62,98,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${className}`}
     >
       <Shimmer />
       {children}

@@ -19,7 +19,12 @@ export default function Logo({
         width={size}
         height={size}
         className="rounded-md"
-        style={{ width: size, height: size }}
+        // The mark is violet by default; shift its hue toward the navy palette.
+        style={{
+          width: size,
+          height: size,
+          filter: "hue-rotate(-34deg) saturate(0.62) brightness(0.92)",
+        }}
       />
       {withText && <span>Clarion</span>}
     </span>
