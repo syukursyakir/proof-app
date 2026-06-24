@@ -158,3 +158,28 @@ export function PencilIcon({ className }: P) {
     </svg>
   );
 }
+export function CodeIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="m16 18 6-6-6-6" />
+      <path d="m8 6-6 6 6 6" />
+    </svg>
+  );
+}
+export function CalculatorIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+    </svg>
+  );
+}
+export function MicIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <rect x="9" y="2" width="6" height="12" rx="3" />
+      <path d="M5 10a7 7 0 0 0 14 0" />
+      <path d="M12 17v4" />
+    </svg>
+  );
+}

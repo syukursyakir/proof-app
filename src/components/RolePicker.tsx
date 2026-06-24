@@ -4,30 +4,60 @@ import { useState } from "react";
 import {
   HeadsetIcon,
   TrendingUpIcon,
-  BellIcon,
+  CodeIcon,
+  CalculatorIcon,
   BoxesIcon,
-  ClipboardIcon,
   ShoppingBagIcon,
-  CoffeeIcon,
   HeartIcon,
   PencilIcon,
+  MicIcon,
 } from "@/components/icons";
 
-type RoleTile = { label: string; Icon: (p: { className?: string }) => React.ReactNode };
+type Category = {
+  label: string;
+  Icon: (p: { className?: string }) => React.ReactNode;
+  roles: string[];
+};
 
-const ROLES: RoleTile[] = [
-  { label: "Customer Support", Icon: HeadsetIcon },
-  { label: "Sales", Icon: TrendingUpIcon },
-  { label: "Front Desk", Icon: BellIcon },
-  { label: "Operations", Icon: BoxesIcon },
-  { label: "Admin", Icon: ClipboardIcon },
-  { label: "Retail / Cashier", Icon: ShoppingBagIcon },
-  { label: "Food & Beverage", Icon: CoffeeIcon },
-  { label: "Care / Health", Icon: HeartIcon },
+// Two levels: category → specific role. "Other" at each level keeps it adaptive.
+const CATEGORIES: Category[] = [
+  {
+    label: "Customer & Support",
+    Icon: HeadsetIcon,
+    roles: ["Customer Support Rep", "Call Centre Agent", "Help Desk / IT Support", "Client Success"],
+  },
+  {
+    label: "Sales & Marketing",
+    Icon: TrendingUpIcon,
+    roles: ["Sales Representative", "Account Executive", "Marketing Coordinator", "Social Media Manager"],
+  },
+  {
+    label: "Software & Tech",
+    Icon: CodeIcon,
+    roles: ["Software Engineer", "Frontend Developer", "Backend Developer", "QA / Tester", "Data Analyst"],
+  },
+  {
+    label: "Finance & Admin",
+    Icon: CalculatorIcon,
+    roles: ["Accountant", "Bookkeeper", "Finance Analyst", "Admin Assistant", "Office Manager"],
+  },
+  {
+    label: "Operations",
+    Icon: BoxesIcon,
+    roles: ["Operations Coordinator", "Warehouse Associate", "Logistics / Dispatch", "Supply Chain"],
+  },
+  {
+    label: "Retail & Hospitality",
+    Icon: ShoppingBagIcon,
+    roles: ["Cashier", "Retail Associate", "Barista", "Server / Waitstaff", "Front Desk / Receptionist"],
+  },
+  {
+    label: "Healthcare & Care",
+    Icon: HeartIcon,
+    roles: ["Caregiver", "Medical Assistant", "Dental Nurse", "Clinic Receptionist"],
+  },
 ];
 
-// Two-level, click-first role + skills picker. AI-adaptive: it suggests skills
-// for whatever role is chosen, and "Add your own" covers anything missing.
 export default function RolePicker({
   onComplete,
   onDescribeInstead,
@@ -35,10 +65,11 @@ export default function RolePicker({
   onComplete: (role: string, skills: string[]) => void;
   onDescribeInstead: () => void;
 }) {
-  const [step, setStep] = useState<"role" | "skills">("role");
+  const [step, setStep] = useState<"category" | "role" | "skills">("category");
+  const [category, setCategory] = useState<Category | null>(null);
+  const [otherCat, setOtherCat] = useState(false);
   const [role, setRole] = useState("");
   const [customRole, setCustomRole] = useState("");
-  const [otherOpen, setOtherOpen] = useState(false);
 
   const [suggested, setSuggested] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -68,11 +99,8 @@ export default function RolePicker({
   }
 
   function toggle(skill: string) {
-    setSelected((s) =>
-      s.includes(skill) ? s.filter((x) => x !== skill) : [...s, skill],
-    );
+    setSelected((s) => (s.includes(skill) ? s.filter((x) => x !== skill) : [...s, skill]));
   }
-
   function addCustom() {
     const v = custom.trim();
     if (!v) return;
@@ -81,49 +109,72 @@ export default function RolePicker({
     setCustom("");
   }
 
-  // ---- Step 1: role ----
-  if (step === "role") {
+  // Prominent voice/describe card — we want to encourage this path.
+  const VoiceCard = (
+    <button
+      onClick={onDescribeInstead}
+      className="lift mt-8 flex w-full items-center gap-4 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 text-left transition-colors hover:border-accent"
+    >
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+        <MicIcon className="h-5 w-5" />
+      </span>
+      <span>
+        <span className="block font-medium text-foreground">
+          Rather just talk? Describe the role by voice
+        </span>
+        <span className="block text-sm text-muted">
+          Say what you need in your own words — Clarion builds the whole assessment.
+        </span>
+      </span>
+      <span className="ml-auto text-accent-soft">→</span>
+    </button>
+  );
+
+  // ---- Level 1: category ----
+  if (step === "category") {
     return (
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">
           What are you hiring for?
         </h1>
         <p className="mt-2 text-muted">
-          Tap a role to start — you&apos;ll pick the skills next. No long forms.
+          Pick an area — you&apos;ll choose the exact role next. No long forms.
         </p>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {ROLES.map((r) => (
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {CATEGORIES.map((c) => (
             <button
-              key={r.label}
-              onClick={() => pickRole(r.label)}
+              key={c.label}
+              onClick={() => {
+                setCategory(c);
+                setOtherCat(false);
+                setStep("role");
+              }}
               className="lift flex flex-col items-center gap-3 rounded-2xl border border-border bg-card/50 px-3 py-6 text-center text-sm font-medium text-foreground/80 transition-colors hover:border-accent hover:text-foreground"
             >
-              <r.Icon className="h-6 w-6 text-accent" />
-              {r.label}
+              <c.Icon className="h-6 w-6 text-accent" />
+              {c.label}
             </button>
           ))}
           <button
-            onClick={() => setOtherOpen((o) => !o)}
+            onClick={() => setOtherCat((o) => !o)}
             className={`flex flex-col items-center gap-3 rounded-2xl border px-3 py-6 text-center text-sm font-medium transition-colors ${
-              otherOpen
-                ? "border-accent text-foreground"
-                : "border-dashed border-border text-foreground/80 hover:border-accent hover:text-foreground"
+              otherCat ? "border-accent text-foreground" : "border-dashed border-border text-foreground/80 hover:border-accent hover:text-foreground"
             }`}
           >
             <PencilIcon className="h-6 w-6 text-accent" />
-            Other role
+            Other
           </button>
         </div>
 
-        {otherOpen && (
+        {otherCat && (
           <div className="mt-4 flex gap-2">
             <input
               autoFocus
               value={customRole}
               onChange={(e) => setCustomRole(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && pickRole(customRole)}
-              placeholder="e.g. Warehouse supervisor, Dental nurse…"
+              placeholder="Type the role — e.g. Warehouse supervisor, Tutor…"
               className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent"
             />
             <button
@@ -136,17 +187,61 @@ export default function RolePicker({
           </div>
         )}
 
-        <button
-          onClick={onDescribeInstead}
-          className="mt-8 text-sm text-muted underline hover:text-foreground"
-        >
-          Prefer to describe the role in your own words (or by voice)?
-        </button>
+        {VoiceCard}
       </div>
     );
   }
 
-  // ---- Step 2: skills ----
+  // ---- Level 2: specific role ----
+  if (step === "role" && category) {
+    return (
+      <div>
+        <button
+          onClick={() => setStep("category")}
+          className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-foreground"
+        >
+          ← All areas
+        </button>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Which {category.label.toLowerCase()} role?
+        </h1>
+        <p className="mt-2 text-muted">Pick the closest — or add your own.</p>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {category.roles.map((r) => (
+            <button
+              key={r}
+              onClick={() => pickRole(r)}
+              className="rounded-full bg-card/60 px-4 py-2.5 text-sm font-medium text-foreground/80 ring-1 ring-border transition hover:ring-accent"
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-5 flex max-w-md gap-2">
+          <input
+            value={customRole}
+            onChange={(e) => setCustomRole(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && pickRole(customRole)}
+            placeholder="Other role…"
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+          />
+          <button
+            onClick={() => pickRole(customRole)}
+            disabled={!customRole.trim()}
+            className="rounded-full border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
+          >
+            Next →
+          </button>
+        </div>
+
+        {VoiceCard}
+      </div>
+    );
+  }
+
+  // ---- Level 3: skills ----
   return (
     <div>
       <button
@@ -190,7 +285,6 @@ export default function RolePicker({
             })}
           </div>
 
-          {/* Others — type anything not suggested */}
           <div className="mt-5 flex max-w-md gap-2">
             <input
               value={custom}
