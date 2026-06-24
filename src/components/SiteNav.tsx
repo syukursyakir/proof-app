@@ -36,9 +36,9 @@ export default function SiteNav() {
         <div className="flex items-center gap-2">
           <Link
             href="/join"
-            className="rounded-full px-4 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground"
+            className="rounded-full border border-border px-4 py-2 text-sm text-foreground/90 transition-colors hover:border-accent hover:text-foreground"
           >
-            Have a code? Join
+            Join interview
           </Link>
           <Link
             href="/roles"
