@@ -49,7 +49,11 @@ export async function POST(req: Request) {
     }
     const fullText: string = transcript.full_text;
 
-    const userMsg = `Rubric:\n${JSON.stringify(role?.rubric ?? [])}\n\n<<<TRANSCRIPT>>>\n${fullText}\n<<<END_TRANSCRIPT>>>`;
+    const terms = (role?.terms as string[] | null) ?? [];
+    const glossary = terms.length
+      ? `\n\nGlossary — terms relevant to this role. Speech-to-text may have garbled them in the transcript; interpret phonetically-close text as the intended term (e.g. "cloud code" → "Claude Code") when judging, but keep any verbatim quotes exactly as they appear in the transcript:\n${terms.map((t) => `- ${t}`).join("\n")}`
+      : "";
+    const userMsg = `Rubric:\n${JSON.stringify(role?.rubric ?? [])}${glossary}\n\n<<<TRANSCRIPT>>>\n${fullText}\n<<<END_TRANSCRIPT>>>`;
 
     // Self-consistency: sample N times, take the per-criterion MEDIAN, flag disagreement.
     const runs = await Promise.all(
