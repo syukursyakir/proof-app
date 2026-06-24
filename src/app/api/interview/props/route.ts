@@ -26,5 +26,6 @@ export async function GET(req: Request) {
     interviewQuestions: role.interview_questions ?? [],
     rubric: role.rubric ?? [],
     terms: role.terms ?? [],
+    resumeClaims: candidate.resume_claims ?? [],
   });
 }

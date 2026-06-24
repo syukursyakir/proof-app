@@ -65,6 +65,7 @@ export type Candidate = {
   consent_at?: string | null;
   appeal_requested_at?: string | null;
   resume_url?: string | null;
+  resume_claims?: string[] | null;
   aptitude_score?: number | null;
   aptitude_max?: number | null;
   created_at: string;

@@ -23,6 +23,7 @@ type Props = {
   agentConfigured: boolean;
   orgName?: string | null;
   terms?: string[];
+  resumeClaims?: string[];
 };
 
 type Phase = "consent" | "connecting" | "live" | "saving" | "done" | "error";
@@ -44,6 +45,7 @@ function Room({
   agentConfigured,
   orgName,
   terms,
+  resumeClaims,
 }: Props) {
   const [phase, setPhase] = useState<Phase>("consent");
   const [mode, setMode] = useState<"voice" | "text">("voice");
@@ -180,7 +182,7 @@ function Room({
         signedUrl,
         overrides: {
           agent: {
-            prompt: { prompt: buildInterviewPrompt(roleTitle, questions, rubric, terms ?? []) },
+            prompt: { prompt: buildInterviewPrompt(roleTitle, questions, rubric, terms ?? [], resumeClaims ?? []) },
             firstMessage: interviewFirstMessage(
               roleTitle,
               questions.length,
