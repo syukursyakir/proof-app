@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveToken } from "@/lib/candidateToken";
 import { scoreCandidate } from "@/lib/scoreCandidate";
@@ -40,13 +40,16 @@ export async function POST(req: Request) {
 
   if (candidateSpoke) {
     await supa.from("candidates").update({ status: "completed" }).eq("id", cand.id);
-    // Auto-score so the employer sees the verdict immediately. Best-effort:
-    // a scoring failure must never break the candidate's completion.
-    try {
-      await scoreCandidate(cand.id);
-    } catch {
-      /* employer can still trigger scoring manually */
-    }
+    // Auto-score AFTER responding, so the candidate isn't left waiting on 3 GPT
+    // calls. The verdict is ready by the time the employer looks. Best-effort.
+    const candId = cand.id;
+    after(async () => {
+      try {
+        await scoreCandidate(candId);
+      } catch {
+        /* employer can still trigger scoring manually */
+      }
+    });
   }
 
   return NextResponse.json(data);
