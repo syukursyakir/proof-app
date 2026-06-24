@@ -289,7 +289,15 @@ export default function NewRolePage() {
 
         {phase === "building" && (
           <div className="flex flex-col items-center gap-5 py-24 text-center">
-            <div className="orb-pulse orb-glow h-20 w-20 rounded-full bg-[radial-gradient(circle_at_35%_30%,#aebfd8f2,#2a3e62_45%,#16233d_100%)]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icon.svg"
+              alt="Clarion"
+              width={72}
+              height={72}
+              className="orb-pulse rounded-2xl drop-shadow-[0_10px_36px_rgba(42,62,98,0.45)]"
+              style={{ width: 72, height: 72 }}
+            />
             <p className="min-h-[1.5rem] text-muted transition-all duration-500">
               {BUILDING_STEPS[buildStep]}
             </p>

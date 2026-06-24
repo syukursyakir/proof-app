@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AptitudeTest from "@/components/AptitudeTest";
 import SkillsTest from "@/components/SkillsTest";
 import InterviewRoom from "@/components/InterviewRoom";
+import Logo from "@/components/Logo";
 import { ease } from "@/lib/motion";
 import type { ClientTestQuestion } from "@/lib/types";
 
@@ -146,7 +147,7 @@ export default function AssessmentFlow({
         className="flex min-h-screen flex-1 items-center justify-center px-6 py-12"
       >
         <div className="max-w-lg text-center">
-          <div className="mx-auto mb-6 h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_30%,#c5cfe0,#2a3e62_50%,#16233d)] shadow-[0_0_40px_8px_rgba(42,62,98,0.5)]" />
+          <Logo size={44} className="mx-auto mb-7 w-fit text-xl" />
           <h1 className="text-2xl font-semibold">{roleTitle}</h1>
           {orgName && <p className="mt-1 text-sm text-muted">with {orgName}</p>}
 
