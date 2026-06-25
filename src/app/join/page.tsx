@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 export default function JoinPage() {
   const router = useRouter();
+  const { dict } = useSiteLocale();
+  const j = dict.join;
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [needName, setNeedName] = useState(false);
@@ -48,15 +51,13 @@ export default function JoinPage() {
         </div>
         {!needName ? (
           <>
-            <h1 className="text-xl font-semibold">Join your assessment</h1>
-            <p className="mt-2 text-sm text-muted">
-              Enter the code your employer shared.
-            </p>
+            <h1 className="text-xl font-semibold">{j.title}</h1>
+            <p className="mt-2 text-sm text-muted">{j.subtitle}</p>
             <input
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === "Enter" && go()}
-              placeholder="ABCD2345"
+              placeholder={j.placeholder}
               maxLength={8}
               className="mt-6 w-full rounded-lg border border-border bg-background px-4 py-3 text-center font-mono text-lg tracking-widest outline-none focus:border-accent"
             />
@@ -65,21 +66,21 @@ export default function JoinPage() {
               disabled={busy}
               className="mt-4 w-full rounded-full bg-accent px-6 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
             >
-              {busy ? "Checking…" : "Continue"}
+              {busy ? j.checking : j.continue}
             </button>
           </>
         ) : (
           <>
             <h1 className="text-xl font-semibold">
-              {roleTitle ?? "Your assessment"}
+              {roleTitle ?? j.nameTitle}
             </h1>
-            <p className="mt-2 text-sm text-muted">What&apos;s your name?</p>
+            <p className="mt-2 text-sm text-muted">{j.nameSubtitle}</p>
             <input
               value={name}
               autoFocus
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && go()}
-              placeholder="Your full name"
+              placeholder={j.namePlaceholder}
               className="mt-6 w-full rounded-lg border border-border bg-background px-4 py-3 text-center text-base outline-none focus:border-accent"
             />
             <button
@@ -87,7 +88,7 @@ export default function JoinPage() {
               disabled={busy || !name.trim()}
               className="mt-4 w-full rounded-full bg-accent px-6 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
             >
-              {busy ? "Starting…" : "Start assessment"}
+              {busy ? j.starting : j.startAssessment}
             </button>
             <button
               onClick={() => {
@@ -96,7 +97,7 @@ export default function JoinPage() {
               }}
               className="mt-3 text-xs text-muted underline hover:text-foreground"
             >
-              ← Use a different code
+              {j.backCode}
             </button>
           </>
         )}

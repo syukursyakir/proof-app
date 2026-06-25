@@ -2,6 +2,7 @@ import { getUserOrg } from "@/lib/org";
 import { currentUser } from "@/lib/auth";
 import { Reveal } from "@/components/motion";
 import SettingsForm from "@/components/SettingsForm";
+import LangSwitcher from "@/components/LangSwitcher";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,17 @@ export default async function SettingsPage() {
       </Reveal>
 
       <section className="mt-8 rounded-2xl border border-border bg-card/50 p-6">
+        <h2 className="text-lg font-semibold">Interface language</h2>
+        <p className="mt-1 text-sm text-muted">
+          Changes the language of this dashboard and the public landing page.
+          The candidate assessment language is set per-role.
+        </p>
+        <div className="mt-4">
+          <LangSwitcher />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-border bg-card/50 p-6">
         <h2 className="text-lg font-semibold">Workspace</h2>
         <p className="mt-1 text-sm text-muted">
           Your company name appears to candidates on their assessment

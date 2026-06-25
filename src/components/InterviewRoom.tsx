@@ -2,16 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
+import type { Language } from "@elevenlabs/client";
 import VoiceOrb from "@/components/VoiceOrb";
 import Logo from "@/components/Logo";
 import TextInterview from "@/components/TextInterview";
 import AppealButton from "@/components/AppealButton";
 import DeviceCheck from "@/components/DeviceCheck";
+import { useLocale } from "@/components/LocaleProvider";
 import { supabaseBrowser } from "@/lib/supabase";
-import {
-  buildInterviewPrompt,
-  interviewFirstMessage,
-} from "@/lib/prompts";
+import { buildInterviewPrompt } from "@/lib/prompts";
 import type { Criterion, Turn } from "@/lib/types";
 
 type Props = {
@@ -47,6 +46,9 @@ function Room({
   terms,
   resumeClaims,
 }: Props) {
+  const { dict, locale } = useLocale();
+  const t = dict.interview;
+
   const [phase, setPhase] = useState<Phase>("consent");
   const [mode, setMode] = useState<"voice" | "text">("voice");
   const [, setCaption] = useState("");
@@ -127,6 +129,13 @@ function Room({
     }
     setPhase("connecting");
 
+    // Build the localized first message from the dict template.
+    const agentMins = Math.round(questions.length * 2.5);
+    const agentFirstMessage = t.agentOpening
+      .replace("{roleTitle}", roleTitle)
+      .replace("{n}", String(questions.length))
+      .replace("{mins}", String(agentMins));
+
     // Log consent + mark interviewing (best-effort, authorized by token).
     fetch("/api/interview/start", {
       method: "POST",
@@ -182,12 +191,9 @@ function Room({
         signedUrl,
         overrides: {
           agent: {
-            prompt: { prompt: buildInterviewPrompt(roleTitle, questions, rubric, terms ?? [], resumeClaims ?? []) },
-            firstMessage: interviewFirstMessage(
-              roleTitle,
-              questions.length,
-              rubric.map((c) => c.name),
-            ),
+            prompt: { prompt: buildInterviewPrompt(roleTitle, questions, rubric, terms ?? [], resumeClaims ?? [], locale) },
+            firstMessage: agentFirstMessage,
+            language: locale as Language,
           },
         },
         dynamicVariables: {
@@ -286,28 +292,19 @@ function Room({
           <Logo size={44} className="mx-auto mb-7 w-fit text-xl" />
           <h1 className="text-2xl font-semibold">{roleTitle}</h1>
           {orgName && (
-            <p className="mt-1 text-sm text-muted">with {orgName}</p>
+            <p className="mt-1 text-sm text-muted">{t.withOrg.replace("{orgName}", orgName)}</p>
           )}
           <div className="mt-3 flex justify-center gap-5 text-sm text-muted">
-            <span>{questions.length} questions</span>
-            <span>≈ {Math.round(questions.length * 2.5)} min</span>
-            <span>Same rubric for every candidate</span>
+            <span>{t.questions.replace("{n}", String(questions.length))}</span>
+            <span>{t.mins.replace("{m}", String(Math.round(questions.length * 2.5)))}</span>
+            <span>{t.sameRubric}</span>
           </div>
-          <p className="mt-5 text-muted">
-            Speak naturally — you can ask Clarion anything along the way,
-            including exactly how you&apos;re being assessed.
-          </p>
+          <p className="mt-5 text-muted">{t.speakNaturally}</p>
 
           {rubric.length > 0 && (
             <div className="mt-5 rounded-xl border border-border bg-card/60 p-5 text-left">
-              <p className="text-sm font-semibold">
-                How you&apos;re assessed — and why it&apos;s fair
-              </p>
-              <p className="mt-1.5 text-sm text-muted">
-                Clarion asks every candidate the same questions and scores against
-                the same rubric. You&apos;re judged on what you say — not your
-                school, your background, or who you know.
-              </p>
+              <p className="text-sm font-semibold">{t.howAssessed}</p>
+              <p className="mt-1.5 text-sm text-muted">{t.fairBody}</p>
               <ul className="mt-3 space-y-1">
                 {rubric.map((c) => (
                   <li key={c.name} className="flex items-start gap-2 text-sm">
@@ -320,7 +317,7 @@ function Room({
               {rubric.some((c) => c.anchors && c.anchors.length > 0) && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm font-medium text-accent-soft hover:underline">
-                    See exactly what a strong answer looks like
+                    {t.seeStrong}
                   </summary>
                   <ul className="mt-2 space-y-2 border-l-2 border-border pl-3">
                     {rubric
@@ -339,35 +336,26 @@ function Room({
 
               <div className="mt-4 space-y-1.5 border-t border-border/60 pt-3 text-xs text-muted">
                 <p className="flex gap-2">
-                  <span className="text-accent-sage">✓</span> A real person makes
-                  the final decision — this is a recommendation, not a verdict.
+                  <span className="text-accent-sage">✓</span> {t.trustFinal}
                 </p>
                 <p className="flex gap-2">
-                  <span className="text-accent-sage">✓</span> You can request a
-                  human review of your interview afterward.
+                  <span className="text-accent-sage">✓</span> {t.trustReview}
                 </p>
                 <p className="flex gap-2">
-                  <span className="text-accent-sage">✓</span> Only what you say is
-                  scored — never your accent, appearance, mood, or background.
+                  <span className="text-accent-sage">✓</span> {t.trustScored}
                 </p>
                 <p className="flex gap-2">
-                  <span className="text-accent-sage">✓</span> Ask Clarion
-                  &ldquo;what are you assessing me on?&rdquo; anytime — it&apos;ll
-                  tell you straight.
+                  <span className="text-accent-sage">✓</span> {t.trustAsk}
                 </p>
               </div>
             </div>
           )}
 
           <p className="mt-4 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
-            🔴 This interview is recorded (audio &amp; video) so the employer can
-            review it. Your answers are scored against a fixed rubric — only what
-            you <span className="text-foreground">say</span> is assessed. No facial
-            analysis, no demographic inputs.
+            {t.recordingNotice}
           </p>
           <p className="mt-2 text-xs text-muted">
-            Your recording is private to {orgName ?? "the hiring team"} — never sold,
-            shared, or used to train AI.
+            {t.recordingPrivacy.replace("{orgName}", orgName ?? "the hiring team")}
           </p>
           <DeviceCheck />
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
@@ -375,14 +363,14 @@ function Room({
             onClick={start}
             className="mt-6 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft"
           >
-            Start interview
+            {t.startInterview}
           </button>
           <div className="mt-4">
             <button
               onClick={() => setMode("text")}
               className="text-sm text-muted underline hover:text-foreground"
             >
-              Prefer not to use voice? Take the written interview instead
+              {t.preferText}
             </button>
           </div>
         </div>
@@ -394,7 +382,7 @@ function Room({
     return (
       <Shell>
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-semibold">Can&apos;t start the interview</h1>
+          <h1 className="text-2xl font-semibold">{t.cantStart}</h1>
           <p className="mt-3 text-sm text-red-600">{error}</p>
           <button
             onClick={() => {
@@ -403,7 +391,7 @@ function Room({
             }}
             className="mt-6 rounded-full border border-border px-6 py-2.5 hover:border-accent"
           >
-            Try again
+            {t.tryAgain}
           </button>
         </div>
       </Shell>
@@ -418,16 +406,17 @@ function Room({
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl font-semibold text-green-600">
             ✓
           </div>
-          <h1 className="text-2xl font-semibold">Assessment complete</h1>
+          <h1 className="text-2xl font-semibold">{t.doneTitle}</h1>
           <p className="mt-3 text-muted">
-            Thanks, {candidateName}. Your responses have been saved and sent to{" "}
-            {orgName ?? "the hiring team"}.
+            {t.doneThanks
+              .replace("{name}", candidateName)
+              .replace("{org}", orgName ?? "the hiring team")}
           </p>
 
           {rubric.length > 0 && (
             <div className="mt-6 rounded-xl border border-border bg-card/50 p-5 text-left">
               <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                What you were assessed on
+                {t.doneAssessedOn}
               </p>
               <ul className="mt-3 space-y-1.5">
                 {rubric.map((c) => (
@@ -438,25 +427,18 @@ function Room({
                 ))}
               </ul>
               <p className="mt-4 border-t border-border/60 pt-3 text-xs leading-5 text-muted">
-                You were scored against the same rubric as every other candidate.
-                A member of the hiring team — a real person — makes the final
-                decision; Clarion&apos;s assessment is a recommendation, not a
-                verdict.
+                {t.doneSameRubric}
               </p>
             </div>
           )}
 
           <p className="mt-4 rounded-lg border border-border bg-card/40 px-4 py-3 text-sm text-muted">
-            <span className="font-medium text-foreground">What happens next:</span>{" "}
-            {orgName ?? "the hiring team"} reviews your assessment and a real person
-            makes the decision. Bookmark this page — you can return here anytime to
-            see your status.
+            <span className="font-medium text-foreground">{t.doneNext}</span>{" "}
+            {t.doneNextBody.replace("{org}", orgName ?? "the hiring team")}
           </p>
-          <p className="mt-4 text-sm text-muted">
-            Feel something was missed or assessed unfairly?
-          </p>
+          <p className="mt-4 text-sm text-muted">{t.doneMissed}</p>
           <AppealButton token={token} />
-          <p className="mt-6 text-xs text-muted">You can close this tab.</p>
+          <p className="mt-6 text-xs text-muted">{t.doneClose}</p>
         </div>
       </Shell>
     );
@@ -491,12 +473,12 @@ function Room({
 
         <p className="mt-2 text-sm font-medium text-muted">
           {phase === "connecting"
-            ? "Connecting…"
+            ? t.connecting
             : phase === "saving"
-              ? "Saving your interview…"
+              ? t.saving
               : speaking
-                ? "Clarion is speaking…"
-                : "Listening…"}
+                ? t.speaking
+                : t.listening}
         </p>
 
         {phase === "live" && (
@@ -504,7 +486,7 @@ function Room({
             onClick={end}
             className="mt-10 rounded-full border border-border px-6 py-2.5 text-sm hover:border-red-500 hover:text-red-600"
           >
-            End interview
+            {t.endInterview}
           </button>
         )}
       </div>
@@ -516,7 +498,7 @@ function Room({
             onClick={() => setTranscriptOpen((o) => !o)}
             className="fixed right-4 top-4 z-20 rounded-full border border-border bg-card/80 px-3 py-1.5 text-xs font-medium text-muted backdrop-blur transition-colors hover:text-foreground"
           >
-            {transcriptOpen ? "Hide transcript ›" : "‹ Live transcript"}
+            {transcriptOpen ? t.hideTranscript : t.showTranscript}
           </button>
           <aside
             aria-hidden={!transcriptOpen}
@@ -525,14 +507,14 @@ function Room({
             }`}
           >
             <p className="px-5 pb-3 pt-16 text-xs uppercase tracking-wide text-muted">
-              Live transcript
+              {t.liveTranscript}
             </p>
             <div
               ref={scrollRef}
               className="flex-1 space-y-2 overflow-y-auto px-5 pb-6 text-sm"
             >
               {lines.length === 0 ? (
-                <p className="text-muted">The conversation will appear here…</p>
+                <p className="text-muted">{t.liveTranscriptEmpty}</p>
               ) : (
                 lines.map((l, i) => (
                   <p
@@ -542,7 +524,7 @@ function Room({
                     }
                   >
                     <span className="font-medium">
-                      {l.role === "user" ? "You" : "Clarion"}:
+                      {l.role === "user" ? t.liveTranscriptYou : t.liveTranscriptClarion}:
                     </span>{" "}
                     {l.text}
                   </p>

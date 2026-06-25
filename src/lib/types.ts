@@ -49,6 +49,7 @@ export type Role = {
   terms: string[] | null;
   test_enabled: boolean;
   resume_mode?: "off" | "optional" | "required";
+  language?: string;
   join_code?: string | null;
   created_at: string;
 };

@@ -8,6 +8,7 @@ import InterviewRoom from "@/components/InterviewRoom";
 import ResumeUpload from "@/components/ResumeUpload";
 import Logo from "@/components/Logo";
 import { ease } from "@/lib/motion";
+import { useLocale } from "@/components/LocaleProvider";
 import type { ClientTestQuestion } from "@/lib/types";
 
 type Phase = "intro" | "resume" | "aptitude" | "skills" | "bridge" | "interview";
@@ -31,6 +32,8 @@ export default function AssessmentFlow({
 }) {
   const hasAptitude = aptitudeQuestions.length > 0;
   const hasSkills = skillsQuestions.length > 0;
+  const { dict } = useLocale();
+  const t = dict.assessment;
 
   const [phase, setPhase] = useState<Phase>("intro");
   const [interviewReady, setInterviewReady] = useState<{
@@ -109,14 +112,10 @@ export default function AssessmentFlow({
             ✓
           </div>
           <h1 className="text-2xl font-semibold">
-            {hasAptitude || hasSkills ? "Written section complete" : "You're all set"}
+            {hasAptitude || hasSkills ? t.bridgeComplete : t.bridgeAllSet}
           </h1>
-          <p className="mt-3 text-muted">
-            {hasAptitude || hasSkills ? "Great work. Now get ready" : "Get ready"}{" "}
-            for the final part — a short voice conversation with Clarion about your
-            experience and approach.
-          </p>
-          <p className="mt-2 text-sm text-muted">Loading your interview…</p>
+          <p className="mt-3 text-muted">{t.bridgeReady}</p>
+          <p className="mt-2 text-sm text-muted">{t.bridgeLoading}</p>
         </div>
       </div>
     );
@@ -141,7 +140,7 @@ export default function AssessmentFlow({
   if (phase === "interview" && !interviewReady) {
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center px-6">
-        <p className="text-muted">Loading interview…</p>
+        <p className="text-muted">{t.loadingInterview}</p>
       </div>
     );
   }
@@ -150,23 +149,25 @@ export default function AssessmentFlow({
   const parts: { tag: string; title: string; meta: string; sub: string }[] = [];
   if (hasAptitude)
     parts.push({
-      tag: `Part ${parts.length + 1}`,
-      title: "Aptitude test",
-      meta: `${aptitudeQuestions.length} questions · 20 min · proctored`,
-      sub: "Numerical, verbal & logical reasoning",
+      tag: t.partNumber.replace("{n}", String(parts.length + 1)),
+      title: t.partAptitude,
+      meta: t.partAptitudeMeta.replace("{n}", String(aptitudeQuestions.length)),
+      sub: t.partAptitudeSub,
     });
   if (hasSkills)
     parts.push({
-      tag: `Part ${parts.length + 1}`,
-      title: "Skills work-sample",
-      meta: `${skillsQuestions.length} written questions`,
-      sub: "Role-specific, scored on substance",
+      tag: t.partNumber.replace("{n}", String(parts.length + 1)),
+      title: t.partSkills,
+      meta: t.partSkillsMeta.replace("{n}", String(skillsQuestions.length)),
+      sub: t.partSkillsSub,
     });
   parts.push({
-    tag: `Part ${parts.length + 1}`,
-    title: "Voice interview",
-    meta: `${interviewQuestionCount} questions · ≈ ${Math.round(interviewQuestionCount * 2.5)} min`,
-    sub: "Behavioural questions with Clarion AI",
+    tag: t.partNumber.replace("{n}", String(parts.length + 1)),
+    title: t.partInterview,
+    meta: t.partInterviewMeta
+      .replace("{n}", String(interviewQuestionCount))
+      .replace("{m}", String(Math.round(interviewQuestionCount * 2.5))),
+    sub: t.partInterviewSub,
   });
 
   return (
@@ -180,7 +181,7 @@ export default function AssessmentFlow({
         <div className="max-w-lg text-center">
           <Logo size={44} className="mx-auto mb-7 w-fit text-xl" />
           <h1 className="text-2xl font-semibold">{roleTitle}</h1>
-          {orgName && <p className="mt-1 text-sm text-muted">with {orgName}</p>}
+          {orgName && <p className="mt-1 text-sm text-muted">{t.withOrg.replace("{orgName}", orgName)}</p>}
 
           <div
             className={`mt-6 grid gap-3 ${parts.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
@@ -201,13 +202,9 @@ export default function AssessmentFlow({
           </div>
 
           <p className="mt-6 text-sm text-muted">
-            Complete every part in one sitting.{" "}
+            {t.onesitting}{" "}
             {hasAptitude && (
-              <>
-                The aptitude test is timed and{" "}
-                <span className="text-foreground">proctored via screen share</span> —
-                use a desktop browser.{" "}
-              </>
+              <span className="text-foreground">{t.proctored}</span>
             )}
           </p>
 
@@ -215,7 +212,9 @@ export default function AssessmentFlow({
             onClick={() => setPhase(afterIntro)}
             className="mt-8 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft"
           >
-            {afterIntro === "resume" ? "Get started" : `Begin ${parts[0].title}`}
+            {afterIntro === "resume"
+              ? t.getStarted
+              : t.begin.replace("{title}", parts[0].title)}
           </button>
         </div>
       </motion.div>

@@ -89,6 +89,7 @@ export default async function RolePage({
             terms: role.terms ?? [],
             test_enabled: role.test_enabled,
             resume_mode: role.resume_mode ?? "optional",
+            language: role.language ?? "en",
           }}
         />
         <CandidatePanel

@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       terms: body.terms ?? null,
       test_enabled: body.test_enabled ?? true,
       resume_mode: body.resume_mode ?? "optional",
+      language: body.language ?? "en",
       join_code: genCode(),
     })
     .select()
@@ -70,6 +71,7 @@ export async function PATCH(req: Request) {
     "terms",
     "test_enabled",
     "resume_mode",
+    "language",
   ] as const;
   const fields: Record<string, unknown> = {};
   for (const k of UPDATABLE) {

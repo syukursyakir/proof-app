@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Criterion, Occupation, TestQuestion } from "@/lib/types";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import { SUPPORTED_LOCALES } from "@/lib/i18n";
 
 const CATEGORIES: TestQuestion["category"][] = [
   "numerical",
@@ -28,6 +30,7 @@ type Initial = {
   terms?: string[] | null;
   test_enabled: boolean;
   resume_mode?: "off" | "optional" | "required";
+  language?: string;
 };
 
 const input =
@@ -44,6 +47,15 @@ export default function AssessmentForm({
   initial: Initial;
 }) {
   const router = useRouter();
+  const { locale: siteLocale } = useSiteLocale();
+  const [language, setLanguage] = useState<string>(initial.language ?? "en");
+
+  // Once the site locale is read from localStorage (after mount), default new
+  // roles to that locale if no language was pre-set from the DB.
+  useEffect(() => {
+    if (!initial.language) setLanguage(siteLocale);
+  }, [siteLocale, initial.language]);
+
   const [title, setTitle] = useState(initial.title);
   const [rubric, setRubric] = useState<Criterion[]>(initial.rubric ?? []);
   const [tests, setTests] = useState<string[]>(initial.test_questions ?? []);
@@ -140,6 +152,7 @@ export default function AssessmentForm({
         terms: terms.length ? terms : null,
         test_enabled: testEnabled,
         resume_mode: resumeMode,
+        language,
         ...(mode === "edit" ? { id: roleId } : {}),
       };
       const res = await fetch("/api/roles", {
@@ -158,6 +171,31 @@ export default function AssessmentForm({
 
   return (
     <div className="space-y-8">
+      {/* Candidate language — first thing employers set; defaults to their site locale */}
+      <section>
+        <h2 className="text-lg font-semibold">Candidate language</h2>
+        <p className="mb-3 mt-1 text-sm text-muted">
+          The language candidates see during their interview and assessment. Defaults
+          to your current interface language.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {SUPPORTED_LOCALES.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              onClick={() => setLanguage(l.code)}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                language === l.code
+                  ? "border-accent bg-accent text-white"
+                  : "border-border text-muted hover:border-accent"
+              }`}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div>
         <label className={label}>Role title</label>
         <input

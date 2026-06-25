@@ -5,6 +5,8 @@ import { resolveToken } from "@/lib/candidateToken";
 import InterviewRoom from "@/components/InterviewRoom";
 import AssessmentFlow from "@/components/AssessmentFlow";
 import CandidateStatus from "@/components/CandidateStatus";
+import LocaleProvider from "@/components/LocaleProvider";
+import { getDictionary } from "@/lib/i18n";
 import type { Role, TestQuestion } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -43,17 +45,24 @@ export default async function InterviewPage({
   const role = roleData as Role & { organizations?: { name: string } | null };
   const orgName = (role.organizations as { name?: string } | null)?.name ?? null;
 
+  // Load the candidate-facing dictionary once; wrap every return in LocaleProvider.
+  const locale = role.language ?? "en";
+  const dict = await getDictionary(locale);
+  function L(el: React.ReactNode) {
+    return <LocaleProvider dict={dict} locale={locale}>{el}</LocaleProvider>;
+  }
+
   // Already finished? Show their status — don't let them redo, and close the
   // loop (being ghosted after finishing is the #1 candidate complaint).
   if (["completed", "advanced", "rejected"].includes(candidate.status)) {
-    return (
+    return L(
       <CandidateStatus
         status={candidate.status as "completed" | "advanced" | "rejected"}
         orgName={orgName}
         roleTitle={role.title}
         rubric={role.rubric ?? []}
         token={token}
-      />
+      />,
     );
   }
 
@@ -84,7 +93,7 @@ export default async function InterviewPage({
     const safeMcq = needAptitude
       ? testMcq.map(({ correct: _correct, ...q }) => q)
       : [];
-    return (
+    return L(
       <AssessmentFlow
         token={token}
         roleTitle={role.title}
@@ -93,11 +102,11 @@ export default async function InterviewPage({
         skillsQuestions={needSkills ? skillsQs : []}
         interviewQuestionCount={role.interview_questions?.length ?? 5}
         resumeMode={needResume ? (resumeMode as "optional" | "required") : "off"}
-      />
+      />,
     );
   }
 
-  return (
+  return L(
     <InterviewRoom
       token={token}
       candidateName={candidate.name ?? "Candidate"}
@@ -108,6 +117,6 @@ export default async function InterviewPage({
       orgName={orgName}
       terms={role.terms ?? []}
       resumeClaims={candidate.resume_claims ?? []}
-    />
+    />,
   );
 }
