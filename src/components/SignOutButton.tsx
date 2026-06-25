@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase-client";
 import { LogOutIcon } from "@/components/icons";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import IconButton from "@/components/ui/IconButton";
 
 export default function SignOutButton({ iconOnly = false }: { iconOnly?: boolean }) {
   const router = useRouter();
@@ -17,13 +18,9 @@ export default function SignOutButton({ iconOnly = false }: { iconOnly?: boolean
   }
   if (iconOnly) {
     return (
-      <button
-        onClick={signOut}
-        title={label}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-foreground/60 hover:bg-card hover:text-foreground"
-      >
+      <IconButton onClick={signOut} aria-label={label} title={label}>
         <LogOutIcon className="h-5 w-5" />
-      </button>
+      </IconButton>
     );
   }
   return (

@@ -14,6 +14,9 @@ import {
 } from "@/components/icons";
 import { skillsForCategory } from "@/lib/skillsLibrary";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 
 type Category = {
   label: string;
@@ -201,21 +204,17 @@ export default function RolePicker({
 
         {otherCat && (
           <div className="mt-4 flex gap-2">
-            <input
+            <Input
               autoFocus
               value={customRole}
               onChange={(e) => setCustomRole(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && pickRole(customRole)}
               placeholder={p.customRolePlaceholder}
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent"
+              className="flex-1"
             />
-            <button
-              onClick={() => pickRole(customRole)}
-              disabled={!customRole.trim()}
-              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-50"
-            >
+            <Button size="sm" onClick={() => pickRole(customRole)} disabled={!customRole.trim()}>
               {w.next}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -252,20 +251,16 @@ export default function RolePicker({
         </div>
 
         <div className="mt-5 flex max-w-md gap-2">
-          <input
+          <Input
             value={customRole}
             onChange={(e) => setCustomRole(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && pickRole(customRole)}
             placeholder={p.otherRolePlaceholder}
-            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+            className="flex-1"
           />
-          <button
-            onClick={() => pickRole(customRole)}
-            disabled={!customRole.trim()}
-            className="rounded-full border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
-          >
+          <Button variant="secondary" size="sm" onClick={() => pickRole(customRole)} disabled={!customRole.trim()}>
             {w.next}
-          </button>
+          </Button>
         </div>
 
         {VoiceCard}
@@ -289,7 +284,7 @@ export default function RolePicker({
 
       {loadingSkills ? (
         <div className="mt-8 flex items-center gap-3 text-sm text-muted">
-          <span className="orb-pulse h-3 w-3 rounded-full bg-accent" />
+          <Spinner />
           {p.suggestingSkills}
         </div>
       ) : (
@@ -315,37 +310,33 @@ export default function RolePicker({
           </div>
 
           <div className="mt-5 flex max-w-md gap-2">
-            <input
+            <Input
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCustom()}
               placeholder={p.addSkillPlaceholder}
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+              className="flex-1"
             />
-            <button
-              onClick={addCustom}
-              disabled={!custom.trim()}
-              className="rounded-full border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
-            >
+            <Button variant="secondary" size="sm" onClick={addCustom} disabled={!custom.trim()}>
               {dict.employer.form.add}
-            </button>
+            </Button>
           </div>
 
-          <button
+          <Button
+            variant="ghost"
+            className="mt-3"
             onClick={suggestMore}
-            disabled={loadingMore}
-            className="mt-3 text-sm text-accent-soft hover:underline disabled:opacity-50"
+            loading={loadingMore}
+            loadingText={p.thinking}
           >
-            {loadingMore ? p.thinking : p.suggestMore}
-          </button>
+            {p.suggestMore}
+          </Button>
 
-          <button
-            onClick={() => onComplete(role, selected)}
-            disabled={selected.length === 0}
-            className="mt-8 rounded-full bg-accent px-7 py-3 font-medium text-white transition-colors hover:bg-accent-soft disabled:opacity-50"
-          >
-            {p.buildAssessment}
-          </button>
+          <div className="mt-8">
+            <Button onClick={() => onComplete(role, selected)} disabled={selected.length === 0}>
+              {p.buildAssessment}
+            </Button>
+          </div>
           {selected.length === 0 && (
             <p className="mt-3 text-xs text-muted">{p.pickAtLeastOne}</p>
           )}

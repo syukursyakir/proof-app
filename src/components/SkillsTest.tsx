@@ -3,6 +3,9 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ease } from "@/lib/motion";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 // One question's answer box: type, or record a voice answer (transcribed).
 function AnswerBox({
@@ -56,20 +59,22 @@ function AnswerBox({
 
   return (
     <div className="mt-3">
-      <textarea
-        className="min-h-28 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+      <Textarea
+        size="md"
         placeholder="Type your answer — or record it by voice below."
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
       <div className="mt-2 flex items-center gap-3">
+        {/* Recording toggle is its own hybrid species (state-driven color swap,
+            not a standard action) — kept as a custom widget, not ui/Button. */}
         <button
           type="button"
           onClick={recording ? stopRec : startRec}
           disabled={transcribing}
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
             recording
-              ? "bg-red-500 text-white hover:bg-red-600"
+              ? "bg-accent-clay text-white hover:opacity-90"
               : "border border-border text-foreground/80 hover:border-accent"
           }`}
         >
@@ -78,7 +83,7 @@ function AnswerBox({
         </button>
         {recording && (
           <span className="flex items-center gap-2 text-xs text-muted">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> Recording
+            <span className="h-2 w-2 animate-pulse rounded-full bg-accent-clay" /> Recording
           </span>
         )}
         {transcribing && <span className="text-xs text-muted">Transcribing…</span>}
@@ -143,19 +148,20 @@ export default function SkillsTest({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05, ease: ease.out }}
-              className="rounded-2xl border border-border bg-card/50 p-5"
             >
-              <label className="text-sm font-medium leading-6">
-                <span className="mr-2 text-muted">{i + 1}.</span>
-                {q}
-              </label>
-              <AnswerBox
-                token={token}
-                value={answers[i] ?? ""}
-                onChange={(v) =>
-                  setAnswers((a) => a.map((x, idx) => (idx === i ? v : x)))
-                }
-              />
+              <Card padding="sm">
+                <label className="text-sm font-medium leading-6">
+                  <span className="mr-2 text-muted">{i + 1}.</span>
+                  {q}
+                </label>
+                <AnswerBox
+                  token={token}
+                  value={answers[i] ?? ""}
+                  onChange={(v) =>
+                    setAnswers((a) => a.map((x, idx) => (idx === i ? v : x)))
+                  }
+                />
+              </Card>
             </motion.div>
           ))}
         </div>
@@ -164,13 +170,9 @@ export default function SkillsTest({
           <p className="text-xs text-muted">
             {answered} of {questions.length} answered
           </p>
-          <button
-            onClick={submit}
-            disabled={submitting}
-            className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-60"
-          >
-            {submitting ? "Submitting…" : "Submit & continue"}
-          </button>
+          <Button onClick={submit} loading={submitting} loadingText="Submitting…">
+            Submit &amp; continue
+          </Button>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Logo from "@/components/Logo";
 import { supabaseBrowser } from "@/lib/supabase";
 import { useLocale } from "@/components/LocaleProvider";
+import Button from "@/components/ui/Button";
 
 const ACCEPT = ".pdf,.doc,.docx";
 const ALLOWED_EXT = ["pdf", "doc", "docx"];
@@ -94,13 +95,13 @@ export default function ResumeUpload({
               if (f) void handleFile(f);
             }}
           />
-          <button
+          <Button
             onClick={() => inputRef.current?.click()}
-            disabled={busy}
-            className="rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+            loading={busy}
+            loadingText={t.uploading}
           >
-            {busy ? t.uploading : fileName ? t.chooseDiff : t.chooseFile}
-          </button>
+            {fileName ? t.chooseDiff : t.chooseFile}
+          </Button>
         </div>
 
         {fileName && !busy && (
@@ -108,7 +109,7 @@ export default function ResumeUpload({
             {t.uploaded.replace("{name}", fileName)}
           </p>
         )}
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-accent-clay">{error}</p>}
 
         {mode === "optional" && (
           <div className="mt-5">

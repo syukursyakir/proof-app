@@ -5,6 +5,8 @@ import { currentUser } from "@/lib/auth";
 import { Reveal, Stagger, Item } from "@/components/motion";
 import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import type { Candidate, Role } from "@/lib/types";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
@@ -67,33 +69,33 @@ export default async function DashboardPage() {
       </Reveal>
 
       {dbError && (
-        <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
+        <div className="mt-8 rounded-xl border border-accent-warm/40 bg-accent-warm/10 p-4 text-sm text-accent-warm-soft">
           {dbError}
         </div>
       )}
 
       <Stagger className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {stats.map((s) => (
-          <Item
-            key={s.label}
-            className={`rounded-2xl border bg-card/50 p-5 ${
-              s.accent && s.value > 0 ? "border-amber-300 bg-amber-50/50" : "border-border"
-            }`}
-          >
-            <div
-              className={`tnum text-3xl font-semibold ${
-                s.accent && s.value > 0 ? "text-amber-700" : "text-foreground"
-              }`}
-            >
-              {s.value}
-            </div>
-            <div className="mt-1 text-sm text-muted">{s.label}</div>
-          </Item>
-        ))}
+        {stats.map((s) => {
+          const highlight = s.accent && s.value > 0;
+          return (
+            <Item key={s.label}>
+              <Card padding="sm" tint={highlight ? "warning" : 50}>
+                <div
+                  className={`tnum text-3xl font-semibold ${
+                    highlight ? "text-accent-warm-soft" : "text-foreground"
+                  }`}
+                >
+                  {s.value}
+                </div>
+                <div className="mt-1 text-sm text-muted">{s.label}</div>
+              </Card>
+            </Item>
+          );
+        })}
       </Stagger>
 
       {roles.length === 0 && !dbError && (
-        <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center">
+        <Card border="dashed" padding="lg" className="mt-10 text-center">
           <p className="text-muted">{e.dash.noRoles}</p>
           <Link
             href="/roles/new"
@@ -101,7 +103,7 @@ export default async function DashboardPage() {
           >
             {e.dash.buildFirst}
           </Link>
-        </div>
+        </Card>
       )}
 
       {needsReview.length > 0 ? (
@@ -121,9 +123,7 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <span className="flex items-center gap-3">
-                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                    {e.dash.awaitingReview}
-                  </span>
+                  <Badge tone="warning">{e.dash.awaitingReview}</Badge>
                   <span className="text-sm font-medium text-accent-soft">{e.dash.reviewArrow}</span>
                 </span>
               </Link>

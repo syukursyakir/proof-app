@@ -219,6 +219,15 @@ export function DotsIcon({ className }: P) {
   );
 }
 
+export function XIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M18 6 6 18" />
+      <path d="M6 6l12 12" />
+    </svg>
+  );
+}
+
 export function CheckCircleIcon({ className }: P) {
   return (
     <svg {...base} className={className} aria-hidden>

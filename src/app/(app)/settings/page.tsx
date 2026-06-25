@@ -5,6 +5,7 @@ import { Reveal } from "@/components/motion";
 import SettingsForm from "@/components/SettingsForm";
 import LangSwitcher from "@/components/LangSwitcher";
 import { getDictionary, isSupportedLocale } from "@/lib/i18n";
+import Card from "@/components/ui/Card";
 
 export const dynamic = "force-dynamic";
 
@@ -24,15 +25,15 @@ export default async function SettingsPage() {
         <p className="mt-2 text-muted">{e.settingsP.subtitle}</p>
       </Reveal>
 
-      <section className="mt-8 rounded-2xl border border-border bg-card/50 p-6">
+      <Card padding="md" className="mt-8">
         <h2 className="text-lg font-semibold">{e.settingsP.interfaceLang}</h2>
         <p className="mt-1 text-sm text-muted">{e.settingsP.interfaceLangDesc}</p>
         <div className="mt-4">
           <LangSwitcher />
         </div>
-      </section>
+      </Card>
 
-      <section className="mt-6 rounded-2xl border border-border bg-card/50 p-6">
+      <Card padding="md" className="mt-6">
         <h2 className="text-lg font-semibold">{e.settingsP.workspace}</h2>
         <p className="mt-1 text-sm text-muted">
           {e.settingsP.workspaceDesc}
@@ -41,15 +42,15 @@ export default async function SettingsPage() {
           &rdquo;).
         </p>
         <SettingsForm initialName={org?.name ?? ""} />
-      </section>
+      </Card>
 
-      <section className="mt-6 rounded-2xl border border-border bg-card/50 p-6">
+      <Card padding="md" className="mt-6">
         <h2 className="text-lg font-semibold">{e.settingsP.account}</h2>
         <p className="mt-2 text-sm text-muted">
           {e.settingsP.signedInAs}{" "}
           <span className="text-foreground">{user?.email ?? "—"}</span>
         </p>
-      </section>
+      </Card>
     </main>
   );
 }

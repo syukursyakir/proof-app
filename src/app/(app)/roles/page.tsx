@@ -7,6 +7,8 @@ import { genCode } from "@/lib/candidateToken";
 import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import { MAX_ROLES_PER_ORG } from "@/lib/limits";
 import type { Candidate, Role } from "@/lib/types";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
@@ -91,19 +93,19 @@ export default async function RolesPage() {
       </Reveal>
 
       {dbError && (
-        <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
+        <div className="mt-8 rounded-xl border border-accent-warm/40 bg-accent-warm/10 p-4 text-sm text-accent-warm-soft">
           {dbError}
         </div>
       )}
 
       {!dbError && atLimit && (
-        <div className="mt-8 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <Card tint="warning" radius="xl" padding="sm" className="mt-8 text-sm text-accent-warm-soft">
           {e.rolesP.limitReached}
-        </div>
+        </Card>
       )}
 
       {!dbError && roles.length === 0 && (
-        <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center">
+        <Card border="dashed" padding="lg" className="mt-10 text-center">
           <p className="text-muted">{e.rolesP.noRoles}</p>
           <Link
             href="/roles/new"
@@ -111,7 +113,7 @@ export default async function RolesPage() {
           >
             {e.rolesP.buildFirst}
           </Link>
-        </div>
+        </Card>
       )}
 
       <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -119,16 +121,16 @@ export default async function RolesPage() {
           const t = perRole.get(r.id);
           return (
             <Item key={r.id} className="h-full">
-              <div className="lift flex h-full flex-col rounded-2xl border border-border bg-card/50 p-6">
+              <Card lifted padding="md" className="flex h-full flex-col">
                 <Link href={`/roles/${r.id}`} className="block">
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="text-lg font-semibold hover:text-accent-soft">
                       {r.title}
                     </h3>
                     {t && t.review > 0 && (
-                      <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                      <Badge tone="warning" size="xs" className="shrink-0 font-medium">
                         {t.review} {e.rolesP.toReview}
-                      </span>
+                      </Badge>
                     )}
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm text-muted">
@@ -145,7 +147,7 @@ export default async function RolesPage() {
                     <RoleCodeBadge code={r.join_code} roleTitle={r.title} />
                   </div>
                 )}
-              </div>
+              </Card>
             </Item>
           );
         })}

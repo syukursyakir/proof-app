@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function SettingsForm({ initialName }: { initialName: string }) {
   const router = useRouter();
@@ -36,7 +38,7 @@ export default function SettingsForm({ initialName }: { initialName: string }) {
 
   return (
     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-      <input
+      <Input
         value={name}
         onChange={(e) => {
           setName(e.target.value);
@@ -44,16 +46,17 @@ export default function SettingsForm({ initialName }: { initialName: string }) {
         }}
         placeholder="Acme Dental"
         maxLength={80}
-        className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+        className="flex-1"
       />
-      <button
+      <Button
         onClick={save}
-        disabled={saving || !name.trim() || name === initialName}
-        className="rounded-full bg-accent px-6 py-2 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-50"
+        disabled={!name.trim() || name === initialName}
+        loading={saving}
+        loadingText={s.saving}
       >
-        {saving ? s.saving : saved ? s.saved : s.save}
-      </button>
-      {error && <p className="self-center text-sm text-red-600">{error}</p>}
+        {saved ? s.saved : s.save}
+      </Button>
+      {error && <p className="self-center text-sm text-accent-clay">{error}</p>}
     </div>
   );
 }

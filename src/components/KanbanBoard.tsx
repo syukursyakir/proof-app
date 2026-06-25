@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import Badge from "@/components/ui/Badge";
 
 export type KanbanCandidate = {
   id: string;
@@ -13,21 +14,6 @@ export type KanbanCandidate = {
   score: number | null;
   band: string | null;
 };
-
-function scoreClasses(band: string | null): string {
-  switch (band) {
-    case "Strong":
-      return "bg-green-100 text-green-700";
-    case "Recommended":
-      return "bg-accent/15 text-accent-soft";
-    case "Borderline":
-      return "bg-amber-100 text-amber-700";
-    case "Not recommended":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-slate-100 text-slate-500";
-  }
-}
 
 export default function KanbanBoard({
   initial,
@@ -46,9 +32,9 @@ export default function KanbanBoard({
     label: string;
     dot: string;
   }[] = [
-    { key: "completed", label: k.awaitingReview, dot: "bg-blue-400" },
-    { key: "advanced", label: k.advanced, dot: "bg-green-500" },
-    { key: "rejected", label: k.rejected, dot: "bg-red-400" },
+    { key: "completed", label: k.awaitingReview, dot: "bg-accent" },
+    { key: "advanced", label: k.advanced, dot: "bg-accent-sage" },
+    { key: "rejected", label: k.rejected, dot: "bg-accent-clay" },
   ];
 
   async function moveTo(id: string, status: KanbanCandidate["status"]) {
@@ -124,13 +110,9 @@ export default function KanbanBoard({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="truncate font-medium">{c.name}</span>
-                    <span
-                      className={`tnum shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${scoreClasses(
-                        c.band,
-                      )}`}
-                    >
+                    <Badge domain="band" value={c.band} size="xs" className="tnum shrink-0">
                       {c.score != null ? `${c.score}/100` : "—"}
-                    </span>
+                    </Badge>
                   </div>
                   <p className="mt-1 truncate text-xs text-muted">{c.roleTitle}</p>
                   <Link

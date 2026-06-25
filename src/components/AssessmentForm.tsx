@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import type { Criterion, Occupation, TestQuestion } from "@/lib/types";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
 import { SUPPORTED_LOCALES } from "@/lib/i18n";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 
 const CATEGORIES: TestQuestion["category"][] = [
   "numerical",
@@ -27,9 +32,7 @@ type Initial = {
   language?: string;
 };
 
-const input =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent";
-const label = "text-xs font-medium uppercase tracking-wide text-muted";
+const labelClass = "text-xs font-medium uppercase tracking-wide text-muted";
 
 export default function AssessmentForm({
   mode,
@@ -197,9 +200,9 @@ export default function AssessmentForm({
       )}
 
       <div>
-        <label className={label}>{f.roleTitle}</label>
-        <input
-          className={`${input} mt-2 text-lg`}
+        <Input
+          label={f.roleTitle}
+          className="text-lg"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -216,22 +219,21 @@ export default function AssessmentForm({
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{f.rubric}</h2>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={() =>
               setRubric((r) => [...r, { name: "", good: "", bad: "" }])
             }
-            className="text-sm text-accent-soft hover:underline"
           >
             {f.addCriterion}
-          </button>
+          </Button>
         </div>
         <div className="space-y-4">
           {rubric.map((c, i) => (
-            <div key={i} className="rounded-xl border border-border bg-card/50 p-4">
+            <Card key={i} padding="sm" radius="xl">
               <div className="flex items-center gap-2">
-                <input
-                  className={input}
+                <Input
+                  className="flex-1"
                   placeholder={f.criterionName}
                   value={c.name}
                   onChange={(e) => updateCriterion(i, "name", e.target.value)}
@@ -245,31 +247,24 @@ export default function AssessmentForm({
                 </button>
               </div>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className={label}>{f.goodLooksLike}</label>
-                  <textarea
-                    className={`${input} mt-1 min-h-16`}
-                    value={c.good}
-                    onChange={(e) => updateCriterion(i, "good", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className={label}>{f.badLooksLike}</label>
-                  <textarea
-                    className={`${input} mt-1 min-h-16`}
-                    value={c.bad}
-                    onChange={(e) => updateCriterion(i, "bad", e.target.value)}
-                  />
-                </div>
+                <Textarea
+                  label={f.goodLooksLike}
+                  value={c.good}
+                  onChange={(e) => updateCriterion(i, "good", e.target.value)}
+                />
+                <Textarea
+                  label={f.badLooksLike}
+                  value={c.bad}
+                  onChange={(e) => updateCriterion(i, "bad", e.target.value)}
+                />
               </div>
               <div className="mt-3">
-                <label className={label}>{f.scoreAnchors}</label>
+                <label className={labelClass}>{f.scoreAnchors}</label>
                 <div className="mt-2 space-y-2">
                   {[1, 2, 3, 4, 5].map((level) => (
                     <div key={level} className="flex items-center gap-2">
                       <span className="w-4 shrink-0 text-xs text-muted">{level}</span>
-                      <input
-                        className={input}
+                      <Input
                         placeholder={f.scoreAnchorPlaceholder.replace("{level}", String(level))}
                         value={c.anchors?.[level - 1] ?? ""}
                         onChange={(e) => updateAnchor(i, level - 1, e.target.value)}
@@ -278,7 +273,7 @@ export default function AssessmentForm({
                   ))}
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
@@ -298,13 +293,9 @@ export default function AssessmentForm({
                 {checking ? f.checking : f.checkDifficulty}
               </button>
             )}
-            <button
-              type="button"
-              onClick={addMcq}
-              className="text-sm text-accent-soft hover:underline"
-            >
+            <Button variant="ghost" onClick={addMcq}>
               {f.addQuestion}
-            </button>
+            </Button>
           </div>
         </div>
         <p className="mb-3 text-sm text-muted">{f.mcqHint}</p>
@@ -315,7 +306,7 @@ export default function AssessmentForm({
         )}
         <div className="space-y-4">
           {mcq.map((q, i) => (
-            <div key={q.id} className="rounded-xl border border-border bg-card/50 p-4">
+            <Card key={q.id} padding="sm" radius="xl">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-muted">{i + 1}</span>
                 <select
@@ -334,12 +325,12 @@ export default function AssessmentForm({
                 {critique[q.id] &&
                   (() => {
                     const v = critique[q.id];
-                    const style =
+                    const tone =
                       v.verdict === "good"
-                        ? "bg-green-100 text-green-700"
+                        ? "positive"
                         : v.verdict === "easy"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-red-100 text-red-700";
+                          ? "warning"
+                          : "negative";
                     const vlabel =
                       v.verdict === "good"
                         ? f.verdictGood
@@ -347,18 +338,15 @@ export default function AssessmentForm({
                           ? f.verdictEasy
                           : f.verdictFlawed;
                     return (
-                      <span
-                        title={v.note}
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${style}`}
-                      >
-                        {vlabel}
-                      </span>
+                      <Badge tone={tone} size="xs">
+                        <span title={v.note}>{vlabel}</span>
+                      </Badge>
                     );
                   })()}
                 <button
                   type="button"
                   onClick={() => setMcq((m) => m.filter((_, idx) => idx !== i))}
-                  className="ml-auto text-xs text-muted hover:text-red-600"
+                  className="ml-auto text-xs text-muted hover:text-accent-clay"
                 >
                   {f.remove}
                 </button>
@@ -366,8 +354,8 @@ export default function AssessmentForm({
               {critique[q.id] && critique[q.id].verdict !== "good" && (
                 <p className="mt-1 pl-6 text-xs text-muted">{critique[q.id].note}</p>
               )}
-              <textarea
-                className={`${input} mt-3 min-h-12`}
+              <Textarea
+                className="mt-3"
                 placeholder={f.questionTextPlaceholder}
                 value={q.question}
                 onChange={(e) => updateMcq(i, { question: e.target.value })}
@@ -383,14 +371,14 @@ export default function AssessmentForm({
                         onClick={() => updateMcq(i, { correct: oi })}
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition-colors ${
                           isCorrect
-                            ? "border-green-500 bg-green-500 text-white"
-                            : "border-border text-muted hover:border-green-400"
+                            ? "border-accent-sage bg-accent-sage text-white"
+                            : "border-border text-muted hover:border-accent-sage"
                         }`}
                       >
                         {isCorrect ? "✓" : String.fromCharCode(65 + oi)}
                       </button>
-                      <input
-                        className={`${input} ${isCorrect ? "border-green-400" : ""}`}
+                      <Input
+                        className={isCorrect ? "border-accent-sage" : ""}
                         placeholder={f.optionPlaceholder.replace("{letter}", String.fromCharCode(65 + oi))}
                         value={opt}
                         onChange={(e) => updateMcqOption(i, oi, e.target.value)}
@@ -399,7 +387,7 @@ export default function AssessmentForm({
                   );
                 })}
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
@@ -429,20 +417,16 @@ export default function AssessmentForm({
       <section>
         <div className="mb-1 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{f.glossary}</h2>
-          <button
-            type="button"
-            onClick={() => setTerms((t) => [...t, ""])}
-            className="text-sm text-accent-soft hover:underline"
-          >
+          <Button variant="ghost" onClick={() => setTerms((t) => [...t, ""])}>
             {f.addTerm}
-          </button>
+          </Button>
         </div>
         <p className="mb-3 text-sm text-muted">{f.glossaryHint}</p>
         <div className="space-y-2">
           {terms.map((t, i) => (
             <div key={i} className="flex items-center gap-2">
-              <input
-                className={input}
+              <Input
+                className="flex-1"
                 placeholder={f.termPlaceholder}
                 value={t}
                 onChange={(e) =>
@@ -489,15 +473,11 @@ export default function AssessmentForm({
         </div>
       </section>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-accent-clay">{error}</p>}
       <div className="flex gap-3">
-        <button
-          onClick={save}
-          disabled={saving}
-          className="rounded-full bg-accent px-6 py-2.5 font-medium text-white transition-colors hover:bg-accent-soft disabled:opacity-60"
-        >
-          {saving ? f.saving : mode === "edit" ? f.saveChanges : f.saveRole}
-        </button>
+        <Button onClick={save} loading={saving} loadingText={f.saving}>
+          {mode === "edit" ? f.saveChanges : f.saveRole}
+        </Button>
       </div>
     </div>
   );
@@ -536,13 +516,9 @@ function StringList({
             </label>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => setItems((q) => [...q, ""])}
-          className="text-sm text-accent-soft hover:underline"
-        >
+        <Button variant="ghost" onClick={() => setItems((q) => [...q, ""])}>
           {addLabel}
-        </button>
+        </Button>
       </div>
       <div className="space-y-2">
         {items.map((q, i) => (
@@ -550,8 +526,8 @@ function StringList({
             <span className="w-5 shrink-0 text-right text-xs text-muted">
               {i + 1}
             </span>
-            <input
-              className={input}
+            <Input
+              className="flex-1"
               placeholder={placeholder}
               value={q}
               onChange={(e) =>

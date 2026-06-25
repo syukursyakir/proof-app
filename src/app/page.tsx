@@ -232,12 +232,12 @@ export default function Home() {
         <Reveal>
           <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-[#15233f] px-6 py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_40px_80px_-32px_rgba(21,35,63,0.6)] sm:px-12">
             {/* warm + cool glows */}
-            <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#e0922f]/20 blur-[90px]" />
-            <div className="pointer-events-none absolute -bottom-28 -right-16 h-80 w-80 rounded-full bg-[#3a4f7a]/40 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-accent-warm/20 blur-[90px]" />
+            <div className="pointer-events-none absolute -bottom-28 -right-16 h-80 w-80 rounded-full bg-accent/40 blur-[100px]" />
             <div className="grain absolute inset-0 opacity-[0.04]" />
 
             <div className="relative">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#e0922f]">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-warm">
                 {l.ctaTag}
               </p>
               <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-6xl">
@@ -251,7 +251,7 @@ export default function Home() {
               <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
                   href="/roles/new"
-                  className="rounded-full bg-[#e0922f] px-7 py-3 font-medium text-[#15233f] shadow-lg transition-transform hover:scale-[1.03]"
+                  className="rounded-full bg-accent-warm px-7 py-3 font-medium text-accent shadow-lg transition-transform hover:scale-[1.03]"
                 >
                   {l.buildAssessment}
                 </Link>

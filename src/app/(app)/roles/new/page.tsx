@@ -9,6 +9,10 @@ import { ease } from "@/lib/motion";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
 import { SUPPORTED_LOCALES } from "@/lib/i18n";
 import type { Assessment, TestQuestion } from "@/lib/types";
+import Card from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
+import { XIcon } from "@/components/icons";
 
 type Phase = "language" | "pick" | "describe" | "followups" | "building" | "ready";
 
@@ -174,9 +178,9 @@ export default function NewRolePage() {
           <Link
             href="/roles"
             aria-label={w.close}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-card hover:text-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-card hover:text-foreground"
           >
-            ✕
+            <XIcon className="h-4 w-4" />
           </Link>
           <span className="truncate font-medium">{w.headerTitle}</span>
         </div>
@@ -290,7 +294,7 @@ export default function NewRolePage() {
                 onClick={recording ? stopRecording : startRecording}
                 disabled={transcribing}
                 className={`inline-flex h-12 items-center gap-2 rounded-full px-6 font-medium text-white transition-colors disabled:opacity-60 ${
-                  recording ? "bg-red-500 hover:bg-red-600" : "bg-accent hover:bg-accent-soft"
+                  recording ? "bg-accent-clay hover:bg-accent-clay/80" : "bg-accent hover:bg-accent-soft"
                 }`}
               >
                 <span aria-hidden>🎙️</span>
@@ -299,20 +303,21 @@ export default function NewRolePage() {
               {transcribing && <span className="text-sm text-muted">{w.transcribing}</span>}
               {recording && (
                 <span className="flex items-center gap-2 text-sm text-muted">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-accent-clay" />
                   {w.listening}
                 </span>
               )}
             </div>
 
-            <textarea
-              className="mt-6 min-h-40 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-accent"
+            <Textarea
+              size="lg"
+              className="mt-6"
               placeholder={w.descriptionPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
 
-            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-3 text-sm text-accent-clay">{error}</p>}
 
             <button
               onClick={getFollowups}
@@ -360,8 +365,8 @@ export default function NewRolePage() {
               {followups.map((q, i) => (
                 <div key={i}>
                   <label className="text-sm font-medium">{q}</label>
-                  <input
-                    className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+                  <Input
+                    className="mt-2"
                     value={answers[i] ?? ""}
                     onChange={(e) =>
                       setAnswers((a) =>
@@ -372,7 +377,7 @@ export default function NewRolePage() {
                 </div>
               ))}
             </div>
-            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-3 text-sm text-accent-clay">{error}</p>}
             <button
               onClick={buildAssessment}
               className="mt-8 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
@@ -391,9 +396,9 @@ export default function NewRolePage() {
             {assessment.occupation?.soc_code &&
               (assessment.occupation.soc_code.startsWith("15") ||
                 assessment.occupation.soc_code.startsWith("17")) && (
-              <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <Card tint="warning" radius="xl" padding="sm" className="mb-6 text-sm text-accent-warm-soft">
                 <strong>{w.technicalDetected}</strong> {w.technicalNote}
-              </div>
+              </Card>
             )}
             <AssessmentForm
               mode="create"

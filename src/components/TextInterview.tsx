@@ -3,6 +3,8 @@
 import { useState } from "react";
 import AppealButton from "@/components/AppealButton";
 import type { Turn } from "@/lib/types";
+import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
 
 // Accessible, written alternative to the voice interview (ADA / no-mic option).
 export default function TextInterview({
@@ -75,12 +77,9 @@ export default function TextInterview({
             Your responses are recorded for the employer to review. A human makes the
             final decision.
           </p>
-          <button
-            onClick={start}
-            className="mt-6 rounded-full bg-accent px-7 py-3 font-medium text-white hover:bg-accent-soft"
-          >
+          <Button onClick={start} className="mt-6">
             Start written interview
-          </button>
+          </Button>
         </div>
       )}
 
@@ -93,37 +92,28 @@ export default function TextInterview({
           <label htmlFor="answer" className="sr-only">
             Your answer
           </label>
-          <textarea
+          <Textarea
             id="answer"
+            size="lg"
             autoFocus
-            className="mt-4 min-h-40 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-accent"
+            className="mt-4"
             placeholder="Type your answer…"
             value={answers[i] ?? ""}
             onChange={(e) => setAnswer(e.target.value)}
           />
-          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-3 text-sm text-accent-clay">{error}</p>}
           <div className="mt-6 flex items-center justify-between">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setI((n) => Math.max(0, n - 1))}
               disabled={i === 0}
-              className="rounded-full border border-border px-5 py-2 text-sm disabled:opacity-40"
             >
               ← Back
-            </button>
+            </Button>
             {i < questions.length - 1 ? (
-              <button
-                onClick={() => setI((n) => n + 1)}
-                className="rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
-              >
-                Next →
-              </button>
+              <Button onClick={() => setI((n) => n + 1)}>Next →</Button>
             ) : (
-              <button
-                onClick={submit}
-                className="rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
-              >
-                Submit interview
-              </button>
+              <Button onClick={submit}>Submit interview</Button>
             )}
           </div>
         </div>

@@ -5,14 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@/lib/types";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
-
-const statusPill: Record<string, string> = {
-  invited: "bg-slate-100 text-slate-600",
-  interviewing: "bg-amber-50 text-amber-700",
-  completed: "bg-blue-50 text-blue-700",
-  advanced: "bg-green-50 text-green-700",
-  rejected: "bg-red-50 text-red-700",
-};
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
 
 export default function CandidatePanel({
   roleId,
@@ -99,7 +95,7 @@ export default function CandidatePanel({
       <p className="mt-1 text-sm text-muted">{p.subtitle}</p>
 
       {roleCode && (
-        <div className="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
+        <Card tint="accent" padding="md" className="mt-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted">
             {p.shareCode}
           </p>
@@ -111,14 +107,11 @@ export default function CandidatePanel({
               candidates enter it at{" "}
               <span className="text-foreground">clarion.fyi/join</span>
             </span>
-            <button
-              onClick={copyRoleInvite}
-              className="ml-auto rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-soft"
-            >
+            <Button size="sm" className="ml-auto" onClick={copyRoleInvite}>
               {codeCopied ? p.copied : p.copyInvite}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
 
       <details className="mt-4">
@@ -126,20 +119,16 @@ export default function CandidatePanel({
           {p.orInvite}
         </summary>
         <div className="mt-3 flex gap-2">
-          <input
-            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
+          <Input
+            className="flex-1"
             placeholder={p.namePlaceholder}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
           />
-          <button
-            onClick={add}
-            disabled={adding}
-            className="rounded-full border border-border px-5 py-2 text-sm hover:border-accent disabled:opacity-60"
-          >
-            {adding ? p.adding : p.addCandidate}
-          </button>
+          <Button variant="secondary" size="sm" onClick={add} loading={adding} loadingText={p.adding}>
+            {p.addCandidate}
+          </Button>
         </div>
       </details>
 
@@ -155,13 +144,13 @@ export default function CandidatePanel({
           const shareable = c.join_code && c.access_token && (c.status === "invited" || c.status === "interviewing");
           const decided = c.status === "completed" || c.status === "advanced" || c.status === "rejected";
           return (
-            <div key={c.id} className="rounded-xl border border-border bg-card/50 p-4">
+            <Card key={c.id} padding="sm" radius="xl">
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{c.name}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusPill[c.status] ?? "bg-slate-100 text-slate-600"}`}>
+                  <Badge domain="status" value={c.status} size="xs">
                     {statusLabel[c.status] ?? c.status}
-                  </span>
+                  </Badge>
                   {summaries[c.id] && (
                     <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs capitalize text-accent-soft">
                       {summaries[c.id].recommendation || "scored"} · {summaries[c.id].avg.toFixed(1)}/5
@@ -191,15 +180,16 @@ export default function CandidatePanel({
                       → they enter it at clarion.fyi/join
                     </span>
                   </div>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => copyInvite(c.id, c.access_token, c.join_code)}
-                    className="rounded-full border border-border px-3 py-1 text-xs hover:border-accent"
                   >
                     {copied === c.id ? p.copied : p.copyInvite}
-                  </button>
+                  </Button>
                 </div>
               )}
-            </div>
+            </Card>
           );
         })}
       </div>

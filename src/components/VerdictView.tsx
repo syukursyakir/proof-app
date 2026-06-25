@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Candidate, CriterionVerdict, Verdict } from "@/lib/types";
 import { pairScores, agreement } from "@/lib/agreement";
-import { computeComposite, type CompositeBand } from "@/lib/composite";
+import { computeComposite } from "@/lib/composite";
 import { ease, spring } from "@/lib/motion";
 import { Stagger, Item, CountUp } from "@/components/motion";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 type SkillsAnswers = {
   qa: { question: string; answer: string }[];
@@ -54,27 +57,6 @@ function Highlighted({ text, quotes }: { text: string; quotes: string[] }) {
     </p>
   );
 }
-
-const recColor: Record<string, string> = {
-  advance: "bg-green-500/15 text-green-700",
-  "lean advance": "bg-green-500/15 text-green-700",
-  "lean reject": "bg-red-500/15 text-red-700",
-  reject: "bg-red-500/15 text-red-700",
-};
-
-const statusPill: Record<string, string> = {
-  invited: "bg-slate-100 text-slate-600",
-  interviewing: "bg-amber-50 text-amber-700",
-  completed: "bg-blue-50 text-blue-700",
-  advanced: "bg-green-50 text-green-700",
-  rejected: "bg-red-50 text-red-700",
-};
-const bandStyle: Record<CompositeBand, { pill: string; bar: string; text: string }> = {
-  Strong: { pill: "bg-green-100 text-green-800", bar: "bg-green-500", text: "text-green-700" },
-  Recommended: { pill: "bg-accent/15 text-accent-soft", bar: "bg-accent", text: "text-accent-soft" },
-  Borderline: { pill: "bg-amber-100 text-amber-800", bar: "bg-amber-500", text: "text-amber-700" },
-  "Not recommended": { pill: "bg-red-100 text-red-700", bar: "bg-red-400", text: "text-red-600" },
-};
 
 function ScoreDots({ score, max = 5 }: { score: number; max?: number }) {
   return (
@@ -228,26 +210,20 @@ export default function VerdictView({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">{candidate.name}</h1>
-          <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${statusPill[candidate.status] ?? "bg-slate-100 text-slate-600"}`}>
-            {statusLabel[candidate.status] ?? candidate.status}
-          </span>
+          <div className="mt-2">
+            <Badge domain="status" value={candidate.status}>
+              {statusLabel[candidate.status] ?? candidate.status}
+            </Badge>
+          </div>
         </div>
         {!readOnly && (
           <div className="flex gap-2">
-            <button
-              onClick={() => setStatus("advanced")}
-              disabled={busy}
-              className="rounded-full bg-green-500/90 px-5 py-2 text-sm font-medium text-white hover:bg-green-500 disabled:opacity-60"
-            >
+            <Button variant="positive" size="sm" onClick={() => setStatus("advanced")} disabled={busy}>
               {v.advance}
-            </button>
-            <button
-              onClick={() => setStatus("rejected")}
-              disabled={busy}
-              className="rounded-full border border-border px-5 py-2 text-sm hover:border-red-500 hover:text-red-400 disabled:opacity-60"
-            >
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => setStatus("rejected")} disabled={busy}>
               {v.reject}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -274,9 +250,10 @@ export default function VerdictView({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ ...spring.bouncy, delay: 0.7 }}
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${bandStyle[composite.band].pill}`}
                 >
-                  {composite.band}
+                  <Badge domain="band" value={composite.band} size="md">
+                    {composite.band}
+                  </Badge>
                 </motion.span>
               </div>
             </div>
@@ -314,7 +291,7 @@ export default function VerdictView({
       )}
 
       {appealRequested && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
+        <div className="rounded-lg border border-accent-warm/40 bg-accent-warm/10 px-4 py-3 text-sm text-accent-warm-soft">
           {v.appealFlag}
         </div>
       )}
@@ -339,55 +316,47 @@ export default function VerdictView({
             ? phrases[0]
             : phrases.slice(0, -1).join(", ") + ` ${v.listJoiner} ` + phrases.slice(-1);
         return (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
+          <div className="rounded-lg border border-accent-warm/40 bg-accent-warm/10 px-4 py-3 text-sm text-accent-warm-soft">
             {v.proctorFlagPrefix} {list}. {v.proctorFlagSuffix}
           </div>
         );
       })()}
 
       {!verdict && (
-        <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+        <Card border="dashed" padding="lg" className="text-center">
           {fullText ? (
             <>
               <p className="text-muted">{v.noVerdictYet}</p>
-              <button
-                onClick={generate}
-                disabled={busy}
-                className="mt-4 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
-              >
-                {busy ? v.scoring : v.generateVerdict}
-              </button>
-              {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+              <Button className="mt-4" onClick={generate} loading={busy} loadingText={v.scoring}>
+                {v.generateVerdict}
+              </Button>
+              {error && <p className="mt-3 text-sm text-accent-clay">{error}</p>}
             </>
           ) : (
             <p className="text-muted">
               This candidate hasn&apos;t completed their interview yet.
             </p>
           )}
-        </div>
+        </Card>
       )}
 
       {verdict?.overall && (
-        <section className="rounded-2xl border border-border bg-card/50 p-6">
+        <Card padding="md">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">{v.overall}</h2>
-            <span
-              className={`rounded-full px-3 py-1 text-sm capitalize ${
-                recColor[verdict.overall.recommendation] ?? "bg-card text-muted"
-              }`}
-            >
+            <Badge domain="recommendation" value={verdict.overall.recommendation} size="md" className="capitalize">
               {verdict.overall.recommendation}
-            </span>
+            </Badge>
           </div>
           <p className="mt-3 text-sm leading-7 text-foreground/85">
             {verdict.overall.summary}
           </p>
           {verdict.overall.integrity_flag && (
-            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-3 py-1 text-sm text-amber-700">
+            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent-warm/15 px-3 py-1 text-sm text-accent-warm-soft">
               {v.integrityFlag}
             </p>
           )}
-        </section>
+        </Card>
       )}
 
       {verdict?.per_criterion && verdict.per_criterion.length > 0 && (() => {
@@ -395,7 +364,7 @@ export default function VerdictView({
           verdict.per_criterion.reduce((s, c) => s + c.score, 0) /
           verdict.per_criterion.length;
         return (
-          <div className="flex items-center gap-5 rounded-xl border border-border bg-card/40 px-5 py-4">
+          <Card radius="xl" padding="sm" className="flex items-center gap-5">
             <div>
               <p className="text-xs text-muted">{v.averageScore}</p>
               <p className="text-3xl font-semibold leading-none">
@@ -404,7 +373,7 @@ export default function VerdictView({
               </p>
             </div>
             <ScoreDots score={Math.round(avg)} />
-          </div>
+          </Card>
         );
       })()}
 
@@ -424,9 +393,9 @@ export default function VerdictView({
                   <span className="font-medium">{c.name}</span>
                   <span className="flex items-center gap-3">
                     {c.low_confidence && (
-                      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700">
+                      <Badge tone="warning" size="xs">
                         {v.uncertainReview}
-                      </span>
+                      </Badge>
                     )}
                     <ScoreDots score={c.score} />
                     <span className="w-8 text-right text-sm font-semibold text-accent-soft">
@@ -483,10 +452,7 @@ export default function VerdictView({
             {candidate.skills_answers.qa.map((qa, i) => {
               const pq = candidate.skills_answers?.per_question?.[i];
               return (
-                <div
-                  key={i}
-                  className="rounded-xl border border-border bg-card/50 p-4"
-                >
+                <Card key={i} padding="sm" radius="xl">
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-sm font-medium">{qa.question}</p>
                     {pq && (
@@ -503,7 +469,7 @@ export default function VerdictView({
                       {pq.justification}
                     </p>
                   )}
-                </div>
+                </Card>
               );
             })}
           </div>
@@ -516,10 +482,7 @@ export default function VerdictView({
           <p className="mb-3 text-sm text-muted">{v.calibrationSubtitle}</p>
           <div className="space-y-3">
             {verdict.per_criterion.map((c, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-xl border border-border bg-card/50 px-4 py-3"
-              >
+              <Card key={i} padding="sm" radius="xl" className="flex items-center justify-between">
                 <span className="text-sm font-medium">{c.name}</span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-muted">{v.clarionScore.replace("{score}", String(c.score))}</span>
@@ -539,17 +502,13 @@ export default function VerdictView({
                     ))}
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <button
-              onClick={saveRating}
-              disabled={savingRating}
-              className="rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
-            >
-              {savingRating ? v.saving : v.saveMyScores}
-            </button>
+            <Button onClick={saveRating} loading={savingRating} loadingText={v.saving}>
+              {v.saveMyScores}
+            </Button>
             {humanRating && humanRating.length > 0 && agr.n > 0 && (
               <span className="text-sm text-muted">
                 {v.agreementSummary
@@ -596,9 +555,9 @@ export default function VerdictView({
       {fullText && (
         <section>
           <h2 className="mb-3 text-lg font-semibold">{v.transcript}</h2>
-          <div className="rounded-xl border border-border bg-card/30 p-5">
+          <Card padding="sm" radius="xl" tint={30}>
             <Highlighted text={fullText} quotes={allQuotes} />
-          </div>
+          </Card>
         </section>
       )}
     </div>

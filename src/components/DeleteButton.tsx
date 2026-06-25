@@ -51,8 +51,8 @@ export default function DeleteButton({
       disabled={busy}
       className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-60 ${
         arming
-          ? "border-red-500 bg-red-500 text-white"
-          : "border-border text-muted hover:border-red-400 hover:text-red-600"
+          ? "border-accent-clay bg-accent-clay text-white"
+          : "border-border text-muted hover:border-accent-clay hover:text-accent-clay"
       }`}
     >
       {busy ? d.deleting : arming ? (confirmLabel ?? d.defaultConfirm) : (label ?? d.label)}
