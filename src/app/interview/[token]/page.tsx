@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveToken } from "@/lib/candidateToken";
-import InterviewRoom from "@/components/InterviewRoom";
 import AssessmentFlow from "@/components/AssessmentFlow";
 import CandidateStatus from "@/components/CandidateStatus";
 import LocaleProvider from "@/components/LocaleProvider";
@@ -88,36 +87,25 @@ export default async function InterviewPage({
   const resumeMode = role.resume_mode ?? "off";
   const needResume = resumeMode !== "off" && !candidate.resume_url;
 
-  if (needAptitude || needSkills || needResume) {
-    // Strip the answer key and internal reasoning — the candidate's browser must
-    // never receive `correct` or `reasoning` (which can spell out the answer).
-    const safeMcq = needAptitude
-      ? testMcq.map(({ correct: _correct, reasoning: _reasoning, ...q }) => q)
-      : [];
-    return L(
-      <AssessmentFlow
-        token={token}
-        roleTitle={role.title}
-        orgName={orgName}
-        aptitudeQuestions={safeMcq}
-        skillsQuestions={needSkills ? skillsQs : []}
-        interviewQuestionCount={role.interview_questions?.length ?? 5}
-        resumeMode={needResume ? (resumeMode as "optional" | "required") : "off"}
-      />,
-    );
-  }
-
+  // Always go through AssessmentFlow, even when there's no aptitude/skills/
+  // resume step — it lazy-fetches the interview's rubric/questions/terms via
+  // the token-gated /api/interview/props route only once the candidate
+  // actually proceeds, instead of embedding all of it (including the "bad"
+  // anchor text and the full upcoming question list) directly into this
+  // page's initial server-rendered props, which any candidate could read via
+  // View Source before the interview even starts.
+  const safeMcq = needAptitude
+    ? testMcq.map(({ correct: _correct, reasoning: _reasoning, ...q }) => q)
+    : [];
   return L(
-    <InterviewRoom
+    <AssessmentFlow
       token={token}
-      candidateName={candidate.name ?? "Candidate"}
       roleTitle={role.title}
-      questions={role.interview_questions ?? []}
-      rubric={role.rubric ?? []}
-      agentConfigured={!!process.env.ELEVENLABS_AGENT_ID}
       orgName={orgName}
-      terms={role.terms ?? []}
-      resumeClaims={candidate.resume_claims ?? []}
+      aptitudeQuestions={safeMcq}
+      skillsQuestions={needSkills ? skillsQs : []}
+      interviewQuestionCount={role.interview_questions?.length ?? 5}
+      resumeMode={needResume ? (resumeMode as "optional" | "required") : "off"}
     />,
   );
 }

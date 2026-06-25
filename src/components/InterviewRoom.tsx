@@ -10,7 +10,6 @@ import AppealButton from "@/components/AppealButton";
 import DeviceCheck from "@/components/DeviceCheck";
 import { useLocale } from "@/components/LocaleProvider";
 import { supabaseBrowser } from "@/lib/supabase";
-import { buildInterviewPrompt } from "@/lib/prompts";
 import type { Criterion, Turn } from "@/lib/types";
 
 type Props = {
@@ -21,8 +20,6 @@ type Props = {
   rubric: Criterion[];
   agentConfigured: boolean;
   orgName?: string | null;
-  terms?: string[];
-  resumeClaims?: string[];
 };
 
 type Phase = "consent" | "connecting" | "live" | "saving" | "done" | "error";
@@ -43,8 +40,6 @@ function Room({
   rubric,
   agentConfigured,
   orgName,
-  terms,
-  resumeClaims,
 }: Props) {
   const { dict, locale } = useLocale();
   const t = dict.interview;
@@ -181,17 +176,23 @@ function Room({
     }
 
     try {
-      const res = await fetch(
-        `/api/eleven-signed-url?token=${encodeURIComponent(token)}`,
-      );
-      if (!res.ok) throw new Error("Could not start the interview agent.");
-      const { signedUrl } = await res.json();
+      const [signedRes, promptRes] = await Promise.all([
+        fetch(`/api/eleven-signed-url?token=${encodeURIComponent(token)}`),
+        // Assembled server-side from the full rubric/terms/resume-claims —
+        // the browser only ever sees the finished prose, not the structured
+        // ingredients (the "bad" anchor text, every BARS level, the glossary).
+        fetch(`/api/interview/prompt?token=${encodeURIComponent(token)}`),
+      ]);
+      if (!signedRes.ok) throw new Error("Could not start the interview agent.");
+      if (!promptRes.ok) throw new Error("Could not prepare the interview.");
+      const { signedUrl } = await signedRes.json();
+      const { systemPrompt } = await promptRes.json();
 
       conversation.startSession({
         signedUrl,
         overrides: {
           agent: {
-            prompt: { prompt: buildInterviewPrompt(roleTitle, questions, rubric, terms ?? [], resumeClaims ?? [], locale) },
+            prompt: { prompt: systemPrompt },
             firstMessage: agentFirstMessage,
             language: locale as Language,
           },

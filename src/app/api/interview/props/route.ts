@@ -15,17 +15,18 @@ export async function GET(req: Request) {
 
   const { data: role } = await supabaseAdmin()
     .from("roles")
-    .select("title, interview_questions, rubric, terms")
+    .select("title, interview_questions, rubric")
     .eq("id", candidate.role_id)
     .single();
 
   if (!role) return NextResponse.json({ error: "Role not found" }, { status: 404 });
 
+  // terms/resumeClaims deliberately excluded — only used for building the
+  // ElevenLabs system prompt, which now happens server-side (see
+  // /api/interview/prompt). The client no longer needs them at all.
   return NextResponse.json({
     candidateName: candidate.name ?? "Candidate",
     interviewQuestions: role.interview_questions ?? [],
     rubric: role.rubric ?? [],
-    terms: role.terms ?? [],
-    resumeClaims: candidate.resume_claims ?? [],
   });
 }

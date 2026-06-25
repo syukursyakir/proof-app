@@ -33,6 +33,20 @@ export async function POST(req: Request) {
   if (!body.role_id) {
     return NextResponse.json({ error: "Missing role_id" }, { status: 400 });
   }
+  // RLS on `candidates` only checks the candidate's own org_id — it never
+  // validates that role_id actually belongs to that org. Without this check,
+  // any employer could create a candidate row pointing at ANOTHER org's
+  // role_id (their own org_id passes the policy's `with check`), which then
+  // gets interviewed against and scored on that other org's confidential
+  // rubric/questions, with the verdict landing on the attacker's dashboard.
+  const { data: role, error: roleErr } = await sb
+    .from("roles")
+    .select("org_id")
+    .eq("id", body.role_id)
+    .single();
+  if (roleErr || !role || role.org_id !== orgId) {
+    return NextResponse.json({ error: "Role not found" }, { status: 404 });
+  }
   const expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString();
   const { data, error } = await sb
     .from("candidates")

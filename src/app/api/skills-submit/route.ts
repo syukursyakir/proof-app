@@ -20,6 +20,24 @@ export async function POST(req: Request) {
     if (!token || !Array.isArray(answers)) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
+    // Caps so a malicious/buggy client (a candidate has a valid token, not
+    // real auth) can't inflate OpenAI spend with an oversized payload — the
+    // idempotency guard below only stops a SECOND submission, not a single
+    // huge first one. 20 answers / 4000 chars each is generous for a written
+    // work-sample (roles cap at a handful of questions today).
+    if (answers.length > 20) {
+      return NextResponse.json({ error: "Too many answers" }, { status: 400 });
+    }
+    for (const a of answers) {
+      if (
+        typeof a?.question !== "string" ||
+        typeof a?.answer !== "string" ||
+        a.question.length > 2000 ||
+        a.answer.length > 4000
+      ) {
+        return NextResponse.json({ error: "Answer too long" }, { status: 400 });
+      }
+    }
 
     const candidate = await resolveToken(token);
     if (!candidate) {

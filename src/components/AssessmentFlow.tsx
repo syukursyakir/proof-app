@@ -40,8 +40,6 @@ export default function AssessmentFlow({
     candidateName: string;
     interviewQuestions: string[];
     rubric: unknown[];
-    terms?: string[];
-    resumeClaims?: string[];
   } | null>(null);
 
   // The first incomplete step after the intro.
@@ -131,8 +129,6 @@ export default function AssessmentFlow({
         rubric={interviewReady.rubric as never}
         agentConfigured={true}
         orgName={orgName}
-        terms={interviewReady.terms ?? []}
-        resumeClaims={interviewReady.resumeClaims ?? []}
       />
     );
   }
@@ -184,7 +180,13 @@ export default function AssessmentFlow({
           {orgName && <p className="mt-1 text-sm text-muted">{t.withOrg.replace("{orgName}", orgName)}</p>}
 
           <div
-            className={`mt-6 grid gap-3 ${parts.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
+            className={`mt-6 grid gap-3 ${
+              parts.length === 3
+                ? "sm:grid-cols-3"
+                : parts.length === 2
+                  ? "sm:grid-cols-2"
+                  : "sm:max-w-xs sm:mx-auto"
+            }`}
           >
             {parts.map((p) => (
               <div
@@ -209,7 +211,14 @@ export default function AssessmentFlow({
           </p>
 
           <button
-            onClick={() => setPhase(afterIntro)}
+            onClick={() => {
+              setPhase(afterIntro);
+              // No resume/aptitude/skills step at all — go straight to the
+              // interview. Every other entry point calls loadInterview() from
+              // its own onComplete handler; this is the only one that skips
+              // straight to "bridge" without passing through one of those.
+              if (afterIntro === "bridge") void loadInterview();
+            }}
             className="mt-8 rounded-full bg-accent px-8 py-3 font-medium text-white hover:bg-accent-soft"
           >
             {afterIntro === "resume"

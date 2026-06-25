@@ -33,7 +33,10 @@ export async function POST(req: Request) {
     })
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("transcripts insert error", error);
+    return NextResponse.json({ error: "Failed to save transcript" }, { status: 500 });
+  }
 
   // Only mark complete + score if the candidate actually said something — an
   // all-interviewer transcript shouldn't lock them out or get fabricated scores.
@@ -44,17 +47,28 @@ export async function POST(req: Request) {
   );
 
   if (candidateSpoke) {
-    await supa.from("candidates").update({ status: "completed" }).eq("id", cand.id);
-    // Auto-score AFTER responding, so the candidate isn't left waiting on 3 GPT
-    // calls. The verdict is ready by the time the employer looks. Best-effort.
-    const candId = cand.id;
-    after(async () => {
-      try {
-        await scoreCandidate(candId);
-      } catch {
-        /* employer can still trigger scoring manually */
-      }
-    });
+    // Atomic, one-shot: WHERE status != 'completed' makes this idempotent — a
+    // network retry or double "End interview" click can insert a second
+    // transcript row, but can't flip status twice or trigger scoreCandidate
+    // (a paid GPT call) twice for the same interview.
+    const { data: updated } = await supa
+      .from("candidates")
+      .update({ status: "completed" })
+      .eq("id", cand.id)
+      .neq("status", "completed")
+      .select("id");
+    if (updated && updated.length > 0) {
+      // Auto-score AFTER responding, so the candidate isn't left waiting on 3
+      // GPT calls. The verdict is ready by the time the employer looks.
+      const candId = cand.id;
+      after(async () => {
+        try {
+          await scoreCandidate(candId);
+        } catch {
+          /* employer can still trigger scoring manually */
+        }
+      });
+    }
   }
 
   return NextResponse.json(data);

@@ -88,12 +88,16 @@ const VERDICT = {
   ],
 };
 
-async function seed() {
+// org_id must be stamped on every insert — without it, these rows are
+// invisible under RLS to every employer dashboard (which reads via the
+// org-scoped client), making the seed silently useless post-multi-tenancy.
+async function seed(orgId: string) {
   const supa = supabaseAdmin();
 
   const { data: role, error: roleErr } = await supa
     .from("roles")
     .insert({
+      org_id: orgId,
       title: "Customer Support",
       description_raw:
         "A customer support rep who stays calm with angry customers, takes ownership of problems, and communicates clearly.",
@@ -118,18 +122,25 @@ async function seed() {
 
   const { data: candidate, error: candErr } = await supa
     .from("candidates")
-    .insert({ role_id: role.id, name: "Jordan (sample)", status: "completed" })
+    .insert({
+      org_id: orgId,
+      role_id: role.id,
+      name: "Jordan (sample)",
+      status: "completed",
+    })
     .select()
     .single();
   if (candErr) throw new Error(candErr.message);
 
   await supa.from("transcripts").insert({
+    org_id: orgId,
     candidate_id: candidate.id,
     full_text: TRANSCRIPT,
     turns: TURNS,
   });
 
   await supa.from("verdicts").insert({
+    org_id: orgId,
     candidate_id: candidate.id,
     overall: VERDICT.overall,
     per_criterion: VERDICT.per_criterion,
@@ -140,12 +151,20 @@ async function seed() {
 
 export async function GET(req: Request) {
   // Locked: requires ?key=<SEED_SECRET>. Disabled entirely if SEED_SECRET is unset.
-  const key = new URL(req.url).searchParams.get("key");
+  const { searchParams } = new URL(req.url);
+  const key = searchParams.get("key");
   if (!process.env.SEED_SECRET || key !== process.env.SEED_SECRET) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  const orgId = searchParams.get("org_id");
+  if (!orgId) {
+    return NextResponse.json(
+      { error: "Missing org_id — pass ?org_id=<your org's id> so the seeded role is visible on your dashboard" },
+      { status: 400 },
+    );
+  }
   try {
-    const ids = await seed();
+    const ids = await seed(orgId);
     return NextResponse.json({
       ok: true,
       ...ids,

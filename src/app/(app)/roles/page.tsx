@@ -25,10 +25,15 @@ export default async function RolesPage() {
       .from("roles")
       .select("*")
       .order("created_at", { ascending: false });
-    if (error) dbError = error.message;
-    else roles = (data as Role[]) ?? [];
+    if (error) {
+      console.error("roles query error", error);
+      dbError = "Couldn't reach the database. Please try refreshing.";
+    } else {
+      roles = (data as Role[]) ?? [];
+    }
   } catch (err) {
-    dbError = err instanceof Error ? err.message : "Database error";
+    console.error("roles query exception", err);
+    dbError = "Couldn't reach the database. Please try refreshing.";
   }
 
   const missing = roles.filter((r) => !r.join_code);
@@ -75,7 +80,7 @@ export default async function RolesPage() {
 
       {dbError && (
         <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
-          Couldn&apos;t reach the database. ({dbError})
+          {dbError}
         </div>
       )}
 

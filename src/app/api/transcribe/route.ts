@@ -16,6 +16,10 @@ export async function POST(req: Request) {
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "No audio file" }, { status: 400 });
     }
+    // Same cap as candidate-transcribe — bounds Whisper spend per request.
+    if (file.size > 15 * 1024 * 1024) {
+      return NextResponse.json({ error: "Audio too large" }, { status: 413 });
+    }
     const tr = await openai.audio.transcriptions.create({
       file,
       model: TRANSCRIBE_MODEL,

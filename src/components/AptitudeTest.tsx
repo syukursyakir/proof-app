@@ -38,6 +38,13 @@ export default function AptitudeTest({
   // once they've shared a window/tab mid-test, that fact stays on the record.
   const [notFullScreen, setNotFullScreen] = useState(false);
   const [surfaceFlagged, setSurfaceFlagged] = useState(false);
+  // pauseReason actually BLOCKS answering — unlike the flags above, which are
+  // signals only. Wrong surface / lost share require re-sharing to clear;
+  // a tab switch just requires an explicit acknowledgment. Without this,
+  // sharing a window/tab (or alt-tabbing to another app) never stopped the
+  // candidate from continuing the test — the flags were honor-system only.
+  const [pauseReason, setPauseReason] = useState<"share_lost" | "wrong_surface" | "tab_switch" | null>(null);
+  const [resuming, setResuming] = useState(false);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<number | null>(null);
@@ -94,9 +101,12 @@ export default function AptitudeTest({
       }
       screenStreamRef.current = stream;
 
-      // If the candidate stops sharing mid-test, flag it.
+      // If the candidate stops sharing mid-test, flag it AND block answering
+      // until they re-share — previously this only set a flag the employer
+      // would see later, but let the candidate keep answering in the meantime.
       stream.getVideoTracks()[0]?.addEventListener("ended", () => {
         setShareLost(true);
+        setPauseReason("share_lost");
       });
 
       try {
@@ -153,30 +163,46 @@ export default function AptitudeTest({
   }, [secondsLeft]);
 
   // Flag tab/window switches during the test (the most common cheat: looking
-  // up answers). An honest signal, surfaced to the employer — not a hard block.
+  // up answers — including alt-tabbing to another app like an editor while
+  // the same full-screen share stays active). Recorded as a count for the
+  // employer AND, on return to the tab, requires an explicit acknowledgment
+  // before they can keep answering — silent counting alone never interrupted
+  // anything, so a candidate could freely tab away the whole time.
   useEffect(() => {
     if (!started) return;
-    const onHide = () => {
-      if (document.visibilityState === "hidden") setTabSwitches((n) => n + 1);
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        setTabSwitches((n) => n + 1);
+      } else if (document.visibilityState === "visible") {
+        setPauseReason((r) => r ?? "tab_switch");
+      }
     };
-    document.addEventListener("visibilitychange", onHide);
-    return () => document.removeEventListener("visibilitychange", onHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [started]);
 
   // Keep checking — every 3s — that they're STILL sharing the whole screen and
   // haven't switched to a window/tab mid-test (e.g. Chrome's "share this tab
-  // instead"). Latches the flag and nudges the candidate to re-share.
+  // instead"). Latches the flag for the employer AND blocks answering until
+  // they re-share the full screen.
   useEffect(() => {
     if (!started) return;
     const check = () => {
       const track = screenStreamRef.current?.getVideoTracks()[0];
-      if (!track || track.readyState === "ended") return; // 'ended' → shareLost
+      if (!track || track.readyState === "ended") {
+        setShareLost(true);
+        setPauseReason("share_lost");
+        return;
+      }
       const surface = (
         track.getSettings() as { displaySurface?: string }
       ).displaySurface;
       const bad = !!surface && surface !== "monitor";
       setNotFullScreen(bad); // live → banner clears if they fix it
-      if (bad) setSurfaceFlagged(true); // latch → employer always sees it happened
+      if (bad) {
+        setSurfaceFlagged(true); // latch → employer always sees it happened
+        setPauseReason((r) => r ?? "wrong_surface");
+      }
     };
     check();
     const id = setInterval(check, 3000);
@@ -198,6 +224,67 @@ export default function AptitudeTest({
     return () => clearInterval(timerRef.current!);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started]);
+
+  // Re-request the screen share after it was lost or the wrong surface was
+  // picked. Swaps the stream/recorder in place — new chunks append to the
+  // same buffer so the upload still captures the full session.
+  async function resumeScreenShare() {
+    setResuming(true);
+    try {
+      if (!navigator.mediaDevices?.getDisplayMedia) return;
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: "monitor" },
+        audio: false,
+        monitorTypeSurfaces: "include",
+        preferCurrentTab: false,
+        selfBrowserSurface: "exclude",
+        surfaceSwitching: "exclude",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      const surface = (
+        stream.getVideoTracks()[0]?.getSettings() as { displaySurface?: string }
+      )?.displaySurface;
+      if (surface && surface !== "monitor") {
+        stream.getTracks().forEach((t) => t.stop());
+        setSurfaceFlagged(true);
+        setNotFullScreen(true);
+        return; // stay paused — they picked the wrong surface again
+      }
+      try {
+        recorderRef.current?.stop();
+      } catch {
+        /* already stopped */
+      }
+      screenStreamRef.current?.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = stream;
+      stream.getVideoTracks()[0]?.addEventListener("ended", () => {
+        setShareLost(true);
+        setPauseReason("share_lost");
+      });
+      try {
+        const rec = new MediaRecorder(stream, { mimeType: "video/webm" });
+        rec.ondataavailable = (e) => {
+          if (e.data.size > 0) chunksRef.current.push(e.data);
+        };
+        rec.start();
+        recorderRef.current = rec;
+        setRecording(true);
+      } catch {
+        /* recording unsupported — the share itself is still the deterrent */
+      }
+      setShareLost(false);
+      setNotFullScreen(false);
+      setPauseReason(null);
+    } catch {
+      // declined again — stays paused, candidate must try once more
+    } finally {
+      setResuming(false);
+    }
+  }
+
+  function dismissTabSwitchWarning() {
+    setPauseReason((r) => (r === "tab_switch" ? null : r));
+  }
 
   // Stop screen capture and upload the recording; returns the storage path.
   async function uploadProctorRecording(): Promise<string | null> {
@@ -264,7 +351,7 @@ export default function AptitudeTest({
   submitRef.current = submit; // keep the timer's reference fresh every render
 
   function confirm() {
-    if (selected === null) return;
+    if (pauseReason || selected === null) return;
     const next = { ...answers, [q.id]: selected };
     setAnswers(next);
     setConfirmed(true);
@@ -277,6 +364,7 @@ export default function AptitudeTest({
   }
 
   function advance() {
+    if (pauseReason) return;
     if (isLast) {
       void submit();
     } else {
@@ -346,12 +434,12 @@ export default function AptitudeTest({
           {shareLost ? (
             <span className="flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-red-600">
               <span className="h-2 w-2 rounded-full bg-red-500" />
-              Screen sharing stopped — this will be flagged.
+              Screen sharing stopped — answering paused.
             </span>
           ) : notFullScreen ? (
             <span className="flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-amber-700">
               <span className="h-2 w-2 rounded-full bg-amber-500" />
-              Share your ENTIRE screen, not a window/tab — this is flagged.
+              Wrong surface shared — answering paused.
             </span>
           ) : recording ? (
             <span className="flex items-center gap-2 rounded-full bg-card/70 px-3 py-1 text-muted">
@@ -397,78 +485,125 @@ export default function AptitudeTest({
           />
         </div>
 
-        {/* Question card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.22, ease: ease.out }}
-            className="rounded-2xl border border-border bg-card/50 p-8"
-          >
-            <p className="text-lg font-medium leading-7">{q.question}</p>
-            <div className="mt-6 space-y-3">
-              {q.options.map((opt, i) => {
-                const isSelected = selected === i;
-                const isLocked = confirmed;
-                // No correctness reveal — the answer key never reaches the
-                // candidate's browser. Scoring is done server-side.
-                return (
-                  <button
-                    key={i}
-                    disabled={isLocked}
-                    onClick={() => !isLocked && setSelected(i)}
-                    className={`flex w-full items-center gap-4 rounded-xl border px-5 py-4 text-left text-sm transition-all ${
-                      isSelected
-                        ? "border-accent bg-accent/10 text-foreground"
-                        : "border-border bg-background hover:border-accent/60"
-                    } ${isLocked ? "opacity-90" : ""}`}
-                  >
-                    <span
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                        isSelected
-                          ? "border-accent bg-accent text-white"
-                          : "border-border text-muted"
-                      }`}
-                    >
-                      {String.fromCharCode(65 + i)}
-                    </span>
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+        {/* Question card, OR a blocking gate while paused — the timer keeps
+            running either way, so stalling here costs real time. */}
+        {pauseReason ? (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-8 text-center">
+            {pauseReason === "tab_switch" ? (
+              <>
+                <p className="text-3xl">⚠️</p>
+                <h2 className="mt-3 text-lg font-semibold text-amber-900">
+                  You switched away from this tab
+                </h2>
+                <p className="mt-2 text-sm text-amber-800">
+                  That's been recorded and the employer will see it. Stay on
+                  this tab for the rest of the test.
+                </p>
+                <button
+                  onClick={dismissTabSwitchWarning}
+                  className="mt-6 rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft"
+                >
+                  I understand, continue
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-3xl">🖥️</p>
+                <h2 className="mt-3 text-lg font-semibold text-amber-900">
+                  {pauseReason === "share_lost"
+                    ? "Screen sharing stopped"
+                    : "Please share your entire screen"}
+                </h2>
+                <p className="mt-2 text-sm text-amber-800">
+                  {pauseReason === "share_lost"
+                    ? "Your screen share ended. It's required for this proctored test — answering is paused until you re-share."
+                    : "You shared a single window or tab instead of your entire screen. Answering is paused until you share the whole screen."}
+                </p>
+                <button
+                  onClick={resumeScreenShare}
+                  disabled={resuming}
+                  className="mt-6 rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+                >
+                  {resuming ? "Waiting for screen share…" : "Resume screen sharing"}
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.22, ease: ease.out }}
+                className="rounded-2xl border border-border bg-card/50 p-8"
+              >
+                <p className="text-lg font-medium leading-7">{q.question}</p>
+                <div className="mt-6 space-y-3">
+                  {q.options.map((opt, i) => {
+                    const isSelected = selected === i;
+                    const isLocked = confirmed;
+                    // No correctness reveal — the answer key never reaches
+                    // the candidate's browser. Scoring is done server-side.
+                    return (
+                      <button
+                        key={i}
+                        disabled={isLocked}
+                        onClick={() => !isLocked && setSelected(i)}
+                        className={`flex w-full items-center gap-4 rounded-xl border px-5 py-4 text-left text-sm transition-all ${
+                          isSelected
+                            ? "border-accent bg-accent/10 text-foreground"
+                            : "border-border bg-background hover:border-accent/60"
+                        } ${isLocked ? "opacity-90" : ""}`}
+                      >
+                        <span
+                          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
+                            isSelected
+                              ? "border-accent bg-accent text-white"
+                              : "border-border text-muted"
+                          }`}
+                        >
+                          {String.fromCharCode(65 + i)}
+                        </span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </AnimatePresence>
 
-        {/* Actions */}
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-xs text-muted">
-            {confirmed
-              ? "Answer locked in."
-              : selected !== null
-                ? "Review your answer before confirming."
-                : "Select an answer."}
-          </p>
-          {!confirmed ? (
-            <button
-              onClick={confirm}
-              disabled={selected === null}
-              className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-40"
-            >
-              Confirm answer
-            </button>
-          ) : (
-            <button
-              onClick={advance}
-              disabled={submitting}
-              className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-60"
-            >
-              {submitting ? "Submitting…" : isLast ? "Submit test" : "Next question →"}
-            </button>
-          )}
-        </div>
+            {/* Actions */}
+            <div className="mt-6 flex items-center justify-between">
+              <p className="text-xs text-muted">
+                {confirmed
+                  ? "Answer locked in."
+                  : selected !== null
+                    ? "Review your answer before confirming."
+                    : "Select an answer."}
+              </p>
+              {!confirmed ? (
+                <button
+                  onClick={confirm}
+                  disabled={selected === null}
+                  className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-40"
+                >
+                  Confirm answer
+                </button>
+              ) : (
+                <button
+                  onClick={advance}
+                  disabled={submitting}
+                  className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-60"
+                >
+                  {submitting ? "Submitting…" : isLast ? "Submit test" : "Next question →"}
+                </button>
+              )}
+            </div>
+          </>
+        )}
 
         <p className="mt-6 text-center text-xs text-muted">
           Answers are locked once confirmed — you cannot go back. The test
