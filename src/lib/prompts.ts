@@ -17,24 +17,97 @@ From the role description and the employer's clarifying answers, produce a compl
   Use past-behavioural for experienced roles; situational ("What would you do if…") only for entry-level/no-track-record areas.
   AVOID: yes/no questions, trait questions ("are you a team player?"), and anything answerable with a rehearsed generality.
   Example of the right calibre: "Tell me about a specific disagreement with a manager or peer where you turned out to be wrong. How did you realise, and what did you do?"
-- test_mcq: exactly 12 multiple-choice aptitude questions. Mix: 3 numerical reasoning, 3 verbal reasoning, 3 abstract/logical reasoning, 3 situational judgment (SJT). Rules:
-  - Each question has a unique "id" ("q1"…"q12"), "category" (numerical|verbal|logical|sjt), "question", "options" (exactly 4), and "correct" (0-indexed).
-  - DIFFICULTY TARGET: each item should be answered correctly by ~50–70% of candidates (a strong candidate ~75%, an average one ~50%). If almost everyone would get it right, it is TOO EASY — discard and rewrite harder.
-  - DISTRACTORS ARE THE DIFFICULTY. Every wrong option must be the result of ONE specific, predictable mistake (wrong operation, wrong row, sign flip, naive %, affirming the converse) — never filler nobody would pick. Keep all 4 options parallel in length/grammar; no "all/none of the above"; no absolutes (always/never); for numbers, make the trap values real and sort them.
-  - Numerical (this is where you keep failing — make these GENUINELY HARD): items need NOT relate to the role; use general business/data reasoning. BANNED as too easy: single multiply/divide, simple billing ("bill is $150, pay in 5 installments"), or find-a-percentage-then-subtract-once. REQUIRED: genuine multi-step reasoning — compounding (+x% then −y%), combining multiple data points/rows, rates over time, share-of-total, or comparison against a target — where a careless candidate is lured to a specific wrong value. Each distractor = one predictable error. Match the difficulty of these worked examples:
-    • "A price rose 20% in 2024 then fell 15% in 2025. Net change vs the 2024 start?" → +2% (1.20×0.85=1.02); distractors +5% (naive 20−15), −2% (sign flip), +3.5%.
-    • "A team cut 30 monthly errors by a pledged 80%. They got to 10. By how many did they MISS the target?" → 4 (target=6, actual 10, miss=4); distractors 0 ("they reduced, fine"), 20, 14.
-    • "Region A sold 110 then 90; Region B sold 120 then 110. Combined % decrease?" → 13.04% (230→200); distractors from wrong base or averaging the two %s.
-  - Verbal: CRITICAL REASONING over a 2–4 sentence passage — inference ("which MUST be true?"), assumption ("the argument depends on…"), or strengthen/weaken. The answer must follow STRICTLY from the text with no outside knowledge. Distractors = plausible-but-unsupported / could-be-true / restatement of the conclusion. NO vocabulary, synonyms, or analogies.
-  - Logical: multi-premise (≥2) deduction — syllogisms, conditional chains with contrapositive, or constrained arrangements. Distractors = affirming the converse, denying the antecedent, illicit overlap, or "cannot be determined" when it actually can. NO single-premise trivia, NO clichéd sequences like "2,4,8,16".
-  - SJT: a realistic role-specific dilemma with GENUINE tension (competing goods — speed vs accuracy, loyalty vs integrity, autonomy vs escalation). All 4 options are things a real employee might choose. The best answer should beat a "correct-but-tactless" option AND a "right outcome but no transparency" option. No cartoonishly-wrong distractors.
-  - CRITICAL — VERIFY EVERY ANSWER KEY: for each numerical and logical item, recompute the answer step by step before finalising, and make sure "correct" points to the EXACTLY correct option. Compounding is (1+x)(1−y), never x−y. If your computed value is not among the options, change the options so it is. A wrong answer key is worse than an easy question.
-  - Vary the correct-answer position: spread "correct" roughly evenly across 0,1,2,3 over the 12 items. Never cluster.
 - terms: 6-12 role-relevant proper nouns, tools, technologies, methodologies, or domain jargon a candidate is likely to mention out loud and that speech-to-text might garble (e.g. for a developer: "Claude Code", "Kubernetes", "PostgreSQL", "CI/CD"; for a barista: "POS system", "latte art", "single-origin"). Use the correct canonical spelling/capitalisation. These prime the AI interviewer to recognise mishearings.
 - title: a concise role title.
 
+Do NOT generate aptitude test questions here — those are produced in a separate step.
+
 Output ONLY valid JSON, no prose:
-{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …","2 …","3 …","4 …","5 …"]}], "test_questions": ["..."], "interview_questions": ["..."], "terms": ["..."], "test_mcq": [{"id": "q1", "category": "numerical", "question": "...", "options": ["A","B","C","D"], "correct": 0}]}`;
+{"title": "...", "occupation": {"title": "...", "soc_code": "..."}, "rubric": [{"name": "...", "good": "...", "bad": "...", "anchors": ["1 …","2 …","3 …","4 …","5 …"]}], "test_questions": ["..."], "interview_questions": ["..."], "terms": ["..."]}`;
+
+// Aptitude MCQs used to live inside ASSESSMENT_SYSTEM, generated in the same call as
+// the rubric/interview/skills content. Splitting them out fixes the "too easy"
+// problem two ways: a reasoning-capable model + a mandatory "reasoning" field
+// ordered BEFORE the answer (verified: this is what makes trap math hold up), and
+// batching by category run CONCURRENTLY instead of one serial 12-item call — a
+// live test showed one bundled call takes 106-183s regardless of reasoning effort
+// (too slow for a synchronous wizard request); 4 parallel 3-item batches cut that
+// to roughly the time of the single slowest batch.
+const MCQ_CATEGORY_LABEL: Record<"numerical" | "verbal" | "logical" | "sjt", string> = {
+  numerical: "numerical reasoning",
+  verbal: "verbal reasoning",
+  logical: "abstract/logical reasoning",
+  sjt: "situational judgment (SJT)",
+};
+
+function mcqRulesBody(): string {
+  return `CRITICAL PROCESS — for EVERY item, in this exact order:
+1. First, privately work out the real scenario and the actual correct value/conclusion, computing it step by step. Write this out fully in the "reasoning" field BEFORE you touch "question", "options", or "correct" — do the arithmetic/logic for real, do not skip steps.
+2. From that worked reasoning, identify 3 SPECIFIC predictable wrong answers a careless-but-not-stupid candidate would produce (one bad operation, one sign error, one wrong-base error, etc.) — these become your 3 distractors.
+3. Only then write the final "question" and "options" text, and set "correct" to the 0-indexed position of the value you actually computed in step 1.
+This order matters: deciding the answer key AFTER reasoning (not before) is what makes the trap logic actually hold up.
+
+Each item: unique "id", "category" (numerical|verbal|logical|sjt), "reasoning" (your worked-out derivation, 2-5 sentences, written before the rest), "question", "options" (exactly 4), "correct" (0-indexed).
+
+DIFFICULTY TARGET: each item should be answered correctly by ~50–70% of candidates (a strong candidate ~75%, an average one ~50%). If almost everyone would get it right, it is TOO EASY — discard and rewrite harder.
+
+DISTRACTORS ARE THE DIFFICULTY. Every wrong option must be the result of ONE specific, predictable mistake (wrong operation, wrong row, sign flip, naive %, affirming the converse) — never filler nobody would pick. Keep all 4 options parallel in length/grammar; no "all/none of the above"; no absolutes (always/never); for numbers, make the trap values real and sort them.
+
+Numerical (this is where you keep failing — make these GENUINELY HARD): items need NOT relate to the role; use general business/data reasoning. BANNED as too easy: single multiply/divide, simple billing ("bill is $150, pay in 5 installments"), or find-a-percentage-then-subtract-once. REQUIRED: genuine multi-step reasoning — compounding (+x% then −y%), combining multiple data points/rows, rates over time, share-of-total, or comparison against a target — where a careless candidate is lured to a specific wrong value. Each distractor = one predictable error. Match the difficulty of these worked examples:
+  • "A price rose 20% in 2024 then fell 15% in 2025. Net change vs the 2024 start?" → +2% (1.20×0.85=1.02); distractors +5% (naive 20−15), −2% (sign flip), +3.5%.
+  • "A team cut 30 monthly errors by a pledged 80%. They got to 10. By how many did they MISS the target?" → 4 (target=6, actual 10, miss=4); distractors 0 ("they reduced, fine"), 20, 14.
+  • "Region A sold 110 then 90; Region B sold 120 then 110. Combined % decrease?" → 13.04% (230→200); distractors from wrong base or averaging the two %s.
+
+Verbal: CRITICAL REASONING over a 2–4 sentence passage — inference ("which MUST be true?"), assumption ("the argument depends on…"), or strengthen/weaken. The answer must follow STRICTLY from the text with no outside knowledge. Distractors = plausible-but-unsupported / could-be-true / restatement of the conclusion. NO vocabulary, synonyms, or analogies.
+
+Logical: multi-premise (≥2) deduction — syllogisms, conditional chains with contrapositive, or constrained arrangements. Distractors = affirming the converse, denying the antecedent, illicit overlap, or "cannot be determined" when it actually can. NO single-premise trivia, NO clichéd sequences like "2,4,8,16".
+
+SJT: a realistic role-specific dilemma with GENUINE tension (competing goods — speed vs accuracy, loyalty vs integrity, autonomy vs escalation). All 4 options are things a real employee might choose. The best answer should beat a "correct-but-tactless" option AND a "right outcome but no transparency" option. No cartoonishly-wrong distractors.
+
+CRITICAL — VERIFY EVERY ANSWER KEY: for each numerical and logical item, recompute the answer from your own "reasoning" field before finalising, and make sure "correct" points to the EXACTLY correct option. Compounding is (1+x)(1−y), never x−y. If your computed value is not among the options, change the options so it is. A wrong answer key is worse than an easy question.`;
+}
+
+// One batch = one category, run concurrently with the other 3 categories (see
+// generateMcq in the API route). Vary "correct" position is enforced afterwards
+// across the COMBINED set, not per-batch, since each batch alone is too small.
+export function buildMcqBatchSystem(
+  category: "numerical" | "verbal" | "logical" | "sjt",
+  count: number,
+  locale = "en",
+): string {
+  const label = MCQ_CATEGORY_LABEL[category];
+  const base = `You write GENUINELY HARD multiple-choice aptitude questions for pre-employment screening. This is your ONLY job in this call — give it your full attention.
+
+Produce exactly ${count} item(s), ALL of category "${category}" (${label}). Do not produce any other category.
+
+${mcqRulesBody()}
+
+Output ONLY valid JSON, no other prose:
+{"test_mcq": [{"id": "${category}1", "category": "${category}", "reasoning": "...", "question": "...", "options": ["A","B","C","D"], "correct": 0}]}`;
+  if (locale === "en") return base;
+  const languageName = LANGUAGE_NAMES[locale] ?? "English";
+  return `${base}
+
+LANGUAGE REQUIREMENT: These questions are for candidates taking the test in ${languageName}. Write "question" and every "options" entry in ${languageName}. The "reasoning" field may stay in English (it's an internal working note, never shown to the candidate). Do NOT write "question" or "options" in English.`;
+}
+
+// Auto-correction pass: rewrites ONLY the items a reviewer flagged, using their
+// feedback, instead of regenerating the whole batch. Items may span categories,
+// so this isn't restricted to one category like buildMcqBatchSystem is.
+export function buildMcqFixSystem(locale = "en"): string {
+  const base = `You write GENUINELY HARD multiple-choice aptitude questions for pre-employment screening. This is your ONLY job in this call — give it your full attention.
+
+You will be given a small batch of items that a strict reviewer already flagged as "easy" or "flawed", along with the reviewer's note for each. Rewrite ONLY these items (keep the same "id" and "category" for each) to fix the specific issue raised — if "easy", replace it with a genuinely multi-step trap of the required difficulty; if "flawed", fix the ambiguity or wrong answer key.
+
+${mcqRulesBody()}
+
+Return ONLY the rewritten items, same count as given, same JSON shape: {"test_mcq": [{"id": "...", "category": "...", "reasoning": "...", "question": "...", "options": ["A","B","C","D"], "correct": 0}]}`;
+  if (locale === "en") return base;
+  const languageName = LANGUAGE_NAMES[locale] ?? "English";
+  return `${base}
+
+LANGUAGE REQUIREMENT: These questions are for candidates taking the test in ${languageName}. Write "question" and every "options" entry in ${languageName}. The "reasoning" field may stay in English. Do NOT write "question" or "options" in English.`;
+}
 
 export const SCORE_SYSTEM = `You are a fair, evidence-based hiring assessor scoring a structured interview.
 
@@ -112,14 +185,14 @@ const LANGUAGE_NAMES: Record<string, string> = {
 };
 
 // Appends a language requirement to ASSESSMENT_SYSTEM so the generated rubric,
-// aptitude/skills/interview questions actually come out in the candidate's
-// chosen language, not whichever language the employer typed their description in.
+// skills/interview questions actually come out in the candidate's chosen
+// language, not whichever language the employer typed their description in.
 export function buildAssessmentSystem(locale = "en"): string {
   if (locale === "en") return ASSESSMENT_SYSTEM;
   const languageName = LANGUAGE_NAMES[locale] ?? "English";
   return `${ASSESSMENT_SYSTEM}
 
-LANGUAGE REQUIREMENT: This assessment is for candidates who will take it in ${languageName}. Write every candidate-facing string in ${languageName} — every "title", "rubric" entry ("name", "good", "bad", "anchors"), every "test_questions" task, every "interview_questions" item, every "test_mcq" question and its 4 "options", and every "terms" entry. Do NOT write any of these in English. The ONLY field that stays in English is "occupation" ("title" and "soc_code"), since that's a fixed O*NET taxonomy reference, not candidate-facing text.`;
+LANGUAGE REQUIREMENT: This assessment is for candidates who will take it in ${languageName}. Write every candidate-facing string in ${languageName} — every "title", "rubric" entry ("name", "good", "bad", "anchors"), every "test_questions" task, every "interview_questions" item, and every "terms" entry. Do NOT write any of these in English. The ONLY field that stays in English is "occupation" ("title" and "soc_code"), since that's a fixed O*NET taxonomy reference, not candidate-facing text.`;
 }
 
 // System prompt for the live ElevenLabs interviewer (passed as a prompt override).

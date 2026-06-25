@@ -89,9 +89,10 @@ export default async function InterviewPage({
   const needResume = resumeMode !== "off" && !candidate.resume_url;
 
   if (needAptitude || needSkills || needResume) {
-    // Strip the answer key — the candidate's browser must never receive `correct`.
+    // Strip the answer key and internal reasoning — the candidate's browser must
+    // never receive `correct` or `reasoning` (which can spell out the answer).
     const safeMcq = needAptitude
-      ? testMcq.map(({ correct: _correct, ...q }) => q)
+      ? testMcq.map(({ correct: _correct, reasoning: _reasoning, ...q }) => q)
       : [];
     return L(
       <AssessmentFlow

@@ -1,14 +1,17 @@
 export type TestQuestion = {
   id: string;
   category: "numerical" | "verbal" | "logical" | "sjt";
+  // Internal worked-out derivation from generation — verification aid only,
+  // NEVER send to the candidate (it can spell out the answer).
+  reasoning?: string;
   question: string;
   options: [string, string, string, string];
   correct: number; // 0-indexed
 };
 
-// The shape sent to the candidate's browser — the answer key (`correct`) is
-// stripped server-side so it can never be inspected.
-export type ClientTestQuestion = Omit<TestQuestion, "correct">;
+// The shape sent to the candidate's browser — the answer key (`correct`) and
+// the internal `reasoning` scratch field are stripped server-side.
+export type ClientTestQuestion = Omit<TestQuestion, "correct" | "reasoning">;
 
 export type AptitudeResult = {
   score: number;
