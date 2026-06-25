@@ -173,6 +173,34 @@
     font-size: 1.05rem; text-decoration: none; margin-top: 1.8em;
   }
 
+  .split {
+    display: flex; gap: 2.5em; align-items: center; margin-top: 1.4em; width: 100%;
+  }
+  .split-text { flex: 1; min-width: 0; }
+  .split-shot { flex: 1.1; min-width: 0; }
+
+  .shot-frame {
+    border-radius: 16px; border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: 0 24px 60px -20px rgba(21,35,63,0.25);
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    position: relative;
+  }
+  .shot-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .shot-fallback {
+    display: none; position: absolute; inset: 0;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.4em; padding: 1.5em; text-align: center;
+    color: var(--muted); font-size: 0.85rem; line-height: 1.4;
+  }
+  .shot-fallback b { color: var(--accent-soft); font-size: 0.95rem; }
+
+  .shot-strip { display: flex; gap: 1em; margin-top: 1.6em; width: 100%; }
+  .shot-strip .shot-frame { flex: 1; aspect-ratio: 4/3; }
+  .shot-strip .shot-fallback { font-size: 0.68rem; padding: 0.8em; }
+  .shot-strip .shot-fallback b { font-size: 0.74rem; }
+
   .nav-controls {
     position: fixed; bottom: 24px; right: 32px; z-index: 50;
     display: flex; gap: 8px;
@@ -218,6 +246,10 @@
     .footer-row { bottom: 12px !important; font-size: 0.58rem !important; padding: 0 64px !important; }
     table.compare { font-size: 0.74rem !important; }
     table.compare th, table.compare td { padding: 0.4em 0.7em !important; }
+    .split { gap: 1.4em !important; margin-top: 0.8em !important; }
+    .shot-fallback { font-size: 0.62rem !important; }
+    .shot-fallback b { font-size: 0.68rem !important; }
+    .shot-strip { gap: 0.6em !important; margin-top: 0.8em !important; }
   }
 </style>
 </head>
@@ -280,6 +312,20 @@
       <div class="step"><span class="step-num">2</span><div><b>One fair voice interview</b><span class="body">The same adaptive AI conversation for every candidate — no mood, no bias, no different day.</span></div></div>
       <div class="step"><span class="step-num">3</span><div><b>Glass-box verdict</b><span class="body">Every score links to the exact transcript quote that earned it. The employer decides.</span></div></div>
     </div>
+    <div class="shot-strip">
+      <div class="shot-frame">
+        <img src="./screenshots/builder.png" alt="Role builder" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="shot-fallback"><b>① Builder</b>role-builder wizard / review screen</div>
+      </div>
+      <div class="shot-frame">
+        <img src="./screenshots/interview.png" alt="Voice interview" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="shot-fallback"><b>② Interview</b>live voice interview screen</div>
+      </div>
+      <div class="shot-frame">
+        <img src="./screenshots/verdict.png" alt="Glass-box verdict" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="shot-fallback"><b>③ Verdict</b>glass-box score + transcript quote</div>
+      </div>
+    </div>
   </div>
   <div class="footer-row"><span>clarion.fyi/roles/new</span><span><span class="slide-num">04</span> / 10</span></div>
 </section>
@@ -289,9 +335,19 @@
   <div class="slide-inner">
     <div class="kicker">AI Leverage &amp; Technical Execution</div>
     <h2 class="headline">A real conversation, not a form.</h2>
-    <p class="lede">ElevenLabs Conversational AI asks adaptively, follows up on what the candidate actually says, and — uniquely — answers their questions honestly, including <b style="color:var(--accent-soft)">"how am I being judged?"</b></p>
-    <div class="quote">"You said you stayed on the line — what was going through your mind?"<br/><span style="font-size:0.9rem; opacity:0.75;">— Clarion, following up live on what the candidate just said</span></div>
-    <p class="lede" style="margin-top:1.4em;">And it runs in <b style="color:var(--accent-soft)">11 languages</b>, not just English — so candidates aren't filtered by fluency on top of pedigree.</p>
+    <div class="split">
+      <div class="split-text">
+        <p class="lede">ElevenLabs Conversational AI asks adaptively, follows up on what the candidate actually says, and — uniquely — answers their questions honestly, including <b style="color:var(--accent-soft)">"how am I being judged?"</b></p>
+        <div class="quote">"You said you stayed on the line — what was going through your mind?"<br/><span style="font-size:0.9rem; opacity:0.75;">— Clarion, following up live on what the candidate just said</span></div>
+        <p class="lede" style="margin-top:1.2em;">Runs in <b style="color:var(--accent-soft)">11 languages</b>, not just English — so candidates aren't filtered by fluency on top of pedigree.</p>
+      </div>
+      <div class="split-shot">
+        <div class="shot-frame">
+          <img src="./screenshots/interview.png" alt="Voice interview screen" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="shot-fallback"><b>Live interview screen</b>orb + webcam + consent line</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="footer-row"><span>ElevenLabs Conversational AI</span><span><span class="slide-num">05</span> / 10</span></div>
 </section>
@@ -301,8 +357,18 @@
   <div class="slide-inner">
     <div class="kicker">Originality &amp; Insight — the differentiator</div>
     <h2 class="headline">Most AI hiring scores you in a black box.<br/>Clarion shows its work.</h2>
-    <p class="lede">Every criterion → score → justification → the exact words that earned it, highlighted in the transcript. The AI assesses; the human decides.</p>
-    <div class="quote">"HireVue gives you a black box and a lawsuit. Clarion gives you a glass box — every score links to the exact thing the candidate said."</div>
+    <div class="split">
+      <div class="split-text">
+        <p class="lede">Every criterion → score → justification → the exact words that earned it, highlighted in the transcript. The AI assesses; the human decides.</p>
+        <div class="quote">"HireVue gives you a black box and a lawsuit. Clarion gives you a glass box — every score links to the exact thing the candidate said."</div>
+      </div>
+      <div class="split-shot">
+        <div class="shot-frame">
+          <img src="./screenshots/verdict.png" alt="Glass-box verdict screen" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="shot-fallback"><b>The verdict screen</b>score + expanded criterion with highlighted transcript quote</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="footer-row"><span>The glass-box verdict</span><span><span class="slide-num">06</span> / 10</span></div>
 </section>
@@ -341,9 +407,19 @@
   <div class="slide-inner">
     <div class="kicker">AI Leverage &amp; Technical Execution</div>
     <h2 class="headline">A working end-to-end product.</h2>
-    <p class="lede">Voice authoring (OpenAI Whisper + GPT) → ElevenLabs interview with recording + transcript → GPT-scored, evidence-linked verdict → employer dashboard with Advance / Reject.</p>
-    <div class="bullet-card" style="margin-top:1.4em;"><b>Stack:</b> OpenAI · ElevenLabs · Supabase · Vercel · Next.js</div>
-    <a class="cta-btn" href="https://clarion.fyi/" target="_blank">Try the live demo →</a>
+    <div class="split">
+      <div class="split-text">
+        <p class="lede">Voice authoring (OpenAI Whisper + GPT) → ElevenLabs interview with recording + transcript → GPT-scored, evidence-linked verdict → employer dashboard with Advance / Reject.</p>
+        <div class="bullet-card" style="margin-top:1.2em;"><b>Stack:</b> OpenAI · ElevenLabs · Supabase · Vercel · Next.js</div>
+        <a class="cta-btn" href="https://clarion.fyi/" target="_blank">Try the live demo →</a>
+      </div>
+      <div class="split-shot">
+        <div class="shot-frame">
+          <img src="./screenshots/dashboard.png" alt="Employer dashboard" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="shot-fallback"><b>Employer dashboard</b>roles, candidates, and what needs review</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="footer-row"><span>clarion.fyi</span><span><span class="slide-num">09</span> / 10</span></div>
 </section>
