@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clarion — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --background: #fcfbf8;
+    --foreground: #15181e;
+    --muted: #6e6a60;
+    --card: #f4f1ea;
+    --border: #e6e2da;
+    --accent: #2a3e62;
+    --accent-soft: #1b2c4a;
+    --accent-warm: #e0922f;
+    --accent-warm-soft: #c47d22;
+    --accent-clay: #c2613c;
+    --accent-sage: #4f7a68;
+    --dark: #15233f;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+    height: 100vh;
+  }
+  h1, h2, h3 {
+    font-family: "Fraunces", Georgia, "Times New Roman", serif;
+    letter-spacing: -0.012em;
+    margin: 0;
+  }
+  .slide {
+    scroll-snap-align: start;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 6vh 8vw;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-inner {
+    max-width: 980px;
+    width: 100%;
+  }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.6);
+    border-radius: 999px;
+    padding: 0.35em 1em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.4em;
+  }
+  .dark .kicker {
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7);
+  }
+  h1.title { font-size: 4.2rem; font-weight: 600; line-height: 1.05; color: var(--accent); }
+  h2.headline { font-size: 2.6rem; font-weight: 600; line-height: 1.12; color: var(--accent); margin-bottom: 0.6em; }
+  .tagline { font-size: 1.4rem; font-style: italic; color: var(--accent-warm-soft); margin-top: 0.5em; }
+  .lede { font-size: 1.15rem; color: var(--muted); line-height: 1.6; max-width: 760px; margin-top: 0.5em; }
+  .dark h2.headline, .dark h1.title { color: #fff; }
+  .dark .lede { color: rgba(255,255,255,0.7); }
+
+  .stack { display: flex; flex-direction: column; gap: 1em; margin-top: 1.6em; }
+  .row { display: flex; gap: 1.2em; flex-wrap: wrap; margin-top: 1.6em; }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.6em 1.4em;
+    flex: 1;
+    min-width: 220px;
+  }
+  .stat-num {
+    font-family: "Fraunces", serif;
+    font-size: 3rem;
+    font-weight: 600;
+    color: var(--accent-soft);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.98rem; color: var(--muted); margin-top: 0.5em; line-height: 1.4; }
+
+  .bullet-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.3em 1.5em;
+    font-size: 1.08rem;
+    line-height: 1.5;
+  }
+  .bullet-card b { color: var(--accent-soft); }
+  .dark .bullet-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.88); }
+  .dark .bullet-card b { color: #fff; }
+
+  .quote {
+    background: rgba(224,146,47,0.12);
+    border-left: 3px solid var(--accent-warm);
+    border-radius: 4px;
+    padding: 1em 1.4em;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--foreground);
+    margin-top: 1.6em;
+  }
+  .dark .quote { background: rgba(224,146,47,0.16); color: #fff; }
+
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.2em; height: 2.2em; border-radius: 999px;
+    background: var(--accent); color: #fff;
+    font-weight: 700; font-family: "Fraunces", serif; font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .step { display: flex; gap: 1em; align-items: flex-start; }
+  .step b { font-size: 1.15rem; color: var(--accent-soft); display: block; margin-bottom: 0.15em; }
+  .step span.body { color: var(--muted); font-size: 1rem; line-height: 1.5; }
+
+  table.compare { width: 100%; border-collapse: collapse; margin-top: 1.4em; font-size: 0.98rem; }
+  table.compare th, table.compare td { border: 1px solid var(--border); padding: 0.7em 1em; text-align: left; }
+  table.compare th { background: var(--card); color: var(--accent-soft); font-weight: 700; }
+  table.compare td.win { color: var(--accent-sage); font-weight: 600; }
+
+  .logo-mark { display: flex; align-items: center; gap: 0.6em; margin-bottom: 2.2em; }
+  .logo-mark img { width: 44px; height: 44px; border-radius: 10px; }
+  .logo-mark span { font-family: "Fraunces", serif; font-weight: 600; font-size: 1.5rem; color: var(--accent); }
+  .dark .logo-mark span { color: #fff; }
+
+  .glow {
+    position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none;
+  }
+  .glow-warm { background: rgba(224,146,47,0.22); width: 420px; height: 420px; top: -120px; left: -100px; }
+  .glow-navy { background: rgba(58,79,122,0.4); width: 460px; height: 460px; bottom: -140px; right: -100px; }
+
+  .dark { background: var(--dark); }
+
+  .footer-row {
+    position: absolute; bottom: 28px; left: 0; right: 0;
+    display: flex; justify-content: space-between; padding: 0 8vw;
+    font-size: 0.78rem; color: var(--muted); letter-spacing: 0.02em;
+  }
+  .dark .footer-row { color: rgba(255,255,255,0.45); }
+
+  .slide-num { font-variant-numeric: tabular-nums; }
+
+  .stack-wide { display: flex; flex-direction: column; gap: 0.9em; }
+  .stack-wide .step + .step { margin-top: 0.4em; }
+
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 0.5em;
+    background: var(--accent-warm); color: var(--dark);
+    font-weight: 700; padding: 0.85em 1.8em; border-radius: 999px;
+    font-size: 1.05rem; text-decoration: none; margin-top: 1.8em;
+  }
+
+  .nav-controls {
+    position: fixed; bottom: 24px; right: 32px; z-index: 50;
+    display: flex; gap: 8px;
+  }
+  .nav-controls button {
+    width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.85); color: var(--accent); font-size: 1.1rem; cursor: pointer;
+  }
+  .nav-controls button:hover { background: #fff; }
+
+  @media print {
+    html, body { height: auto; overflow: visible; }
+    .slide { page-break-after: always; height: 100vh; }
+    .nav-controls { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav-controls">
+  <button onclick="document.querySelectorAll('.slide')[Math.max(0,window.__idx=Math.max(0,(window.__idx||0)-1))].scrollIntoView({behavior:'smooth'})">↑</button>
+  <button onclick="document.querySelectorAll('.slide')[Math.min(9,window.__idx=Math.min(9,(window.__idx||0)+1))].scrollIntoView({behavior:'smooth'})">↓</button>
+</div>
+
+<!-- SLIDE 1 — TITLE -->
+<section class="slide dark">
+  <div class="glow glow-warm"></div>
+  <div class="glow glow-navy"></div>
+  <div class="slide-inner" style="position:relative; z-index:1;">
+    <div class="logo-mark"><img src="./icon.svg" alt="" /><span>Clarion</span></div>
+    <div class="kicker">Theme B5 · Opportunity access is socially gated</div>
+    <h1 class="title">Hear the proof,<br/>not the pedigree.</h1>
+    <p class="lede" style="margin-top:1.2em;">The first AI voice interviewer a small employer can actually afford — and trust, because every score links to the exact words behind it.</p>
+  </div>
+  <div class="footer-row"><span>clarion.fyi</span><span><span class="slide-num">01</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 2 — PROBLEM / DEMAND -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">Evidence of Real Demand</div>
+    <h2 class="headline">We asked 21 people before we built anything.</h2>
+    <div class="row">
+      <div class="stat-card"><div class="stat-num">76%</div><div class="stat-label">have felt they could do a job well — but never got the chance to prove it</div></div>
+      <div class="stat-card"><div class="stat-num">81%</div><div class="stat-label">said what hurt their applications most wasn't skill — it was school, work experience, or background</div></div>
+      <div class="stat-card"><div class="stat-num">71%</div><div class="stat-label">would rather be judged on what they can do than on a resume alone</div></div>
+    </div>
+    <p class="lede" style="margin-top:1.6em;">Small employers feel the other side of it too: no recruiting team, no time → screening runs on résumés, referrals, and gut feel. Social capital, not skill, decides who gets heard.</p>
+  </div>
+  <div class="footer-row"><span>n = 21 · students, working adults, job seekers</span><span><span class="slide-num">02</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 3 — WHY NOW / THE GAP -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">Originality &amp; Insight</div>
+    <h2 class="headline">The tools force a bad choice.</h2>
+    <div class="row">
+      <div class="bullet-card" style="flex:1;"><b>Cheap recorders, no scoring</b><br/>Hireflix, Willo — you get a video, not a verdict.</div>
+      <div class="bullet-card" style="flex:1;"><b>Black-box enterprise scorers</b><br/>HireVue, Maki, Apriora — $10k–145k/yr, sales-gated, and getting sued over how they judge people.</div>
+    </div>
+    <p class="lede" style="margin-top:1.6em;">Nobody serves small employers with an affordable, <i>explainable</i> AI voice interview. That empty quadrant is our lane.</p>
+  </div>
+  <div class="footer-row"><span>The gap</span><span><span class="slide-num">03</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 4 — SOLUTION -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">The Solution</div>
+    <h2 class="headline">Clarion, in three steps.</h2>
+    <div class="stack-wide">
+      <div class="step"><span class="step-num">1</span><div><b>Describe the role</b><span class="body">By voice or by picking a category — AI builds the rubric, aptitude test, and interview, in the candidate's own language.</span></div></div>
+      <div class="step"><span class="step-num">2</span><div><b>One fair voice interview</b><span class="body">The same adaptive AI conversation for every candidate — no mood, no bias, no different day.</span></div></div>
+      <div class="step"><span class="step-num">3</span><div><b>Glass-box verdict</b><span class="body">Every score links to the exact transcript quote that earned it. The employer decides.</span></div></div>
+    </div>
+  </div>
+  <div class="footer-row"><span>clarion.fyi/roles/new</span><span><span class="slide-num">04</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 5 — VOICE INTERVIEW (HERO) -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">AI Leverage &amp; Technical Execution</div>
+    <h2 class="headline">A real conversation, not a form.</h2>
+    <p class="lede">ElevenLabs Conversational AI asks adaptively, follows up on what the candidate actually says, and — uniquely — answers their questions honestly, including <b style="color:var(--accent-soft)">"how am I being judged?"</b></p>
+    <div class="quote">"You said you stayed on the line — what was going through your mind?"<br/><span style="font-size:0.9rem; opacity:0.75;">— Clarion, following up live on what the candidate just said</span></div>
+    <p class="lede" style="margin-top:1.4em;">And it runs in <b style="color:var(--accent-soft)">11 languages</b>, not just English — so candidates aren't filtered by fluency on top of pedigree.</p>
+  </div>
+  <div class="footer-row"><span>ElevenLabs Conversational AI</span><span><span class="slide-num">05</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 6 — GLASS BOX -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">Originality &amp; Insight — the differentiator</div>
+    <h2 class="headline">Most AI hiring scores you in a black box.<br/>Clarion shows its work.</h2>
+    <p class="lede">Every criterion → score → justification → the exact words that earned it, highlighted in the transcript. The AI assesses; the human decides.</p>
+    <div class="quote">"HireVue gives you a black box and a lawsuit. Clarion gives you a glass box — every score links to the exact thing the candidate said."</div>
+  </div>
+  <div class="footer-row"><span>The glass-box verdict</span><span><span class="slide-num">06</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 7 — WHY WE WIN -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">Why We Win</div>
+    <h2 class="headline">Built for the team nobody else serves.</h2>
+    <div class="stack">
+      <div class="bullet-card"><b>Affordable + self-serve</b> — no $35k enterprise contract, no recruiter required.</div>
+      <div class="bullet-card"><b>Explainable + auditable</b> — answers the bias question incumbents can't.</div>
+      <div class="bullet-card"><b>Voice-native, multilingual</b> — small-employer voice interviewing in 11 languages is open white space.</div>
+    </div>
+    <div class="quote">"The big players sell their own talent or a $35k contract. Clarion is the first a founder can run themselves — by Friday."</div>
+  </div>
+  <div class="footer-row"><span>Competitive position</span><span><span class="slide-num">07</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 8 — MARKET / FIT -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">Challenge-Solution Fit</div>
+    <h2 class="headline">Theme B5 — opportunity access is socially gated.</h2>
+    <p class="lede"><b style="color:var(--accent-soft)">Buyer:</b> the small employer / early-stage founder.<br/><b style="color:var(--accent-soft)">Effect:</b> candidates are judged on demonstrated skill, not social capital — opportunity stops being socially gated.</p>
+    <div class="stat-card" style="margin-top:1.6em; max-width:420px;">
+      <div class="stat-num">~2×</div>
+      <div class="stat-label">better prediction of job performance from structured interviews vs. gut-feel hiring (McDaniel et al.)</div>
+    </div>
+  </div>
+  <div class="footer-row"><span>Who it's for</span><span><span class="slide-num">08</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 9 — WHAT WE BUILT -->
+<section class="slide">
+  <div class="slide-inner">
+    <div class="kicker">AI Leverage &amp; Technical Execution</div>
+    <h2 class="headline">A working end-to-end product.</h2>
+    <p class="lede">Voice authoring (OpenAI Whisper + GPT) → ElevenLabs interview with recording + transcript → GPT-scored, evidence-linked verdict → employer dashboard with Advance / Reject.</p>
+    <div class="bullet-card" style="margin-top:1.4em;"><b>Stack:</b> OpenAI · ElevenLabs · Supabase · Vercel · Next.js</div>
+    <a class="cta-btn" href="https://proof-app-virid.vercel.app/" target="_blank">Try the live demo →</a>
+  </div>
+  <div class="footer-row"><span>proof-app-virid.vercel.app</span><span><span class="slide-num">09</span> / 10</span></div>
+</section>
+
+<!-- SLIDE 10 — CLOSE -->
+<section class="slide dark">
+  <div class="glow glow-warm"></div>
+  <div class="glow glow-navy"></div>
+  <div class="slide-inner" style="position:relative; z-index:1; text-align:center; display:flex; flex-direction:column; align-items:center;">
+    <h2 class="headline" style="text-align:center;">Stop guessing who can do the job.<br/>Start with proof.</h2>
+    <p class="tagline">Hear the proof, not the pedigree.</p>
+    <div class="quote" style="margin-top:1.8em; text-align:left;">"We don't replace your judgment with a machine's verdict. The AI shows its receipts; you make the call."</div>
+    <p class="lede" style="margin-top:2em; text-align:center;">[Your Team Name Here] · [team@email]</p>
+    <a class="cta-btn" href="https://proof-app-virid.vercel.app/" target="_blank">proof-app-virid.vercel.app →</a>
+  </div>
+  <div class="footer-row"><span>Clarion</span><span><span class="slide-num">10</span> / 10</span></div>
+</section>
+
+<script>
+  // Track current slide index for the up/down nav buttons.
+  const slides = document.querySelectorAll('.slide');
+  window.__idx = 0;
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) window.__idx = Array.from(slides).indexOf(e.target);
+    });
+  }, { threshold: 0.6 });
+  slides.forEach(s => obs.observe(s));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+      slides[Math.min(9, window.__idx + 1)].scrollIntoView({behavior:'smooth'});
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      slides[Math.max(0, window.__idx - 1)].scrollIntoView({behavior:'smooth'});
+    }
+  });
+</script>
+
+</body>
+</html>

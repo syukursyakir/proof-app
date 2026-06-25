@@ -13,12 +13,12 @@ The first AI voice interviewer a small employer can actually afford — and trus
 > *Logo + the glowing orb. One breath, then go.*
 
 ### Slide 2 — The problem (Demand 15%)
-**Small employers hire on the wrong signals.**
-No recruiting team, no time → screening runs on résumés, referrals, and gut feel. That's hiring on **social capital, not skill** — and every candidate gets a different interview from someone in a different mood.
-- **$14,900** — average cost of one bad hire (CareerBuilder)
-- **74%** of small businesses have made a bad hire
-- **🇸🇬 1.58** job openings per jobseeker (MOM, 2025) — the talent war is brutal
-> *Land the unfairness: good people with the wrong network never get heard.*
+**We asked 21 people before we built anything.**
+- **76%** have felt they could do a job well — but never got the chance to prove it
+- **81%** said what hurt their applications most wasn't skill — it was school, work experience, or background
+- **71%** would rather be judged on what they can do than on a resume alone
+Small employers feel the other side of it too: no recruiting team, no time → screening runs on résumés, referrals, and gut feel. **Social capital, not skill, decides who gets heard.**
+> *This is real primary research, not an assumption — n=21, ranging from JC/poly/uni students to working adults and hirers.*
 
 ### Slide 3 — Why now / the gap (Originality 20%)
 **The tools force a bad choice.**
@@ -34,8 +34,8 @@ Cheap recorders with **no scoring** (Hireflix, Willo) — or expensive **black-b
 
 ### Slide 5 — The hero: the voice interview (AI Leverage 25%)
 **A real conversation, not a form.**
-ElevenLabs Conversational AI asks adaptively, follows up on what the candidate actually says, and — uniquely — answers *their* questions honestly, including **"how am I being judged?"** Same interview, every candidate, zero mood.
-> *Show the orb reacting + a live follow-up. This is the ElevenLabs bonus play.*
+ElevenLabs Conversational AI asks adaptively, follows up on what the candidate actually says, and — uniquely — answers *their* questions honestly, including **"how am I being judged?"** Same interview, every candidate, zero mood. And it runs in **11 languages**, not just English — so candidates aren't filtered by fluency on top of pedigree.
+> *Show the orb reacting + a live follow-up. Bonus: flash the same interview screen in another language. This is the ElevenLabs bonus play.*
 
 ### Slide 6 — The differentiator: the glass box (Originality 20%)
 **Most AI hiring scores you in a black box. Clarion shows its work.**
@@ -49,7 +49,7 @@ Every criterion → score → justification → **the exact words that earned it
 > ***Kill shot:*** *"The big players sell their own talent or a $35k contract. Clarion is the first a founder can run themselves — by Friday."*
 
 ### Slide 8 — Who it's for / the market (Challenge-Solution Fit 20%)
-**Theme B — turning skill into opportunity.**
+**Theme B5 — opportunity access is socially gated.**
 Buyer: the small employer / early-stage founder. Effect: candidates are judged on **demonstrated skill, not social capital** — opportunity stops being socially gated. Structured interviews predict performance **~2× better** than gut calls (McDaniel et al.).
 
 ### Slide 9 — What we built in 2 days (AI Leverage 25%)
