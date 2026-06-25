@@ -183,12 +183,41 @@
   }
   .nav-controls button:hover { background: #fff; }
 
-  @page { size: landscape; margin: 0; }
+  @page { size: 1280px 720px; margin: 0; }
   @media print {
-    html, body { height: auto; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body {
+      height: auto; overflow: visible; width: 1280px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    .slide { page-break-after: always; height: 100vh; width: 100%; }
-    .nav-controls { display: none; }
+    .slide {
+      page-break-after: always; break-after: page;
+      width: 1280px !important; height: 720px !important;
+      padding: 44px 64px !important;
+      overflow: hidden !important;
+    }
+    .nav-controls { display: none !important; }
+    .glow { display: none !important; }
+    h1.title { font-size: 2.5rem !important; }
+    h2.headline { font-size: 1.65rem !important; margin-bottom: 0.4em !important; }
+    .lede { font-size: 0.82rem !important; }
+    .tagline { font-size: 0.95rem !important; }
+    .kicker { font-size: 0.58rem !important; padding: 0.25em 0.8em !important; margin-bottom: 0.7em !important; }
+    .stat-num { font-size: 1.7rem !important; }
+    .stat-label { font-size: 0.72rem !important; }
+    .bullet-card { font-size: 0.78rem !important; padding: 0.8em 1em !important; }
+    .quote { font-size: 0.8rem !important; padding: 0.6em 0.9em !important; margin-top: 0.8em !important; }
+    .step b { font-size: 0.88rem !important; }
+    .step span.body { font-size: 0.74rem !important; }
+    .row { gap: 0.6em !important; margin-top: 0.8em !important; }
+    .stack, .stack-wide { gap: 0.45em !important; margin-top: 0.8em !important; }
+    .logo-mark { margin-bottom: 1.2em !important; }
+    .logo-mark img { width: 30px !important; height: 30px !important; }
+    .logo-mark span { font-size: 1.05rem !important; }
+    .cta-btn { font-size: 0.8rem !important; padding: 0.55em 1.2em !important; margin-top: 0.9em !important; }
+    .footer-row { bottom: 12px !important; font-size: 0.58rem !important; padding: 0 64px !important; }
+    table.compare { font-size: 0.74rem !important; }
+    table.compare th, table.compare td { padding: 0.4em 0.7em !important; }
   }
 </style>
 </head>
