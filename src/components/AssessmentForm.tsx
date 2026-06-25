@@ -172,27 +172,29 @@ export default function AssessmentForm({
 
   return (
     <div className="space-y-8">
-      {/* Candidate language — first thing employers set; defaults to their site locale */}
-      <section>
-        <h2 className="text-lg font-semibold">{f.candidateLanguage}</h2>
-        <p className="mb-3 mt-1 text-sm text-muted">{f.candidateLanguageDesc}</p>
-        <div className="flex flex-wrap gap-2">
-          {SUPPORTED_LOCALES.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              onClick={() => setLanguage(l.code)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                language === l.code
-                  ? "border-accent bg-accent text-white"
-                  : "border-border text-muted hover:border-accent"
-              }`}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* Candidate language — for "create" the wizard already asked this upfront */}
+      {mode === "edit" && (
+        <section>
+          <h2 className="text-lg font-semibold">{f.candidateLanguage}</h2>
+          <p className="mb-3 mt-1 text-sm text-muted">{f.candidateLanguageDesc}</p>
+          <div className="flex flex-wrap gap-2">
+            {SUPPORTED_LOCALES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setLanguage(l.code)}
+                className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  language === l.code
+                    ? "border-accent bg-accent text-white"
+                    : "border-border text-muted hover:border-accent"
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div>
         <label className={label}>{f.roleTitle}</label>

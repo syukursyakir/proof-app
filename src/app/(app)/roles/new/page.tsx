@@ -7,15 +7,18 @@ import AssessmentForm from "@/components/AssessmentForm";
 import RolePicker from "@/components/RolePicker";
 import { ease } from "@/lib/motion";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+import { SUPPORTED_LOCALES } from "@/lib/i18n";
 import type { Assessment, TestQuestion } from "@/lib/types";
 
-type Phase = "pick" | "describe" | "followups" | "building" | "ready";
+type Phase = "language" | "pick" | "describe" | "followups" | "building" | "ready";
 
 export default function NewRolePage() {
-  const { dict } = useSiteLocale();
+  const { dict, locale: siteLocale } = useSiteLocale();
   const w = dict.employer.wizard;
+  const f = dict.employer.form;
   const BUILDING_STEPS = w.buildingSteps;
-  const [phase, setPhase] = useState<Phase>("pick");
+  const [phase, setPhase] = useState<Phase>("language");
+  const [language, setLanguage] = useState<string>(siteLocale);
   const [description, setDescription] = useState("");
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -223,11 +226,50 @@ export default function NewRolePage() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25, ease: ease.out }}
             >
+        {phase === "language" && (
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {f.candidateLanguage}
+            </h1>
+            <p className="mt-2 text-muted">{f.candidateLanguageDesc}</p>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {SUPPORTED_LOCALES.map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLanguage(l.code)}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                    language === l.code
+                      ? "border-accent bg-accent text-white"
+                      : "border-border text-muted hover:border-accent"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setPhase("pick")}
+              className="mt-8 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
+            >
+              {w.next}
+            </button>
+          </div>
+        )}
+
         {phase === "pick" && (
-          <RolePicker
-            onComplete={buildFromPicks}
-            onDescribeInstead={() => setPhase("describe")}
-          />
+          <div>
+            <button
+              onClick={() => setPhase("language")}
+              className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-foreground"
+            >
+              ← {f.candidateLanguage}
+            </button>
+            <RolePicker
+              onComplete={buildFromPicks}
+              onDescribeInstead={() => setPhase("describe")}
+            />
+          </div>
         )}
 
         {phase === "describe" && (
@@ -365,6 +407,7 @@ export default function NewRolePage() {
                 interview_questions: assessment.interview_questions,
                 terms: terms,
                 test_enabled: true,
+                language,
               }}
             />
           </div>
