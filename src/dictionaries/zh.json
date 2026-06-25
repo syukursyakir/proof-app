@@ -350,6 +350,7 @@
       "noAnswer": "（无答案）"
     },
     "landing": {
+      "heroBadge": "现已支持 11 种语言 ✨",
       "heroTag": "适用于无法承受招聘失误的小团队",
       "heroTitleLine1": "凭实力录用，",
       "heroTitleLine2": "而非凭背景。",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "确切证据",
       "buildAssessment": "创建您的评估",
       "seeSample": "查看示例评估结果",
+      "watchDemo": "观看演示",
       "heroFootnote": "几分钟即可设置完成——用语音或文字描述职位，编辑任何内容，然后发送。为每个人提供同样公平的评估。",
       "heroCaption": "面试中…“说说你曾经如何安抚一位愤怒的客户。”",
       "heroCardCriterion": "客户同理心",

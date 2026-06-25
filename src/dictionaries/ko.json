@@ -350,6 +350,7 @@
       "noAnswer": "(답변 없음)"
     },
     "landing": {
+      "heroBadge": "이제 11개 언어로 제공됩니다 ✨",
       "heroTag": "잘못된 채용을 감당할 수 없는 소규모 팀을 위한",
       "heroTitleLine1": "증명으로 채용하세요,",
       "heroTitleLine2": "학벌이 아니라.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "정확한 증거",
       "buildAssessment": "평가 만들기",
       "seeSample": "샘플 결과 보기",
+      "watchDemo": "데모 보기",
       "heroFootnote": "몇 분 안에 설정하세요 — 음성이나 텍스트로 직무를 설명하고, 무엇이든 수정한 후 보내세요. 모두에게 동일한 공정한 평가.",
       "heroCaption": "면접 중… “화난 고객을 진정시킨 경험에 대해 말해주세요.”",
       "heroCardCriterion": "고객 공감",

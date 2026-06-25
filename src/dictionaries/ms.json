@@ -350,6 +350,7 @@
       "noAnswer": "(tiada jawapan)"
     },
     "landing": {
+      "heroBadge": "Kini tersedia dalam 11 bahasa ✨",
       "heroTag": "Untuk pasukan kecil yang tidak mampu mengambil pekerja yang salah",
       "heroTitleLine1": "Ambil pekerja berdasarkan bukti,",
       "heroTitleLine2": "bukan keturunan.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "bukti tepat",
       "buildAssessment": "Bina penilaian anda",
       "seeSample": "Lihat contoh keputusan",
+      "watchDemo": "Tonton demo",
       "heroFootnote": "Sediakan dalam beberapa minit — terangkan peranan melalui suara atau teks, sunting apa-apa, kemudian hantar. Penilaian saksama yang sama untuk semua orang.",
       "heroCaption": "Sedang ditemuduga… “Ceritakan tentang masa anda menenangkan pelanggan yang marah.”",
       "heroCardCriterion": "Empati pelanggan",

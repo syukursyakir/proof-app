@@ -16,6 +16,7 @@
   --accent-warm-soft: #c47d22; /* darker amber — hover */
   --accent-clay: #c2613c; /* 3. terracotta — warm highlight */
   --accent-sage: #4f7a68; /* 4. sage — calm / positive */
+  --shadow-dashboard: 0 25px 80px -12px rgba(21, 24, 30, 0.12), 0 0 0 1px rgba(21, 24, 30, 0.06);
 }
 
 @theme inline {

@@ -350,6 +350,7 @@
       "noAnswer": "(không có câu trả lời)"
     },
     "landing": {
+      "heroBadge": "Hiện đã hỗ trợ 11 ngôn ngữ ✨",
       "heroTag": "Dành cho các nhóm nhỏ không thể chấp nhận tuyển dụng sai người",
       "heroTitleLine1": "Tuyển dụng dựa trên bằng chứng,",
       "heroTitleLine2": "không dựa trên xuất thân.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "bằng chứng chính xác",
       "buildAssessment": "Xây dựng bài đánh giá của bạn",
       "seeSample": "Xem kết quả mẫu",
+      "watchDemo": "Xem video demo",
       "heroFootnote": "Thiết lập trong vài phút — mô tả vai trò bằng giọng nói hoặc văn bản, chỉnh sửa bất cứ điều gì, rồi gửi đi. Cùng một bài đánh giá công bằng cho mọi người.",
       "heroCaption": "Đang phỏng vấn… “Hãy kể cho tôi về lần bạn làm dịu một khách hàng đang tức giận.”",
       "heroCardCriterion": "Sự đồng cảm với khách hàng",

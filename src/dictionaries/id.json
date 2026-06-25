@@ -350,6 +350,7 @@
       "noAnswer": "(tidak ada jawaban)"
     },
     "landing": {
+      "heroBadge": "Sekarang tersedia dalam 11 bahasa ✨",
       "heroTag": "Untuk tim kecil yang tidak mampu merekrut yang salah",
       "heroTitleLine1": "Rekrut berdasarkan bukti,",
       "heroTitleLine2": "bukan garis keturunan.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "bukti pasti",
       "buildAssessment": "Bangun penilaian Anda",
       "seeSample": "Lihat contoh hasil",
+      "watchDemo": "Tonton demo",
       "heroFootnote": "Siapkan dalam hitungan menit — jelaskan peran melalui suara atau teks, edit apa saja, lalu kirim. Penilaian yang adil yang sama untuk semua orang.",
       "heroCaption": "Sedang mewawancarai… “Ceritakan saat Anda menenangkan pelanggan yang marah.”",
       "heroCardCriterion": "Empati pelanggan",

@@ -350,6 +350,7 @@
       "noAnswer": "（回答なし）"
     },
     "landing": {
+      "heroBadge": "11言語に対応 ✨",
       "heroTag": "間違った採用を許容できない小規模チームのために",
       "heroTitleLine1": "実証で採用する、",
       "heroTitleLine2": "経歴ではなく。",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "正確な根拠",
       "buildAssessment": "評価を作成する",
       "seeSample": "サンプル結果を見る",
+      "watchDemo": "デモを見る",
       "heroFootnote": "数分でセットアップ — 音声またはテキストで職務を説明し、何でも編集して、送信してください。すべての人に同じ公正な評価を。",
       "heroCaption": "面接中…「怒っている顧客を落ち着かせた経験について教えてください。」",
       "heroCardCriterion": "顧客への共感",

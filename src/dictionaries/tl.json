@@ -350,6 +350,7 @@
       "noAnswer": "(walang sagot)"
     },
     "landing": {
+      "heroBadge": "Ngayon nasa 11 wika na ✨",
       "heroTag": "Para sa maliliit na koponan na hindi kayang magkamali sa pag-hire",
       "heroTitleLine1": "Mag-hire base sa patunay,",
       "heroTitleLine2": "hindi sa pedigree.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "eksaktong ebidensya",
       "buildAssessment": "Buuin ang iyong assessment",
       "seeSample": "Tingnan ang sample na resulta",
+      "watchDemo": "Panoorin ang demo",
       "heroFootnote": "I-set up ito sa ilang minuto — ilarawan ang tungkulin sa boses o teksto, i-edit ang anuman, pagkatapos ipadala. Ang parehong patas na pagsusuri para sa lahat.",
       "heroCaption": "Nag-iinterbyu… “Sabihin mo sa akin ang isang pagkakataon na pinakalma mo ang isang galit na customer.”",
       "heroCardCriterion": "Empatiya sa customer",

@@ -350,6 +350,7 @@
       "noAnswer": "(no answer)"
     },
     "landing": {
+      "heroBadge": "Now live in 11 languages ✨",
       "heroTag": "For small teams who can't afford to hire wrong",
       "heroTitleLine1": "Hire on proof,",
       "heroTitleLine2": "not pedigree.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "exact evidence",
       "buildAssessment": "Build your assessment",
       "seeSample": "See a sample verdict",
+      "watchDemo": "Watch the demo",
       "heroFootnote": "Set it up in minutes — describe the role by voice or text, edit anything, then send. The same fair assessment for everyone.",
       "heroCaption": "Interviewing… “Tell me about a time you calmed an angry customer.”",
       "heroCardCriterion": "Customer empathy",

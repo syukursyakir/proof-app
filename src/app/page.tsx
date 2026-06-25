@@ -1,17 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { motion } from "framer-motion";
 import SiteNav from "@/components/SiteNav";
 import HeroBackground from "@/components/HeroBackground";
-import HeroOrb from "@/components/HeroOrb";
+import DashboardPreview from "@/components/DashboardPreview";
+import { PlayIcon } from "@/components/icons";
 import ClarionFeatures from "@/components/ClarionFeatures";
 import {
   CountUp,
@@ -19,11 +13,12 @@ import {
   MagneticButton,
   Reveal,
   ScrollProgress,
-  SecondaryButton,
   Stagger,
 } from "@/components/motion";
-import { containerV, itemV } from "@/lib/motion";
 import { useSiteLocale } from "@/components/SiteLocaleProvider";
+
+// Real demo video from the hackathon submission — not a placeholder.
+const DEMO_VIDEO_URL = "https://youtu.be/0ZefiPXbo7Y";
 
 export default function Home() {
   const { dict } = useSiteLocale();
@@ -42,96 +37,76 @@ export default function Home() {
     { value: 1.58, prefix: "", suffix: "", decimals: 2, label: l.statJobOpenings },
   ];
 
-  const heroRef = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const orbY = useSpring(useTransform(scrollYProgress, [0, 1], [0, -70]), {
-    stiffness: 400,
-    damping: 90,
-  });
-
   return (
     <div className="flex flex-col flex-1">
       <ScrollProgress />
-      <SiteNav />
 
-      {/* Hero */}
-      <section ref={heroRef} className="relative overflow-hidden">
+      {/* Hero — fills exactly 100vh, no scroll inside it */}
+      <div className="relative flex h-screen flex-col overflow-hidden bg-background">
         <HeroBackground />
-        <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 pb-20 pt-32 lg:grid-cols-2 lg:pb-28 lg:pt-44">
-          <motion.div variants={containerV} initial="hidden" animate="visible">
-            <motion.p
-              variants={itemV}
-              className="mb-5 inline-flex items-center rounded-full border border-border bg-white/60 px-3 py-1 text-xs font-medium text-muted backdrop-blur"
+        <SiteNav />
+
+        <div className="relative z-10 flex flex-1 flex-col items-center px-6 pt-2 text-center">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-1.5 text-sm text-muted"
+          >
+            {l.heroBadge}
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="max-w-xl font-display text-5xl leading-[0.95] tracking-tight text-foreground md:text-6xl lg:text-[5rem]"
+          >
+            {l.heroTitleLine1}
+            <br />
+            <span className="italic">{l.heroTitleLine2}</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mt-4 max-w-[650px] text-center text-base leading-relaxed text-muted md:text-lg"
+          >
+            {l.heroBody.split(l.heroBodyEvidence)[0]}
+            <span className="text-foreground">{l.heroBodyEvidence}</span>
+            {l.heroBody.split(l.heroBodyEvidence)[1]}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-5 flex items-center gap-3"
+          >
+            <MagneticButton href="/roles/new">{l.buildAssessment}</MagneticButton>
+            <a
+              href={DEMO_VIDEO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={l.watchDemo}
+              title={l.watchDemo}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-background shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-colors hover:bg-card/60"
             >
-              {l.heroTag}
-            </motion.p>
-            <motion.h1
-              variants={itemV}
-              className="text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"
-            >
-              {l.heroTitleLine1}
-              <br />
-              {l.heroTitleLine2}
-            </motion.h1>
-            <motion.p
-              variants={itemV}
-              className="mt-6 max-w-xl text-lg leading-8 text-muted"
-            >
-              {l.heroBody.split(l.heroBodyEvidence)[0]}
-              <span className="text-foreground">{l.heroBodyEvidence}</span>
-              {l.heroBody.split(l.heroBodyEvidence)[1]}
-            </motion.p>
-            <motion.div variants={itemV} className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <MagneticButton href="/roles/new">
-                {l.buildAssessment}
-              </MagneticButton>
-              <SecondaryButton href="/sample">
-                {l.seeSample}{" "}
-                <span className="transition-transform group-hover:translate-x-0.5">→</span>
-              </SecondaryButton>
-            </motion.div>
-            <motion.p variants={itemV} className="mt-5 text-sm text-muted">
-              {l.heroFootnote}
-            </motion.p>
+              <PlayIcon className="h-4 w-4 fill-foreground" />
+            </a>
           </motion.div>
 
-          {/* money shot: orb + verdict card, gentle parallax */}
           <motion.div
-            style={{ y: reduce ? 0 : orbY }}
-            className="relative flex items-center justify-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mt-8 w-full max-w-5xl"
           >
-            <div className="relative flex h-[340px] w-full items-center justify-center">
-              <div className="-translate-y-10">
-                <HeroOrb size={300} />
-              </div>
-              <p className="absolute bottom-2 left-1/2 w-64 -translate-x-1/2 text-center text-xs text-muted">
-                {l.heroCaption}
-              </p>
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute -bottom-6 -right-2 w-64 rounded-xl border border-border bg-card/90 p-4 shadow-2xl backdrop-blur"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{l.heroCardCriterion}</span>
-                  <span className="text-sm font-semibold text-accent-soft">{l.heroCardScore}</span>
-                </div>
-                <p className="mt-2 text-xs leading-5 text-muted">
-                  {l.heroCardJustification}
-                </p>
-                <p className="mt-2 rounded-md bg-accent/15 px-2 py-1 text-xs leading-5 text-foreground">
-                  {l.heroCardQuote}
-                </p>
-              </motion.div>
-            </div>
+            <DashboardPreview dict={dict} />
           </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* Candidate join band — Kahoot-style */}
       <section className="border-t border-border/60 bg-card/40">

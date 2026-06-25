@@ -350,6 +350,7 @@
       "noAnswer": "(pas de réponse)"
     },
     "landing": {
+      "heroBadge": "Désormais disponible en 11 langues ✨",
       "heroTag": "Pour les petites équipes qui ne peuvent pas se permettre une mauvaise embauche",
       "heroTitleLine1": "Recrutez sur preuve,",
       "heroTitleLine2": "pas sur pedigree.",
@@ -357,6 +358,7 @@
       "heroBodyEvidence": "preuves exactes",
       "buildAssessment": "Créez votre évaluation",
       "seeSample": "Voir un exemple de verdict",
+      "watchDemo": "Voir la démo",
       "heroFootnote": "Configurez-la en quelques minutes — décrivez le poste par voix ou texte, modifiez tout, puis envoyez. La même évaluation équitable pour tous.",
       "heroCaption": "Entretien en cours… « Parlez-moi d'une fois où vous avez calmé un client en colère. »",
       "heroCardCriterion": "Empathie client",

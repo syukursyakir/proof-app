@@ -183,3 +183,47 @@ export function MicIcon({ className }: P) {
     </svg>
   );
 }
+
+export function PlayIcon({ className }: P) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <path d="M7 4.5v15a1 1 0 0 0 1.52.85l11.5-7.5a1 1 0 0 0 0-1.7l-11.5-7.5A1 1 0 0 0 7 4.5z" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+export function DotsIcon({ className }: P) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden fill="currentColor">
+      <circle cx="12" cy="5" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <circle cx="12" cy="19" r="1.6" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon({ className }: P) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <path d="m22 4-10 10-3-3" />
+    </svg>
+  );
+}
