@@ -22,13 +22,13 @@ The first AI voice interviewer a small employer can actually afford — and trus
 Clarion lets an employer describe their ideal hire by voice or by picking a role/skills; AI turns it into a structured, role-specific rubric and interview — in the candidate's own language, not just English. Every candidate then takes the *same* fair AI voice interview, and the employer gets a glass-box verdict where every score links to the exact transcript quote that earned it — and a human makes the final call.
 
 ## Live demo link
-https://proof-app-virid.vercel.app/  · Sample verdict: https://proof-app-virid.vercel.app/sample
+https://clarion.fyi/  · Sample verdict: https://clarion.fyi/sample
 
 ## Demo video (≤3 min)
-[YouTube link — record from docs/demo-video-script.md]
+https://youtu.be/0ZefiPXbo7Y
 
 ## Pitch deck (≤10 slides)
-[link — build from docs/pitch-deck.md]
+https://clarion.fyi/pitch-deck.html
 
 ## Tools used
 OpenAI (GPT-4o for rubric generation + transcript scoring; Whisper for voice authoring) · ElevenLabs Conversational AI (the live adaptive voice interview) · Supabase (Postgres, Auth/Google login, Storage) · Vercel · Next.js + TypeScript + Tailwind · Three.js / React Three Fiber (the audio-reactive voice orb).
