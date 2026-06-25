@@ -183,9 +183,11 @@
   }
   .nav-controls button:hover { background: #fff; }
 
+  @page { size: landscape; margin: 0; }
   @media print {
-    html, body { height: auto; overflow: visible; }
-    .slide { page-break-after: always; height: 100vh; }
+    html, body { height: auto; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .slide { page-break-after: always; height: 100vh; width: 100%; }
     .nav-controls { display: none; }
   }
 </style>
