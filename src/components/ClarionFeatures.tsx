@@ -1,46 +1,52 @@
 import "./clarion-features.css";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 export default function ClarionFeatures() {
+  const { dict } = useSiteLocale();
+  const f = dict.employer.features;
   return (
     <div className="pf-shell">
       <div className="pf-container">
-        <div className="pf-badge">How Clarion works</div>
-        <h2 className="pf-title">From a role description to a fair verdict</h2>
+        <div className="pf-badge">{f.badge}</div>
+        <h2 className="pf-title">{f.title}</h2>
         <p className="pf-subtitle">
-          Build the assessment in minutes.
+          {f.subtitleLine1}
           <br />
-          Assess everyone the same. Decide with the evidence.
+          {f.subtitleLine2}
         </p>
 
         <div className="pf-grid">
           {/* Card 1 — Author by voice */}
           <div className="pf-card pf-card-1">
             <div className="pf-prompt">
-              I need a support rep who{" "}
-              <span className="pf-hl">stays calm with angry customers</span>,{" "}
-              <span className="pf-hl">takes ownership</span> of problems, and{" "}
-              <span className="pf-hl">communicates clearly</span>.
+              {f.card1Prompt
+                .split(/(\{calm\}|\{ownership\}|\{clear\})/)
+                .map((part, i) =>
+                  part === "{calm}" ? (
+                    <span key={i} className="pf-hl">{f.card1PromptCalm}</span>
+                  ) : part === "{ownership}" ? (
+                    <span key={i} className="pf-hl">{f.card1PromptOwnership}</span>
+                  ) : part === "{clear}" ? (
+                    <span key={i} className="pf-hl">{f.card1PromptClear}</span>
+                  ) : (
+                    part
+                  ),
+                )}
             </div>
             <div className="pf-pill">
               <span className="pf-dot" />
-              Recording…
+              {f.card1Recording}
             </div>
-            <h3>Build in minutes</h3>
-            <p className="pf-sub">
-              Describe the role by voice or text — Clarion drafts the test, work-sample,
-              and questions. Review and edit everything.
-            </p>
+            <h3>{f.card1Title}</h3>
+            <p className="pf-sub">{f.card1Body}</p>
           </div>
 
           {/* Card 2 — Live AI interview */}
           <div className="pf-card pf-card-2">
             <div className="pf-orb" />
-            <div className="pf-caption">&ldquo;How am I being judged?&rdquo;</div>
-            <h3>Assess every candidate</h3>
-            <p className="pf-sub">
-              Aptitude screen, skills work-sample, and an adaptive AI interview — the
-              same fair assessment for everyone.
-            </p>
+            <div className="pf-caption">{f.card2Caption}</div>
+            <h3>{f.card2Title}</h3>
+            <p className="pf-sub">{f.card2Body}</p>
           </div>
 
           {/* Card 3 — Glass-box verdict */}
@@ -48,18 +54,13 @@ export default function ClarionFeatures() {
             <div className="pf-mesh" />
             <div className="pf-verdict">
               <div className="pf-vrow">
-                <span className="pf-vname">Customer empathy</span>
-                <span className="pf-vscore">5 / 5</span>
+                <span className="pf-vname">{f.card3Criterion}</span>
+                <span className="pf-vscore">{f.card3Score}</span>
               </div>
-              <div className="pf-quote">
-                &ldquo;I told her I completely understood why she was frustrated, and
-                I&apos;d stay on the line until it was sorted.&rdquo;
-              </div>
+              <div className="pf-quote">{f.card3Quote}</div>
             </div>
-            <h3>Glass-box verdict</h3>
-            <p className="pf-sub">
-              Every score links to the exact transcript quote. You make the final call.
-            </p>
+            <h3>{f.card3Title}</h3>
+            <p className="pf-sub">{f.card3Body}</p>
           </div>
         </div>
       </div>

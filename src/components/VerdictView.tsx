@@ -8,6 +8,7 @@ import { pairScores, agreement } from "@/lib/agreement";
 import { computeComposite, type CompositeBand } from "@/lib/composite";
 import { ease, spring } from "@/lib/motion";
 import { Stagger, Item, CountUp } from "@/components/motion";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 type SkillsAnswers = {
   qa: { question: string; answer: string }[];
@@ -19,11 +20,6 @@ const componentBarColor: Record<string, string> = {
   interview: "bg-accent", // navy
   skills: "bg-accent-warm", // amber
   aptitude: "bg-accent-clay", // terracotta
-};
-const componentSubLabel: Record<string, string> = {
-  interview: "behavioural",
-  skills: "work-sample",
-  aptitude: "cognitive screen",
 };
 
 function escapeRe(s: string) {
@@ -73,14 +69,6 @@ const statusPill: Record<string, string> = {
   advanced: "bg-green-50 text-green-700",
   rejected: "bg-red-50 text-red-700",
 };
-const statusLabel: Record<string, string> = {
-  invited: "Invited",
-  interviewing: "In progress",
-  completed: "Completed",
-  advanced: "Advanced",
-  rejected: "Rejected",
-};
-
 const bandStyle: Record<CompositeBand, { pill: string; bar: string; text: string }> = {
   Strong: { pill: "bg-green-100 text-green-800", bar: "bg-green-500", text: "text-green-700" },
   Recommended: { pill: "bg-accent/15 text-accent-soft", bar: "bg-accent", text: "text-accent-soft" },
@@ -132,6 +120,20 @@ export default function VerdictView({
   humanRating?: { name: string; score: number }[] | null;
 }) {
   const router = useRouter();
+  const { dict } = useSiteLocale();
+  const v = dict.employer.verdict;
+  const statusLabel: Record<string, string> = {
+    invited: dict.employer.status.invited,
+    interviewing: dict.employer.status.inProgress,
+    completed: dict.employer.status.completed,
+    advanced: dict.employer.status.advanced,
+    rejected: dict.employer.status.rejected,
+  };
+  const componentSubLabel: Record<string, string> = {
+    interview: v.subInterview,
+    skills: v.subSkills,
+    aptitude: v.subAptitude,
+  };
   const [open, setOpen] = useState<number | null>(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -198,10 +200,10 @@ export default function VerdictView({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ candidate_id: candidate.id }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Scoring failed");
+      if (!res.ok) throw new Error((await res.json()).error ?? v.scoringFailed);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Scoring failed");
+      setError(e instanceof Error ? e.message : v.scoringFailed);
     } finally {
       setBusy(false);
     }
@@ -237,21 +239,19 @@ export default function VerdictView({
               disabled={busy}
               className="rounded-full bg-green-500/90 px-5 py-2 text-sm font-medium text-white hover:bg-green-500 disabled:opacity-60"
             >
-              Advance
+              {v.advance}
             </button>
             <button
               onClick={() => setStatus("rejected")}
               disabled={busy}
               className="rounded-full border border-border px-5 py-2 text-sm hover:border-red-500 hover:text-red-400 disabled:opacity-60"
             >
-              Reject
+              {v.reject}
             </button>
           </div>
         )}
       </div>
-      <p className="-mt-6 text-xs text-muted">
-        Clarion assesses. You decide — the verdict is a recommendation, not a decision.
-      </p>
+      <p className="-mt-6 text-xs text-muted">{v.disclaimer}</p>
 
       {composite && (
         <motion.section
@@ -263,7 +263,7 @@ export default function VerdictView({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                Overall recommendation
+                {v.overallRecommendation}
               </p>
               <div className="mt-2 flex items-center gap-3">
                 <span className="tnum font-display text-5xl font-semibold leading-none">
@@ -290,7 +290,7 @@ export default function VerdictView({
                   <span className="font-medium">
                     {c.label}{" "}
                     <span className="text-xs font-normal text-muted">
-                      · {componentSubLabel[c.key]} · {Math.round(c.weight * 100)}% weight
+                      · {componentSubLabel[c.key]} · {Math.round(c.weight * 100)}% {v.weightSuffix}
                     </span>
                   </span>
                   <span className="tnum text-muted">{Math.round(c.pct)}%</span>
@@ -308,19 +308,14 @@ export default function VerdictView({
           </div>
 
           <p className="mt-5 border-t border-border/60 pt-4 text-xs leading-5 text-muted">
-            A weighted score out of 100 — not a percentile or class rank. Weights
-            follow each method&apos;s predictive validity in the research literature
-            (interview ρ≈.42, skills work-sample ρ≈.40, aptitude screen ρ≈.31,
-            Sackett et al. 2022); these are method-level figures, not a measured
-            validity for this assessment. Treat the band, not the exact number, as
-            the signal — and treat it as a recommendation. You decide.
+            {v.validityNote}
           </p>
         </motion.section>
       )}
 
       {appealRequested && (
         <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
-          ⚑ This candidate has requested a human review of their interview.
+          {v.appealFlag}
         </div>
       )}
 
@@ -330,19 +325,22 @@ export default function VerdictView({
         const switches = pf.tab_switches ?? 0;
         const phrases: string[] = [];
         if (switches > 0)
-          phrases.push(`left the test tab ${switches} time${switches === 1 ? "" : "s"}`);
-        if (pf.not_full_screen)
-          phrases.push("shared a window/tab instead of the entire screen");
-        if (pf.share_lost) phrases.push("stopped screen sharing");
+          phrases.push(
+            (switches === 1 ? v.proctorLeftTab : v.proctorLeftTabPlural).replace(
+              "{n}",
+              String(switches),
+            ),
+          );
+        if (pf.not_full_screen) phrases.push(v.proctorSharedWindow);
+        if (pf.share_lost) phrases.push(v.proctorStoppedSharing);
         if (!phrases.length) return null;
         const list =
           phrases.length === 1
             ? phrases[0]
-            : phrases.slice(0, -1).join(", ") + " and " + phrases.slice(-1);
+            : phrases.slice(0, -1).join(", ") + ` ${v.listJoiner} ` + phrases.slice(-1);
         return (
           <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-800">
-            ⚑ Aptitude proctoring flags: {list}. Review the screen recording
-            before relying on the aptitude score.
+            {v.proctorFlagPrefix} {list}. {v.proctorFlagSuffix}
           </div>
         );
       })()}
@@ -351,13 +349,13 @@ export default function VerdictView({
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">
           {fullText ? (
             <>
-              <p className="text-muted">No verdict yet.</p>
+              <p className="text-muted">{v.noVerdictYet}</p>
               <button
                 onClick={generate}
                 disabled={busy}
                 className="mt-4 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
               >
-                {busy ? "Scoring…" : "Generate verdict"}
+                {busy ? v.scoring : v.generateVerdict}
               </button>
               {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
             </>
@@ -372,7 +370,7 @@ export default function VerdictView({
       {verdict?.overall && (
         <section className="rounded-2xl border border-border bg-card/50 p-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Overall</h2>
+            <h2 className="text-lg font-semibold">{v.overall}</h2>
             <span
               className={`rounded-full px-3 py-1 text-sm capitalize ${
                 recColor[verdict.overall.recommendation] ?? "bg-card text-muted"
@@ -386,7 +384,7 @@ export default function VerdictView({
           </p>
           {verdict.overall.integrity_flag && (
             <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-3 py-1 text-sm text-amber-700">
-              ⚑ Possible attempt to game the interview — review the transcript.
+              {v.integrityFlag}
             </p>
           )}
         </section>
@@ -399,7 +397,7 @@ export default function VerdictView({
         return (
           <div className="flex items-center gap-5 rounded-xl border border-border bg-card/40 px-5 py-4">
             <div>
-              <p className="text-xs text-muted">Average score</p>
+              <p className="text-xs text-muted">{v.averageScore}</p>
               <p className="text-3xl font-semibold leading-none">
                 {avg.toFixed(1)}
                 <span className="text-base font-normal text-muted">/5</span>
@@ -412,7 +410,7 @@ export default function VerdictView({
 
       {verdict?.per_criterion && verdict.per_criterion.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold">Scores &amp; evidence</h2>
+          <h2 className="mb-3 text-lg font-semibold">{v.scoresAndEvidence}</h2>
           <Stagger className="space-y-3">
             {verdict.per_criterion.map((c: CriterionVerdict, i) => (
               <Item
@@ -427,7 +425,7 @@ export default function VerdictView({
                   <span className="flex items-center gap-3">
                     {c.low_confidence && (
                       <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-700">
-                        uncertain — review
+                        {v.uncertainReview}
                       </span>
                     )}
                     <ScoreDots score={c.score} />
@@ -452,7 +450,7 @@ export default function VerdictView({
                     <p className="text-sm text-foreground/85">{c.justification}</p>
                     <div className="mt-3 space-y-2">
                       {(c.quotes ?? []).length === 0 && (
-                        <p className="text-xs text-muted">No direct quote found.</p>
+                        <p className="text-xs text-muted">{v.noQuoteFound}</p>
                       )}
                       {(c.quotes ?? []).map((q, j) => (
                         <p
@@ -475,7 +473,7 @@ export default function VerdictView({
 
       {candidate.skills_answers?.qa && candidate.skills_answers.qa.length > 0 && (
         <section>
-          <h2 className="mb-1 text-lg font-semibold">Skills work-sample</h2>
+          <h2 className="mb-1 text-lg font-semibold">{v.skillsWorkSample}</h2>
           {candidate.skills_answers.overall && (
             <p className="mb-3 text-sm text-muted">
               {candidate.skills_answers.overall}
@@ -498,7 +496,7 @@ export default function VerdictView({
                     )}
                   </div>
                   <p className="mt-2 whitespace-pre-wrap rounded-md bg-background px-3 py-2 text-sm leading-6 text-foreground/85">
-                    {qa.answer || <span className="text-muted">(no answer)</span>}
+                    {qa.answer || <span className="text-muted">{v.noAnswer}</span>}
                   </p>
                   {pq?.justification && (
                     <p className="mt-2 text-xs leading-5 text-muted">
@@ -514,13 +512,8 @@ export default function VerdictView({
 
       {verdict?.per_criterion && verdict.per_criterion.length > 0 && !readOnly && (
         <section>
-          <h2 className="mb-1 text-lg font-semibold">
-            Calibration — score this candidate yourself
-          </h2>
-          <p className="mb-3 text-sm text-muted">
-            Rate each criterion to measure how closely Clarion agrees with you — this is
-            your reliability evidence.
-          </p>
+          <h2 className="mb-1 text-lg font-semibold">{v.calibrationTitle}</h2>
+          <p className="mb-3 text-sm text-muted">{v.calibrationSubtitle}</p>
           <div className="space-y-3">
             {verdict.per_criterion.map((c, i) => (
               <div
@@ -529,7 +522,7 @@ export default function VerdictView({
               >
                 <span className="text-sm font-medium">{c.name}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted">Clarion: {c.score}</span>
+                  <span className="text-xs text-muted">{v.clarionScore.replace("{score}", String(c.score))}</span>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
@@ -555,13 +548,15 @@ export default function VerdictView({
               disabled={savingRating}
               className="rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft disabled:opacity-60"
             >
-              {savingRating ? "Saving…" : "Save my scores"}
+              {savingRating ? v.saving : v.saveMyScores}
             </button>
             {humanRating && humanRating.length > 0 && agr.n > 0 && (
               <span className="text-sm text-muted">
-                You &amp; Clarion: exact on {Math.round(agr.exact * 100)}%, within ±1 on{" "}
-                {Math.round(agr.within1 * 100)}% ({agr.n} criteria · avg diff{" "}
-                {agr.mae.toFixed(2)})
+                {v.agreementSummary
+                  .replace("{exact}", String(Math.round(agr.exact * 100)))
+                  .replace("{within1}", String(Math.round(agr.within1 * 100)))
+                  .replace("{n}", String(agr.n))
+                  .replace("{mae}", agr.mae.toFixed(2))}
               </span>
             )}
           </div>
@@ -570,7 +565,7 @@ export default function VerdictView({
 
       {recordingUrl ? (
         <section>
-          <h2 className="mb-3 text-lg font-semibold">Interview recording</h2>
+          <h2 className="mb-3 text-lg font-semibold">{v.interviewRecording}</h2>
           <video
             controls
             src={recordingUrl}
@@ -580,23 +575,16 @@ export default function VerdictView({
       ) : (
         fullText && (
           <section>
-            <h2 className="mb-1 text-lg font-semibold">Interview recording</h2>
-            <p className="text-sm text-muted">
-              No recording was captured for this interview — the candidate may have
-              declined camera/microphone access or taken the written interview. The
-              full transcript is below.
-            </p>
+            <h2 className="mb-1 text-lg font-semibold">{v.interviewRecording}</h2>
+            <p className="text-sm text-muted">{v.noRecording}</p>
           </section>
         )
       )}
 
       {proctorUrl && (
         <section>
-          <h2 className="mb-1 text-lg font-semibold">Aptitude test — screen recording</h2>
-          <p className="mb-3 text-sm text-muted">
-            Proctoring capture from Part 1, so you can confirm the timed test was
-            taken honestly.
-          </p>
+          <h2 className="mb-1 text-lg font-semibold">{v.proctorRecording}</h2>
+          <p className="mb-3 text-sm text-muted">{v.proctorRecordingDesc}</p>
           <video
             controls
             src={proctorUrl}
@@ -607,7 +595,7 @@ export default function VerdictView({
 
       {fullText && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold">Transcript</h2>
+          <h2 className="mb-3 text-lg font-semibold">{v.transcript}</h2>
           <div className="rounded-xl border border-border bg-card/30 p-5">
             <Highlighted text={fullText} quotes={allQuotes} />
           </div>

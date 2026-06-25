@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SignOutButton from "@/components/SignOutButton";
 import Logo from "@/components/Logo";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 import {
   DashboardIcon,
   RolesIcon,
@@ -14,16 +15,18 @@ import {
   PlusIcon,
 } from "@/components/icons";
 
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", Icon: DashboardIcon },
-  { href: "/roles", label: "Roles", Icon: RolesIcon },
-  { href: "/candidates", label: "Candidates", Icon: CandidatesIcon },
-  { href: "/settings", label: "Settings", Icon: SettingsIcon },
-];
-
 export default function AppSidebar({ email }: { email?: string | null }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { dict } = useSiteLocale();
+  const e = dict.employer;
+
+  const NAV = [
+    { href: "/dashboard", label: e.nav.dashboard, Icon: DashboardIcon },
+    { href: "/roles", label: e.nav.roles, Icon: RolesIcon },
+    { href: "/candidates", label: e.nav.candidates, Icon: CandidatesIcon },
+    { href: "/settings", label: e.nav.settings, Icon: SettingsIcon },
+  ];
 
   // Persist the collapsed preference.
   useEffect(() => {
@@ -57,13 +60,13 @@ export default function AppSidebar({ email }: { email?: string | null }) {
       <div className="px-3 pb-2">
         <Link
           href="/roles/new"
-          title="New role"
+          title={e.nav.newRole}
           className={`flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-soft ${
             collapsed ? "justify-center" : ""
           }`}
         >
           <PlusIcon className="h-4 w-4" />
-          {!collapsed && <span>New role</span>}
+          {!collapsed && <span>{e.nav.newRole}</span>}
         </Link>
       </div>
 
@@ -93,13 +96,13 @@ export default function AppSidebar({ email }: { email?: string | null }) {
       <div className="space-y-2 border-t border-border/60 px-3 py-3">
         <button
           onClick={toggle}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? e.nav.expand : e.nav.collapse}
           className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground/60 transition-colors hover:bg-card hover:text-foreground ${
             collapsed ? "justify-center" : ""
           }`}
         >
           <CollapseIcon className={`h-5 w-5 shrink-0 ${collapsed ? "rotate-180" : ""}`} />
-          {!collapsed && <span>Collapse</span>}
+          {!collapsed && <span>{e.nav.collapse}</span>}
         </button>
         {!collapsed && email && (
           <p className="truncate px-3 text-xs text-muted" title={email}>

@@ -13,6 +13,7 @@ import {
   MicIcon,
 } from "@/components/icons";
 import { skillsForCategory } from "@/lib/skillsLibrary";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 type Category = {
   label: string;
@@ -66,6 +67,9 @@ export default function RolePicker({
   onComplete: (role: string, skills: string[]) => void;
   onDescribeInstead: () => void;
 }) {
+  const { dict } = useSiteLocale();
+  const p = dict.employer.picker;
+  const w = dict.employer.wizard;
   const [step, setStep] = useState<"category" | "role" | "skills">("category");
   const [category, setCategory] = useState<Category | null>(null);
   const [otherCat, setOtherCat] = useState(false);
@@ -153,12 +157,8 @@ export default function RolePicker({
         <MicIcon className="h-5 w-5" />
       </span>
       <span>
-        <span className="block font-medium text-foreground">
-          Rather just talk? Describe the role by voice
-        </span>
-        <span className="block text-sm text-muted">
-          Say what you need in your own words — Clarion builds the whole assessment.
-        </span>
+        <span className="block font-medium text-foreground">{p.voiceTitle}</span>
+        <span className="block text-sm text-muted">{p.voiceSubtitle}</span>
       </span>
       <span className="ml-auto text-accent-soft">→</span>
     </button>
@@ -169,11 +169,9 @@ export default function RolePicker({
     return (
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">
-          What are you hiring for?
+          {p.categoryTitle}
         </h1>
-        <p className="mt-2 text-muted">
-          Pick an area — you&apos;ll choose the exact role next. No long forms.
-        </p>
+        <p className="mt-2 text-muted">{p.categorySubtitle}</p>
 
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {CATEGORIES.map((c) => (
@@ -197,7 +195,7 @@ export default function RolePicker({
             }`}
           >
             <PencilIcon className="h-6 w-6 text-accent" />
-            Other
+            {p.other}
           </button>
         </div>
 
@@ -208,7 +206,7 @@ export default function RolePicker({
               value={customRole}
               onChange={(e) => setCustomRole(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && pickRole(customRole)}
-              placeholder="Type the role — e.g. Warehouse supervisor, Tutor…"
+              placeholder={p.customRolePlaceholder}
               className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent"
             />
             <button
@@ -216,7 +214,7 @@ export default function RolePicker({
               disabled={!customRole.trim()}
               className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-50"
             >
-              Next →
+              {w.next}
             </button>
           </div>
         )}
@@ -234,12 +232,12 @@ export default function RolePicker({
           onClick={() => setStep("category")}
           className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-foreground"
         >
-          ← All areas
+          {p.allAreas}
         </button>
         <h1 className="text-3xl font-semibold tracking-tight">
-          Which {category.label.toLowerCase()} role?
+          {p.whichRole.replace("{category}", category.label.toLowerCase())}
         </h1>
-        <p className="mt-2 text-muted">Pick the closest — or add your own.</p>
+        <p className="mt-2 text-muted">{p.pickClosest}</p>
 
         <div className="mt-6 flex flex-wrap gap-2">
           {category.roles.map((r) => (
@@ -258,7 +256,7 @@ export default function RolePicker({
             value={customRole}
             onChange={(e) => setCustomRole(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && pickRole(customRole)}
-            placeholder="Other role…"
+            placeholder={p.otherRolePlaceholder}
             className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
           />
           <button
@@ -266,7 +264,7 @@ export default function RolePicker({
             disabled={!customRole.trim()}
             className="rounded-full border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
           >
-            Next →
+            {w.next}
           </button>
         </div>
 
@@ -282,20 +280,17 @@ export default function RolePicker({
         onClick={() => setStep("role")}
         className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-foreground"
       >
-        ← Change role
+        {p.changeRole}
       </button>
       <h1 className="text-3xl font-semibold tracking-tight">
-        Which skills matter most for a {role.toLowerCase()}?
+        {p.whichSkills.replace("{role}", role.toLowerCase())}
       </h1>
-      <p className="mt-2 text-muted">
-        Tap the ones you care about. Add any we missed — Clarion builds the
-        assessment around your picks.
-      </p>
+      <p className="mt-2 text-muted">{p.tapSkills}</p>
 
       {loadingSkills ? (
         <div className="mt-8 flex items-center gap-3 text-sm text-muted">
           <span className="orb-pulse h-3 w-3 rounded-full bg-accent" />
-          Clarion is suggesting skills for this role…
+          {p.suggestingSkills}
         </div>
       ) : (
         <>
@@ -324,7 +319,7 @@ export default function RolePicker({
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCustom()}
-              placeholder="Add your own skill…"
+              placeholder={p.addSkillPlaceholder}
               className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
             />
             <button
@@ -332,7 +327,7 @@ export default function RolePicker({
               disabled={!custom.trim()}
               className="rounded-full border border-border px-4 py-2 text-sm hover:border-accent disabled:opacity-50"
             >
-              + Add
+              {dict.employer.form.add}
             </button>
           </div>
 
@@ -341,7 +336,7 @@ export default function RolePicker({
             disabled={loadingMore}
             className="mt-3 text-sm text-accent-soft hover:underline disabled:opacity-50"
           >
-            {loadingMore ? "Thinking…" : "✦ Suggest more with AI"}
+            {loadingMore ? p.thinking : p.suggestMore}
           </button>
 
           <button
@@ -349,10 +344,10 @@ export default function RolePicker({
             disabled={selected.length === 0}
             className="mt-8 rounded-full bg-accent px-7 py-3 font-medium text-white transition-colors hover:bg-accent-soft disabled:opacity-50"
           >
-            Build the assessment →
+            {p.buildAssessment}
           </button>
           {selected.length === 0 && (
-            <p className="mt-3 text-xs text-muted">Pick at least one skill.</p>
+            <p className="mt-3 text-xs text-muted">{p.pickAtLeastOne}</p>
           )}
         </>
       )}

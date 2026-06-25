@@ -3,27 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 export type KanbanCandidate = {
   id: string;
   name: string;
   roleTitle: string;
   status: "completed" | "advanced" | "rejected";
-  score: number | null; // composite /100
+  score: number | null;
   band: string | null;
 };
 
-const COLUMNS: {
-  key: KanbanCandidate["status"];
-  label: string;
-  dot: string;
-}[] = [
-  { key: "completed", label: "Awaiting review", dot: "bg-blue-400" },
-  { key: "advanced", label: "Advanced", dot: "bg-green-500" },
-  { key: "rejected", label: "Rejected", dot: "bg-red-400" },
-];
-
-// Colour-code the /100 by band.
 function scoreClasses(band: string | null): string {
   switch (band) {
     case "Strong":
@@ -45,15 +35,26 @@ export default function KanbanBoard({
   initial: KanbanCandidate[];
 }) {
   const router = useRouter();
+  const { dict } = useSiteLocale();
+  const k = dict.employer.kanban;
   const [cards, setCards] = useState(initial);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<string | null>(null);
 
+  const COLUMNS: {
+    key: KanbanCandidate["status"];
+    label: string;
+    dot: string;
+  }[] = [
+    { key: "completed", label: k.awaitingReview, dot: "bg-blue-400" },
+    { key: "advanced", label: k.advanced, dot: "bg-green-500" },
+    { key: "rejected", label: k.rejected, dot: "bg-red-400" },
+  ];
+
   async function moveTo(id: string, status: KanbanCandidate["status"]) {
-    setDragId(null); // clear drag state so the moved card never stays greyed
+    setDragId(null);
     const card = cards.find((c) => c.id === id);
     if (!card || card.status === status) return;
-    // optimistic
     setCards((cs) => cs.map((c) => (c.id === id ? { ...c, status } : c)));
     try {
       const res = await fetch("/api/candidates", {
@@ -64,7 +65,6 @@ export default function KanbanBoard({
       if (!res.ok) throw new Error("move failed");
       router.refresh();
     } catch {
-      // revert on failure
       setCards((cs) => cs.map((c) => (c.id === id ? { ...c, status: card.status } : c)));
     }
   }
@@ -105,7 +105,7 @@ export default function KanbanBoard({
             <div className="space-y-2.5">
               {items.length === 0 && (
                 <div className="rounded-xl border border-dashed border-border/70 p-5 text-center text-xs text-muted">
-                  Drop here
+                  {k.dropHere}
                 </div>
               )}
               {items.map((c) => (
@@ -137,7 +137,7 @@ export default function KanbanBoard({
                     href={`/candidates/${c.id}`}
                     className="mt-3 inline-block text-xs font-medium text-accent-soft opacity-0 transition-opacity group-hover:opacity-100"
                   >
-                    View verdict →
+                    {k.viewVerdict}
                   </Link>
                 </div>
               ))}

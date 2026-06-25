@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { supabaseClient } from "@/lib/supabase-client";
 import Logo from "@/components/Logo";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 export default function LoginPage() {
+  const { dict } = useSiteLocale();
+  const l = dict.login;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +25,7 @@ export default function LoginPage() {
       });
       if (error) throw error;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Sign-in failed");
+      setError(e instanceof Error ? e.message : l.error);
       setLoading(false);
     }
   }
@@ -33,17 +36,15 @@ export default function LoginPage() {
         <div className="mb-5 flex items-center justify-center">
           <Logo />
         </div>
-        <h1 className="text-xl font-semibold">Sign in to manage roles</h1>
-        <p className="mt-2 text-sm text-muted">
-          Employers sign in to author roles and review candidates.
-        </p>
+        <h1 className="text-xl font-semibold">{l.title}</h1>
+        <p className="mt-2 text-sm text-muted">{l.subtitle}</p>
         <button
           onClick={signIn}
           disabled={loading}
           className="mt-6 inline-flex w-full items-center justify-center gap-3 rounded-full border border-border bg-white px-6 py-3 font-medium text-foreground transition-colors hover:border-accent disabled:opacity-60"
         >
           <GoogleIcon />
-          {loading ? "Redirecting…" : "Sign in with Google"}
+          {loading ? l.redirecting : l.signIn}
         </button>
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       </div>

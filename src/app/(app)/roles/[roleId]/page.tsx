@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/lib/supabase-server";
 import AssessmentForm from "@/components/AssessmentForm";
 import CandidatePanel from "@/components/CandidatePanel";
 import DeleteButton from "@/components/DeleteButton";
 import { genCode } from "@/lib/candidateToken";
+import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,13 @@ export default async function RolePage({
 }) {
   const { roleId } = await params;
   const supa = await supabaseServer();
+
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get("clarion-locale")?.value ?? "en";
+  const siteLocale = isSupportedLocale(rawLocale) ? rawLocale : "en";
+  const sd = await getDictionary(siteLocale);
+  const e = sd.employer;
+
   const { data, error } = await supa
     .from("roles")
     .select("*")
@@ -25,7 +34,6 @@ export default async function RolePage({
   if (error || !data) notFound();
   const role = data as Role;
 
-  // Backfill an open join code for roles created before this feature.
   if (!role.join_code) {
     const code = genCode();
     await supa.from("roles").update({ join_code: code }).eq("id", role.id);
@@ -39,7 +47,6 @@ export default async function RolePage({
     .order("created_at", { ascending: false });
   const candidates = (candData as Candidate[]) ?? [];
 
-  // Verdict summaries (avg score + recommendation) for at-a-glance ranking.
   const summaries: Record<string, { avg: number; recommendation: string }> = {};
   const candIds = candidates.map((c) => c.id);
   if (candIds.length) {
@@ -64,14 +71,14 @@ export default async function RolePage({
     <main className="mx-auto w-full max-w-3xl flex-1 px-8 py-10">
       <div className="flex items-center justify-between">
         <Link href="/roles" className="text-sm text-muted hover:text-foreground">
-          ← Roles
+          {e.rolesP.back}
         </Link>
         <DeleteButton
           endpoint="/api/roles"
           id={role.id}
           redirectTo="/roles"
-          label="Delete role"
-          confirmLabel="Delete role + all candidates?"
+          label={e.rolesP.delete}
+          confirmLabel={e.rolesP.deleteConfirm}
         />
       </div>
       <div className="mt-6">

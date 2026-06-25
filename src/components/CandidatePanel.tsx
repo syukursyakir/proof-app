@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@/lib/types";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 const statusPill: Record<string, string> = {
   invited: "bg-slate-100 text-slate-600",
@@ -11,13 +12,6 @@ const statusPill: Record<string, string> = {
   completed: "bg-blue-50 text-blue-700",
   advanced: "bg-green-50 text-green-700",
   rejected: "bg-red-50 text-red-700",
-};
-const statusLabel: Record<string, string> = {
-  invited: "Invited",
-  interviewing: "In progress",
-  completed: "Completed",
-  advanced: "Advanced",
-  rejected: "Rejected",
 };
 
 export default function CandidatePanel({
@@ -33,6 +27,18 @@ export default function CandidatePanel({
   candidates: Candidate[];
   summaries?: Record<string, { avg: number; recommendation: string }>;
 }) {
+  const { dict } = useSiteLocale();
+  const p = dict.employer.panel;
+  const s = dict.employer.status;
+
+  const statusLabel: Record<string, string> = {
+    invited: s.invited,
+    interviewing: s.inProgress,
+    completed: s.completed,
+    advanced: s.advanced,
+    rejected: s.rejected,
+  };
+
   const [codeCopied, setCodeCopied] = useState(false);
   function copyRoleInvite() {
     if (!roleCode) return;
@@ -46,7 +52,6 @@ export default function CandidatePanel({
     setTimeout(() => setCodeCopied(false), 1800);
   }
   const router = useRouter();
-  // Rank scored candidates first, highest average score on top.
   const sorted = [...candidates].sort(
     (a, b) => (summaries[b.id]?.avg ?? -1) - (summaries[a.id]?.avg ?? -1),
   );
@@ -90,16 +95,13 @@ export default function CandidatePanel({
 
   return (
     <section className="mt-12 border-t border-border/60 pt-10">
-      <h2 className="text-lg font-semibold">Invite candidates</h2>
-      <p className="mt-1 text-sm text-muted">
-        Share one code — anyone can join, no need to add them first.
-      </p>
+      <h2 className="text-lg font-semibold">{p.title}</h2>
+      <p className="mt-1 text-sm text-muted">{p.subtitle}</p>
 
-      {/* Open role code — the primary, Kahoot-style share */}
       {roleCode && (
         <div className="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
           <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            Share this code
+            {p.shareCode}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
             <span className="font-mono text-3xl font-bold tracking-[0.2em] text-foreground">
@@ -113,25 +115,20 @@ export default function CandidatePanel({
               onClick={copyRoleInvite}
               className="ml-auto rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-soft"
             >
-              {codeCopied ? "✓ Invite copied" : "Copy invite"}
+              {codeCopied ? p.copied : p.copyInvite}
             </button>
           </div>
-          <p className="mt-3 text-xs text-muted">
-            Everyone who joins with this code appears below automatically. Unlimited
-            candidates.
-          </p>
         </div>
       )}
 
-      {/* Secondary: invite one specific person by name */}
       <details className="mt-4">
         <summary className="cursor-pointer text-sm text-muted hover:text-foreground">
-          Or invite one specific person by name
+          {p.orInvite}
         </summary>
         <div className="mt-3 flex gap-2">
           <input
             className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent"
-            placeholder="Candidate name"
+            placeholder={p.namePlaceholder}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
@@ -141,20 +138,18 @@ export default function CandidatePanel({
             disabled={adding}
             className="rounded-full border border-border px-5 py-2 text-sm hover:border-accent disabled:opacity-60"
           >
-            {adding ? "Adding…" : "Add candidate"}
+            {adding ? p.adding : p.addCandidate}
           </button>
         </div>
       </details>
 
       <h3 className="mt-8 text-sm font-semibold">
-        Candidates{" "}
+        {p.candidatesHeading}{" "}
         <span className="font-normal text-muted">({candidates.length})</span>
       </h3>
       <div className="mt-3 space-y-3">
         {candidates.length === 0 && (
-          <p className="text-sm text-muted">
-            No one yet — share the code above to start getting candidates.
-          </p>
+          <p className="text-sm text-muted">{p.noOne}</p>
         )}
         {sorted.map((c) => {
           const shareable = c.join_code && c.access_token && (c.status === "invited" || c.status === "interviewing");
@@ -179,7 +174,7 @@ export default function CandidatePanel({
                       href={`/candidates/${c.id}`}
                       className="rounded-full bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-soft"
                     >
-                      View verdict
+                      {p.viewVerdict}
                     </Link>
                   )}
                 </div>
@@ -200,7 +195,7 @@ export default function CandidatePanel({
                     onClick={() => copyInvite(c.id, c.access_token, c.join_code)}
                     className="rounded-full border border-border px-3 py-1 text-xs hover:border-accent"
                   >
-                    {copied === c.id ? "✓ Invite copied" : "Copy invite"}
+                    {copied === c.id ? p.copied : p.copyInvite}
                   </button>
                 </div>
               )}

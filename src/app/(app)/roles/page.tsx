@@ -1,14 +1,22 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/lib/supabase-server";
 import { Reveal, Stagger, Item } from "@/components/motion";
 import RoleCodeBadge from "@/components/RoleCodeBadge";
 import { genCode } from "@/lib/candidateToken";
+import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function RolesPage() {
   const sb = await supabaseServer();
+
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get("clarion-locale")?.value ?? "en";
+  const siteLocale = isSupportedLocale(rawLocale) ? rawLocale : "en";
+  const sd = await getDictionary(siteLocale);
+  const e = sd.employer;
 
   let roles: Role[] = [];
   let dbError: string | null = null;
@@ -19,12 +27,10 @@ export default async function RolesPage() {
       .order("created_at", { ascending: false });
     if (error) dbError = error.message;
     else roles = (data as Role[]) ?? [];
-  } catch (e) {
-    dbError = e instanceof Error ? e.message : "Database error";
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : "Database error";
   }
 
-  // Backfill an open join code for any role created before the feature, so the
-  // code is visible/copyable right here on the list.
   const missing = roles.filter((r) => !r.join_code);
   if (missing.length > 0) {
     await Promise.all(
@@ -55,16 +61,14 @@ export default async function RolesPage() {
       <Reveal>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Roles</h1>
-            <p className="mt-2 text-muted">
-              Each role is an assessment. Build it once, send it to every candidate.
-            </p>
+            <h1 className="text-3xl font-semibold tracking-tight">{e.rolesP.title}</h1>
+            <p className="mt-2 text-muted">{e.rolesP.subtitle}</p>
           </div>
           <Link
             href="/roles/new"
             className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft"
           >
-            + New role
+            {e.rolesP.newRole}
           </Link>
         </div>
       </Reveal>
@@ -77,12 +81,12 @@ export default async function RolesPage() {
 
       {!dbError && roles.length === 0 && (
         <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center">
-          <p className="text-muted">No roles yet.</p>
+          <p className="text-muted">{e.rolesP.noRoles}</p>
           <Link
             href="/roles/new"
             className="mt-4 inline-block rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
           >
-            Build your first assessment
+            {e.rolesP.buildFirst}
           </Link>
         </div>
       )}
@@ -100,7 +104,7 @@ export default async function RolesPage() {
                     </h3>
                     {t && t.review > 0 && (
                       <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                        {t.review} to review
+                        {t.review} {e.rolesP.toReview}
                       </span>
                     )}
                   </div>

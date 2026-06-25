@@ -2,6 +2,7 @@ import type { Dict } from "@/components/LocaleProvider";
 
 export const SUPPORTED_LOCALES = [
   { code: "en", label: "English" },
+  { code: "fr", label: "Français" },
   { code: "zh", label: "中文" },
   { code: "ms", label: "Bahasa Melayu" },
   { code: "ta", label: "தமிழ்" },
@@ -21,6 +22,7 @@ export function isSupportedLocale(code: string): code is LocaleCode {
 
 const loaders: Record<LocaleCode, () => Promise<Dict>> = {
   en: () => import("@/dictionaries/en.json").then((m) => m.default as Dict),
+  fr: () => import("@/dictionaries/fr.json").then((m) => m.default as Dict),
   zh: () => import("@/dictionaries/zh.json").then((m) => m.default as Dict),
   ms: () => import("@/dictionaries/ms.json").then((m) => m.default as Dict),
   ta: () => import("@/dictionaries/ta.json").then((m) => m.default as Dict),

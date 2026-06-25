@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
-// Confirm-then-delete for a role or candidate. Two-tap (click → "Confirm?")
-// so a deletion is never one accidental click.
 export default function DeleteButton({
   endpoint,
   id,
   redirectTo,
-  label = "Delete",
-  confirmLabel = "Click again to confirm",
+  label,
+  confirmLabel,
 }: {
   endpoint: "/api/roles" | "/api/candidates";
   id: string;
@@ -19,13 +18,15 @@ export default function DeleteButton({
   confirmLabel?: string;
 }) {
   const router = useRouter();
+  const { dict } = useSiteLocale();
+  const d = dict.employer.delete;
   const [arming, setArming] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function onClick() {
     if (!arming) {
       setArming(true);
-      setTimeout(() => setArming(false), 4000); // auto-disarm
+      setTimeout(() => setArming(false), 4000);
       return;
     }
     setBusy(true);
@@ -54,7 +55,7 @@ export default function DeleteButton({
           : "border-border text-muted hover:border-red-400 hover:text-red-600"
       }`}
     >
-      {busy ? "Deleting…" : arming ? confirmLabel : label}
+      {busy ? d.deleting : arming ? (confirmLabel ?? d.defaultConfirm) : (label ?? d.label)}
     </button>
   );
 }

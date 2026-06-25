@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/lib/supabase-server";
 import { Reveal } from "@/components/motion";
 import { computeComposite } from "@/lib/composite";
+import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import KanbanBoard, { type KanbanCandidate } from "@/components/KanbanBoard";
 import type { Role } from "@/lib/types";
 
@@ -19,6 +21,12 @@ type CandRow = {
 
 export default async function CandidatesPage() {
   const sb = await supabaseServer();
+
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get("clarion-locale")?.value ?? "en";
+  const siteLocale = isSupportedLocale(rawLocale) ? rawLocale : "en";
+  const sd = await getDictionary(siteLocale);
+  const e = sd.employer;
 
   const { data: roleRows } = await sb.from("roles").select("id, title");
   const roles = (roleRows as Pick<Role, "id" | "title">[]) ?? [];
@@ -50,7 +58,6 @@ export default async function CandidatesPage() {
     }
   }
 
-  // Only the decision stages live on the board.
   const boarded = rows.filter((c) =>
     ["completed", "advanced", "rejected"].includes(c.status),
   );
@@ -77,13 +84,12 @@ export default async function CandidatesPage() {
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-8 py-10">
       <Reveal>
-        <h1 className="text-3xl font-semibold tracking-tight">Candidates</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{e.candsP.title}</h1>
         <p className="mt-2 text-muted">
-          Drag a candidate to advance or reject them. Each shows Clarion&apos;s
-          overall score out of 100.
+          {e.candsP.subtitle}
           {inProgress > 0 && (
             <span className="ml-1">
-              {inProgress} still completing the assessment.
+              {inProgress} {e.candsP.stillCompleting}
             </span>
           )}
         </p>
@@ -91,8 +97,7 @@ export default async function CandidatesPage() {
 
       {cards.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center text-sm text-muted">
-          No completed candidates yet. Share a role&apos;s join code — finished
-          candidates appear here to review.
+          {e.candsP.noCompleted}
         </div>
       ) : (
         <KanbanBoard initial={cards} />

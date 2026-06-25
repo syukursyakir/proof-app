@@ -12,12 +12,6 @@ const CATEGORIES: TestQuestion["category"][] = [
   "logical",
   "sjt",
 ];
-const CATEGORY_LABEL: Record<TestQuestion["category"], string> = {
-  numerical: "Numerical",
-  verbal: "Verbal",
-  logical: "Logical",
-  sjt: "Situational",
-};
 
 type Initial = {
   title: string;
@@ -47,7 +41,14 @@ export default function AssessmentForm({
   initial: Initial;
 }) {
   const router = useRouter();
-  const { locale: siteLocale } = useSiteLocale();
+  const { locale: siteLocale, dict } = useSiteLocale();
+  const f = dict.employer.form;
+  const CATEGORY_LABEL: Record<TestQuestion["category"], string> = {
+    numerical: f.categoryNumerical,
+    verbal: f.categoryVerbal,
+    logical: f.categoryLogical,
+    sjt: f.categorySjt,
+  };
   const [language, setLanguage] = useState<string>(initial.language ?? "en");
 
   // Once the site locale is read from localStorage (after mount), default new
@@ -173,11 +174,8 @@ export default function AssessmentForm({
     <div className="space-y-8">
       {/* Candidate language — first thing employers set; defaults to their site locale */}
       <section>
-        <h2 className="text-lg font-semibold">Candidate language</h2>
-        <p className="mb-3 mt-1 text-sm text-muted">
-          The language candidates see during their interview and assessment. Defaults
-          to your current interface language.
-        </p>
+        <h2 className="text-lg font-semibold">{f.candidateLanguage}</h2>
+        <p className="mb-3 mt-1 text-sm text-muted">{f.candidateLanguageDesc}</p>
         <div className="flex flex-wrap gap-2">
           {SUPPORTED_LOCALES.map((l) => (
             <button
@@ -197,7 +195,7 @@ export default function AssessmentForm({
       </section>
 
       <div>
-        <label className={label}>Role title</label>
+        <label className={label}>{f.roleTitle}</label>
         <input
           className={`${input} mt-2 text-lg`}
           value={title}
@@ -205,7 +203,7 @@ export default function AssessmentForm({
         />
         {initial.occupation?.title && (
           <p className="mt-2 text-xs text-muted">
-            Grounded in O*NET occupation:{" "}
+            {f.groundedIn}{" "}
             <span className="text-foreground">{initial.occupation.title}</span>
             {initial.occupation.soc_code ? ` (${initial.occupation.soc_code})` : ""}
           </p>
@@ -215,7 +213,7 @@ export default function AssessmentForm({
       {/* Rubric */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Rubric</h2>
+          <h2 className="text-lg font-semibold">{f.rubric}</h2>
           <button
             type="button"
             onClick={() =>
@@ -223,7 +221,7 @@ export default function AssessmentForm({
             }
             className="text-sm text-accent-soft hover:underline"
           >
-            + Add criterion
+            {f.addCriterion}
           </button>
         </div>
         <div className="space-y-4">
@@ -232,7 +230,7 @@ export default function AssessmentForm({
               <div className="flex items-center gap-2">
                 <input
                   className={input}
-                  placeholder="Criterion name"
+                  placeholder={f.criterionName}
                   value={c.name}
                   onChange={(e) => updateCriterion(i, "name", e.target.value)}
                 />
@@ -241,12 +239,12 @@ export default function AssessmentForm({
                   onClick={() => setRubric((r) => r.filter((_, idx) => idx !== i))}
                   className="shrink-0 text-xs text-muted hover:text-foreground"
                 >
-                  Remove
+                  {f.remove}
                 </button>
               </div>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className={label}>Good looks like</label>
+                  <label className={label}>{f.goodLooksLike}</label>
                   <textarea
                     className={`${input} mt-1 min-h-16`}
                     value={c.good}
@@ -254,7 +252,7 @@ export default function AssessmentForm({
                   />
                 </div>
                 <div>
-                  <label className={label}>Bad looks like</label>
+                  <label className={label}>{f.badLooksLike}</label>
                   <textarea
                     className={`${input} mt-1 min-h-16`}
                     value={c.bad}
@@ -263,16 +261,14 @@ export default function AssessmentForm({
                 </div>
               </div>
               <div className="mt-3">
-                <label className={label}>
-                  Score anchors — what each level (1–5) looks like
-                </label>
+                <label className={label}>{f.scoreAnchors}</label>
                 <div className="mt-2 space-y-2">
                   {[1, 2, 3, 4, 5].map((level) => (
                     <div key={level} className="flex items-center gap-2">
                       <span className="w-4 shrink-0 text-xs text-muted">{level}</span>
                       <input
                         className={input}
-                        placeholder={`A score of ${level} looks like…`}
+                        placeholder={f.scoreAnchorPlaceholder.replace("{level}", String(level))}
                         value={c.anchors?.[level - 1] ?? ""}
                         onChange={(e) => updateAnchor(i, level - 1, e.target.value)}
                       />
@@ -288,7 +284,7 @@ export default function AssessmentForm({
       {/* Aptitude MCQ — review & edit the AI-drafted questions */}
       <section>
         <div className="mb-1 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Aptitude test</h2>
+          <h2 className="text-lg font-semibold">{f.aptitudeTest}</h2>
           <div className="flex items-center gap-3">
             {mcq.length > 0 && (
               <button
@@ -297,7 +293,7 @@ export default function AssessmentForm({
                 disabled={checking}
                 className="text-sm text-accent-soft hover:underline disabled:opacity-50"
               >
-                {checking ? "Checking…" : "✦ Check difficulty"}
+                {checking ? f.checking : f.checkDifficulty}
               </button>
             )}
             <button
@@ -305,19 +301,14 @@ export default function AssessmentForm({
               onClick={addMcq}
               className="text-sm text-accent-soft hover:underline"
             >
-              + Add question
+              {f.addQuestion}
             </button>
           </div>
         </div>
-        <p className="mb-3 text-sm text-muted">
-          AI drafted these — <span className="text-foreground">review every question
-          and mark the correct answer</span> before candidates take the test. Click an
-          option&apos;s circle to set it as correct, or run a difficulty check to flag
-          weak/incorrect items.
-        </p>
+        <p className="mb-3 text-sm text-muted">{f.mcqHint}</p>
         {mcq.length === 0 && (
           <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-sm text-muted">
-            No aptitude questions. Add one, or this part is skipped for candidates.
+            {f.noAptitude}
           </p>
         )}
         <div className="space-y-4">
@@ -347,18 +338,18 @@ export default function AssessmentForm({
                         : v.verdict === "easy"
                           ? "bg-amber-100 text-amber-700"
                           : "bg-red-100 text-red-700";
-                    const label =
+                    const vlabel =
                       v.verdict === "good"
-                        ? "Good"
+                        ? f.verdictGood
                         : v.verdict === "easy"
-                          ? "Too easy"
-                          : "Check answer";
+                          ? f.verdictEasy
+                          : f.verdictFlawed;
                     return (
                       <span
                         title={v.note}
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${style}`}
                       >
-                        {label}
+                        {vlabel}
                       </span>
                     );
                   })()}
@@ -367,7 +358,7 @@ export default function AssessmentForm({
                   onClick={() => setMcq((m) => m.filter((_, idx) => idx !== i))}
                   className="ml-auto text-xs text-muted hover:text-red-600"
                 >
-                  Remove
+                  {f.remove}
                 </button>
               </div>
               {critique[q.id] && critique[q.id].verdict !== "good" && (
@@ -375,7 +366,7 @@ export default function AssessmentForm({
               )}
               <textarea
                 className={`${input} mt-3 min-h-12`}
-                placeholder="Question text"
+                placeholder={f.questionTextPlaceholder}
                 value={q.question}
                 onChange={(e) => updateMcq(i, { question: e.target.value })}
               />
@@ -398,7 +389,7 @@ export default function AssessmentForm({
                       </button>
                       <input
                         className={`${input} ${isCorrect ? "border-green-400" : ""}`}
-                        placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                        placeholder={f.optionPlaceholder.replace("{letter}", String.fromCharCode(65 + oi))}
                         value={opt}
                         onChange={(e) => updateMcqOption(i, oi, e.target.value)}
                       />
@@ -413,44 +404,44 @@ export default function AssessmentForm({
 
       {/* Skills work-sample questions */}
       <StringList
-        title="Skills work-sample"
+        title={f.skillsTitle}
         items={tests}
         setItems={setTests}
-        placeholder="Open-ended skills question"
-        toggle={{ value: testEnabled, set: setTestEnabled, label: "Include written tests" }}
+        placeholder={f.skillsPlaceholder}
+        addLabel={f.add}
+        removeLabel={f.remove}
+        toggle={{ value: testEnabled, set: setTestEnabled, label: f.includeWrittenTests }}
       />
 
       {/* Interview questions */}
       <StringList
-        title="Interview questions"
+        title={f.interviewQuestionsTitle}
         items={questions}
         setItems={setQuestions}
-        placeholder="Interview question"
+        placeholder={f.interviewQuestionPlaceholder}
+        addLabel={f.add}
+        removeLabel={f.remove}
       />
 
       {/* Glossary / terms */}
       <section>
         <div className="mb-1 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Glossary</h2>
+          <h2 className="text-lg font-semibold">{f.glossary}</h2>
           <button
             type="button"
             onClick={() => setTerms((t) => [...t, ""])}
             className="text-sm text-accent-soft hover:underline"
           >
-            + Add term
+            {f.addTerm}
           </button>
         </div>
-        <p className="mb-3 text-sm text-muted">
-          Terms, tools, and proper nouns the AI interviewer should recognise when a
-          candidate says them aloud — so speech-to-text mishearings (e.g. &ldquo;cloud
-          code&rdquo; → &ldquo;Claude Code&rdquo;) get corrected. Add any company-specific jargon.
-        </p>
+        <p className="mb-3 text-sm text-muted">{f.glossaryHint}</p>
         <div className="space-y-2">
           {terms.map((t, i) => (
             <div key={i} className="flex items-center gap-2">
               <input
                 className={input}
-                placeholder="e.g. Claude Code, Salesforce, FIFO"
+                placeholder={f.termPlaceholder}
                 value={t}
                 onChange={(e) =>
                   setTerms((arr) => arr.map((x, idx) => (idx === i ? e.target.value : x)))
@@ -461,7 +452,7 @@ export default function AssessmentForm({
                 onClick={() => setTerms((arr) => arr.filter((_, idx) => idx !== i))}
                 className="shrink-0 text-xs text-muted hover:text-foreground"
               >
-                Remove
+                {f.remove}
               </button>
             </div>
           ))}
@@ -470,17 +461,14 @@ export default function AssessmentForm({
 
       {/* Resume collection */}
       <section>
-        <h2 className="text-lg font-semibold">Resume</h2>
-        <p className="mb-3 mt-1 text-sm text-muted">
-          Candidates are scored on their assessment, never their resume. This only
-          controls whether you also collect a resume as background for your review.
-        </p>
+        <h2 className="text-lg font-semibold">{f.resume}</h2>
+        <p className="mb-3 mt-1 text-sm text-muted">{f.resumeHint}</p>
         <div className="flex flex-wrap gap-2">
           {(
             [
-              { v: "off", label: "Don't collect" },
-              { v: "optional", label: "Optional" },
-              { v: "required", label: "Required" },
+              { v: "off", label: f.resumeOff },
+              { v: "optional", label: f.resumeOptional },
+              { v: "required", label: f.resumeRequired },
             ] as const
           ).map((opt) => (
             <button
@@ -506,7 +494,7 @@ export default function AssessmentForm({
           disabled={saving}
           className="rounded-full bg-accent px-6 py-2.5 font-medium text-white transition-colors hover:bg-accent-soft disabled:opacity-60"
         >
-          {saving ? "Saving…" : mode === "edit" ? "Save changes" : "Save role"}
+          {saving ? f.saving : mode === "edit" ? f.saveChanges : f.saveRole}
         </button>
       </div>
     </div>
@@ -518,12 +506,16 @@ function StringList({
   items,
   setItems,
   placeholder,
+  addLabel,
+  removeLabel,
   toggle,
 }: {
   title: string;
   items: string[];
   setItems: React.Dispatch<React.SetStateAction<string[]>>;
   placeholder: string;
+  addLabel: string;
+  removeLabel: string;
   toggle?: { value: boolean; set: (v: boolean) => void; label: string };
 }) {
   return (
@@ -547,7 +539,7 @@ function StringList({
           onClick={() => setItems((q) => [...q, ""])}
           className="text-sm text-accent-soft hover:underline"
         >
-          + Add
+          {addLabel}
         </button>
       </div>
       <div className="space-y-2">
@@ -571,7 +563,7 @@ function StringList({
               onClick={() => setItems((arr) => arr.filter((_, idx) => idx !== i))}
               className="shrink-0 text-xs text-muted hover:text-foreground"
             >
-              Remove
+              {removeLabel}
             </button>
           </div>
         ))}

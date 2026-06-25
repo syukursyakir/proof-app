@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 import VerdictView from "@/components/VerdictView";
 import DeleteButton from "@/components/DeleteButton";
+import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import type { Candidate, Transcript, Verdict } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +17,12 @@ export default async function CandidatePage({
 }) {
   const { candidateId } = await params;
   const supa = await supabaseServer();
+
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get("clarion-locale")?.value ?? "en";
+  const siteLocale = isSupportedLocale(rawLocale) ? rawLocale : "en";
+  const sd = await getDictionary(siteLocale);
+  const e = sd.employer;
 
   const { data: cand } = await supa
     .from("candidates")
@@ -68,12 +76,10 @@ export default async function CandidatePage({
 
   const t = transcript as Transcript | null;
 
-  // Recordings live in a private bucket; mint a short-lived signed URL for playback.
-  // (Ownership is already enforced: RLS returned this transcript to the employer.)
   let recordingUrl: string | null = null;
   if (t?.recording_url) {
     if (t.recording_url.startsWith("http")) {
-      recordingUrl = t.recording_url; // legacy public URL
+      recordingUrl = t.recording_url;
     } else {
       const { data: signed } = await supabaseAdmin()
         .storage.from("recordings")
@@ -103,10 +109,10 @@ export default async function CandidatePage({
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-sm text-muted">
           <Link href="/candidates" className="hover:text-foreground">
-            ← Candidates
+            {e.candsP.back}
           </Link>
           <Link href={`/roles/${candidate.role_id}`} className="hover:text-foreground">
-            View role
+            {e.candsP.viewRole}
           </Link>
         </div>
         <div className="flex items-center gap-3">
@@ -117,15 +123,15 @@ export default async function CandidatePage({
               rel="noopener noreferrer"
               className="rounded-full border border-border px-4 py-2 text-sm font-medium text-muted hover:border-accent hover:text-foreground"
             >
-              📄 Resume
+              {e.candsP.resumeLink}
             </a>
           )}
           <DeleteButton
             endpoint="/api/candidates"
             id={candidate.id}
             redirectTo="/candidates"
-            label="Delete candidate"
-            confirmLabel="Delete candidate?"
+            label={e.candsP.delete}
+            confirmLabel={e.candsP.deleteConfirm}
           />
         </div>
       </div>
@@ -134,7 +140,7 @@ export default async function CandidatePage({
         candidate.resume_claims.length > 0 && (
           <div className="mb-6 rounded-xl border border-border bg-card/50 p-4 text-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-muted">
-              Resume claims probed in the interview
+              {e.candsP.resumeClaims}
             </p>
             <ul className="mt-2 space-y-1">
               {candidate.resume_claims.map((c, i) => (
@@ -145,9 +151,7 @@ export default async function CandidatePage({
               ))}
             </ul>
             <p className="mt-3 border-t border-border/60 pt-2 text-xs text-muted">
-              Clarion asked the candidate to substantiate these resume claims
-              live. The resume itself is <span className="text-foreground">not
-              scored</span> — only what they demonstrated in the interview.
+              {e.candsP.resumeClaimsNote}
             </p>
           </div>
         )}

@@ -23,51 +23,25 @@ import {
   Stagger,
 } from "@/components/motion";
 import { containerV, itemV } from "@/lib/motion";
-
-const pillars = [
-  {
-    title: "Consistent, not moody",
-    body: "Same assessment, same scoring, every candidate — not how the interviewer felt that day.",
-  },
-  {
-    title: "Skill over social capital",
-    body: "Judged on what they demonstrate, not who they know or where they studied.",
-  },
-  {
-    title: "Transparent to both sides",
-    body: "The employer sees the evidence; the candidate knows exactly what they’re assessed on.",
-  },
-  {
-    title: "Built for small teams",
-    body: "No enterprise contract, no recruiter required. Set up a role and start by Friday.",
-  },
-];
-
-const stats = [
-  {
-    value: 14900,
-    prefix: "$",
-    suffix: "",
-    decimals: 0,
-    label: "average cost of one bad hire (CareerBuilder)",
-  },
-  {
-    value: 74,
-    prefix: "",
-    suffix: "%",
-    decimals: 0,
-    label: "of small businesses have made a bad hire",
-  },
-  {
-    value: 1.58,
-    prefix: "",
-    suffix: "",
-    decimals: 2,
-    label: "job openings per jobseeker in Singapore (MOM, 2025)",
-  },
-];
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 export default function Home() {
+  const { dict } = useSiteLocale();
+  const l = dict.employer.landing;
+
+  const pillars = [
+    { title: l.pillar1Title, body: l.pillar1Body },
+    { title: l.pillar2Title, body: l.pillar2Body },
+    { title: l.pillar3Title, body: l.pillar3Body },
+    { title: l.pillar4Title, body: l.pillar4Body },
+  ];
+
+  const stats = [
+    { value: 14900, prefix: "$", suffix: "", decimals: 0, label: l.statCost },
+    { value: 74, prefix: "", suffix: "%", decimals: 0, label: l.statBadHire },
+    { value: 1.58, prefix: "", suffix: "", decimals: 2, label: l.statJobOpenings },
+  ];
+
   const heroRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -93,37 +67,35 @@ export default function Home() {
               variants={itemV}
               className="mb-5 inline-flex items-center rounded-full border border-border bg-white/60 px-3 py-1 text-xs font-medium text-muted backdrop-blur"
             >
-              For small teams who can&apos;t afford to hire wrong
+              {l.heroTag}
             </motion.p>
             <motion.h1
               variants={itemV}
               className="text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl"
             >
-              Hire on proof,
+              {l.heroTitleLine1}
               <br />
-              not pedigree.
+              {l.heroTitleLine2}
             </motion.h1>
             <motion.p
               variants={itemV}
               className="mt-6 max-w-xl text-lg leading-8 text-muted"
             >
-              Clarion gives every candidate the same structured assessment — an aptitude
-              screen, a skills work-sample, and an AI interview — then shows you a ranked
-              verdict with the <span className="text-foreground">exact evidence</span> behind
-              every score. You make the final call.
+              {l.heroBody.split(l.heroBodyEvidence)[0]}
+              <span className="text-foreground">{l.heroBodyEvidence}</span>
+              {l.heroBody.split(l.heroBodyEvidence)[1]}
             </motion.p>
             <motion.div variants={itemV} className="mt-9 flex flex-col gap-3 sm:flex-row">
               <MagneticButton href="/roles/new">
-                Build your assessment
+                {l.buildAssessment}
               </MagneticButton>
               <SecondaryButton href="/sample">
-                See a sample verdict{" "}
+                {l.seeSample}{" "}
                 <span className="transition-transform group-hover:translate-x-0.5">→</span>
               </SecondaryButton>
             </motion.div>
             <motion.p variants={itemV} className="mt-5 text-sm text-muted">
-              Set it up in minutes — describe the role by voice or text, edit anything,
-              then send. The same fair assessment for everyone.
+              {l.heroFootnote}
             </motion.p>
           </motion.div>
 
@@ -137,7 +109,7 @@ export default function Home() {
                 <HeroOrb size={300} />
               </div>
               <p className="absolute bottom-2 left-1/2 w-64 -translate-x-1/2 text-center text-xs text-muted">
-                Interviewing&hellip; &ldquo;Tell me about a time you calmed an angry customer.&rdquo;
+                {l.heroCaption}
               </p>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -146,15 +118,14 @@ export default function Home() {
                 className="absolute -bottom-6 -right-2 w-64 rounded-xl border border-border bg-card/90 p-4 shadow-2xl backdrop-blur"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Customer empathy</span>
-                  <span className="text-sm font-semibold text-accent-soft">4 / 5</span>
+                  <span className="text-sm font-medium">{l.heroCardCriterion}</span>
+                  <span className="text-sm font-semibold text-accent-soft">{l.heroCardScore}</span>
                 </div>
                 <p className="mt-2 text-xs leading-5 text-muted">
-                  Acknowledged the customer&apos;s frustration before problem-solving.
+                  {l.heroCardJustification}
                 </p>
                 <p className="mt-2 rounded-md bg-accent/15 px-2 py-1 text-xs leading-5 text-foreground">
-                  &ldquo;I told her I completely understood why she was upset, and that I&apos;d
-                  stay on until it was fixed.&rdquo;
+                  {l.heroCardQuote}
                 </p>
               </motion.div>
             </div>
@@ -166,10 +137,8 @@ export default function Home() {
       <section className="border-t border-border/60 bg-card/40">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
           <div className="text-center sm:text-left">
-            <p className="font-medium">Invited to an interview?</p>
-            <p className="text-sm text-muted">
-              Enter the code your employer sent you — no account needed.
-            </p>
+            <p className="font-medium">{l.invitedTitle}</p>
+            <p className="text-sm text-muted">{l.invitedBody}</p>
           </div>
           <Link
             href="/join"
@@ -185,14 +154,12 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6 py-20 text-center">
           <Reveal>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Small employers hire on the wrong signals.
+              {l.problemTitle}
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted">
-              No recruiting team, no time. So screening comes down to resumes, referrals, and
-              gut feel — hiring on <span className="text-foreground">social capital, not
-              skill</span>. Good candidates with the wrong network get filtered out, and
-              everyone gets a different interview on a different day from someone in a
-              different mood.
+              {l.problemBody.split(l.problemBodySocialCapital)[0]}
+              <span className="text-foreground">{l.problemBodySocialCapital}</span>
+              {l.problemBody.split(l.problemBodySocialCapital)[1]}
             </p>
           </Reveal>
           <Stagger className="mt-12 grid gap-6 sm:grid-cols-3">
@@ -226,7 +193,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6 py-20">
           <Reveal>
             <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
-              Why Clarion
+              {l.whyTitle}
             </h2>
           </Reveal>
           <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -248,29 +215,28 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-2">
           <Reveal>
             <p className="mb-4 inline-flex rounded-full border border-border px-3 py-1 text-xs font-medium text-accent-soft">
-              The glass box
+              {l.glassBoxTag}
             </p>
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Most AI hiring tools score you in a black box. Clarion shows its work.
+              {l.glassBoxTitle}
             </h2>
             <p className="mt-5 text-lg leading-8 text-muted">
-              Every score expands to the evidence behind it — the transcript quote, the
-              written answer, the test result. The AI assesses; the human decides. No
-              mystery verdicts, no unaccountable rejections — for the employer
-              <span className="text-foreground"> and</span> the candidate.
+              {l.glassBoxBody.split(l.glassBoxBodyAnd)[0]}
+              <span className="text-foreground"> {l.glassBoxBodyAnd}</span>
+              {l.glassBoxBody.split(l.glassBoxBodyAnd)[1]}
             </p>
           </Reveal>
           <Reveal delay={0.1} className="lift rounded-2xl border border-border bg-card/70 p-6">
             <div className="flex items-center justify-between border-b border-border pb-4">
-              <span className="font-medium">Verdict — Customer Support</span>
+              <span className="font-medium">{l.glassBoxCardTitle}</span>
               <span className="rounded-full bg-accent/15 px-3 py-1 text-sm text-accent-soft">
-                Recommend: advance
+                {l.glassBoxRecommend}
               </span>
             </div>
             {[
-              ["Customer empathy", "4 / 5", "“I told her I completely understood why she was upset.”"],
-              ["Problem ownership", "5 / 5", "“I stayed on the line until the refund actually cleared.”"],
-              ["Composure under pressure", "3 / 5", "“I got a bit flustered but I asked a colleague for help.”"],
+              [l.glassCrit1, l.glassScore1, l.glassQuote1],
+              [l.glassCrit2, l.glassScore2, l.glassQuote2],
+              [l.glassCrit3, l.glassScore3, l.glassQuote3],
             ].map(([crit, score, quote]) => (
               <div key={crit} className="border-b border-border/60 py-4 last:border-0">
                 <div className="flex items-center justify-between">
@@ -297,29 +263,28 @@ export default function Home() {
 
             <div className="relative">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#e0922f]">
-                Hear the proof, not the pedigree
+                {l.ctaTag}
               </p>
               <h2 className="mx-auto mt-5 max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-6xl">
-                Stop guessing who can
+                {l.ctaTitleLine1}
                 <br />
-                do the job.
+                {l.ctaTitleLine2}
               </h2>
               <p className="mx-auto mt-5 max-w-lg text-base leading-7 text-white/65">
-                Set up a fair, evidence-based assessment in minutes — and decide with
-                proof, not gut feel.
+                {l.ctaBody}
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
                   href="/roles/new"
                   className="rounded-full bg-[#e0922f] px-7 py-3 font-medium text-[#15233f] shadow-lg transition-transform hover:scale-[1.03]"
                 >
-                  Build your assessment
+                  {l.buildAssessment}
                 </Link>
                 <Link
                   href="/sample"
                   className="rounded-full border border-white/20 px-7 py-3 font-medium text-white/90 transition-colors hover:bg-white/5"
                 >
-                  See a sample verdict →
+                  {l.seeSample} →
                 </Link>
               </div>
             </div>
@@ -330,7 +295,7 @@ export default function Home() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted">
           <span>Clarion</span>
-          <span>The AI assesses. You decide.</span>
+          <span>{l.footerTagline}</span>
         </div>
       </footer>
     </div>

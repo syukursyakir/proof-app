@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import VerdictView from "@/components/VerdictView";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 import type { Candidate, Verdict } from "@/lib/types";
 
 // Public, static showcase of a glass-box verdict (no DB, no auth) — safe to link
@@ -69,6 +72,8 @@ const verdict: Verdict = {
 };
 
 export default function SamplePage() {
+  const { dict } = useSiteLocale();
+  const sp = dict.employer.samplePage;
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border/60">
@@ -78,21 +83,20 @@ export default function SamplePage() {
           </Link>
           <div className="flex items-center gap-3">
             <span className="rounded-full border border-border px-3 py-1 text-xs text-muted">
-              Sample verdict
+              {sp.badge}
             </span>
             <Link
               href="/roles"
               className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-soft"
             >
-              Try it free
+              {sp.tryFree}
             </Link>
           </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
         <p className="mb-6 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted">
-          This is an example of Clarion&apos;s glass-box verdict — every score links to the exact
-          words behind it. Expand a criterion to see the evidence highlighted in the transcript.
+          {sp.intro}
         </p>
         <VerdictView
           candidate={candidate}

@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 
 export default function SettingsForm({ initialName }: { initialName: string }) {
   const router = useRouter();
+  const { dict } = useSiteLocale();
+  const s = dict.employer.settingsP;
   const [name, setName] = useState(initialName);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -21,11 +24,11 @@ export default function SettingsForm({ initialName }: { initialName: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Save failed");
+      if (!res.ok) throw new Error((await res.json()).error ?? s.saveFailed);
       setSaved(true);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      setError(e instanceof Error ? e.message : s.saveFailed);
     } finally {
       setSaving(false);
     }
@@ -48,7 +51,7 @@ export default function SettingsForm({ initialName }: { initialName: string }) {
         disabled={saving || !name.trim() || name === initialName}
         className="rounded-full bg-accent px-6 py-2 text-sm font-medium text-white hover:bg-accent-soft disabled:opacity-50"
       >
-        {saving ? "Saving…" : saved ? "Saved ✓" : "Save"}
+        {saving ? s.saving : saved ? s.saved : s.save}
       </button>
       {error && <p className="self-center text-sm text-red-600">{error}</p>}
     </div>

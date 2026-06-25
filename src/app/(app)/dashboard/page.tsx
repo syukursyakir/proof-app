@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { supabaseServer } from "@/lib/supabase-server";
 import { currentUser } from "@/lib/auth";
 import { Reveal, Stagger, Item } from "@/components/motion";
+import { getDictionary, isSupportedLocale } from "@/lib/i18n";
 import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -10,14 +12,20 @@ export default async function DashboardPage() {
   const sb = await supabaseServer();
   const user = await currentUser();
 
+  const cookieStore = await cookies();
+  const rawLocale = cookieStore.get("clarion-locale")?.value ?? "en";
+  const siteLocale = isSupportedLocale(rawLocale) ? rawLocale : "en";
+  const sd = await getDictionary(siteLocale);
+  const e = sd.employer;
+
   let roles: Role[] = [];
   let dbError: string | null = null;
   try {
     const { data, error } = await sb.from("roles").select("*");
     if (error) dbError = error.message;
     else roles = (data as Role[]) ?? [];
-  } catch (e) {
-    dbError = e instanceof Error ? e.message : "Database error";
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : "Database error";
   }
 
   let candidates: Candidate[] = [];
@@ -37,19 +45,19 @@ export default async function DashboardPage() {
   const needsReview = candidates.filter((c) => c.status === "completed");
 
   const stats = [
-    { label: "Roles", value: roles.length },
-    { label: "Candidates", value: candidates.length },
-    { label: "Interviewed", value: done.length },
-    { label: "Awaiting review", value: needsReview.length, accent: true },
+    { label: e.dash.roles, value: roles.length },
+    { label: e.dash.candidates, value: candidates.length },
+    { label: e.dash.interviewed, value: done.length },
+    { label: e.dash.awaitingReview, value: needsReview.length, accent: true },
   ];
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-8 py-10">
       <Reveal>
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{e.dash.title}</h1>
         <p className="mt-2 text-muted">
-          {user?.email ? `Signed in as ${user.email}. ` : ""}
-          What needs your attention.
+          {user?.email ? `${e.settingsP.signedInAs} ${user.email}. ` : ""}
+          {e.dash.subtitle}
         </p>
       </Reveal>
 
@@ -81,22 +89,19 @@ export default async function DashboardPage() {
 
       {roles.length === 0 && !dbError && (
         <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center">
-          <p className="text-muted">No roles yet — build your first assessment.</p>
+          <p className="text-muted">{e.dash.noRoles}</p>
           <Link
             href="/roles/new"
             className="mt-4 inline-block rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
           >
-            Build your first assessment
+            {e.dash.buildFirst}
           </Link>
         </div>
       )}
 
       {needsReview.length > 0 ? (
         <Reveal className="mt-10">
-          <h2 className="text-lg font-semibold">Needs your review</h2>
-          <p className="mt-1 text-sm text-muted">
-            Finished their assessment and waiting on your decision.
-          </p>
+          <h2 className="text-lg font-semibold">{e.dash.needsReview}</h2>
           <div className="mt-4 space-y-2">
             {needsReview.map((c) => (
               <Link
@@ -112,9 +117,9 @@ export default async function DashboardPage() {
                 </div>
                 <span className="flex items-center gap-3">
                   <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                    Awaiting review
+                    {e.dash.awaitingReview}
                   </span>
-                  <span className="text-sm font-medium text-accent-soft">Review →</span>
+                  <span className="text-sm font-medium text-accent-soft">{e.dash.reviewArrow}</span>
                 </span>
               </Link>
             ))}
@@ -123,7 +128,7 @@ export default async function DashboardPage() {
       ) : (
         roles.length > 0 && (
           <p className="mt-10 rounded-xl border border-border bg-card/40 px-4 py-6 text-center text-sm text-muted">
-            Nothing waiting on you. New completed assessments show up here.
+            {e.dash.nothingWaiting}
           </p>
         )
       )}

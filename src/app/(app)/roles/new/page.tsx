@@ -6,18 +6,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import AssessmentForm from "@/components/AssessmentForm";
 import RolePicker from "@/components/RolePicker";
 import { ease } from "@/lib/motion";
+import { useSiteLocale } from "@/components/SiteLocaleProvider";
 import type { Assessment, TestQuestion } from "@/lib/types";
 
 type Phase = "pick" | "describe" | "followups" | "building" | "ready";
 
-const BUILDING_STEPS = [
-  "Analysing your description…",
-  "Identifying role requirements…",
-  "Building your rubric…",
-  "Writing interview questions…",
-];
-
 export default function NewRolePage() {
+  const { dict } = useSiteLocale();
+  const w = dict.employer.wizard;
+  const BUILDING_STEPS = w.buildingSteps;
   const [phase, setPhase] = useState<Phase>("pick");
   const [description, setDescription] = useState("");
   const [recording, setRecording] = useState(false);
@@ -59,7 +56,7 @@ export default function NewRolePage() {
       recorderRef.current = rec;
       setRecording(true);
     } catch {
-      setError("Microphone blocked — type your description below instead.");
+      setError(w.micBlocked);
     }
   }
 
@@ -78,7 +75,7 @@ export default function NewRolePage() {
       const { text } = await res.json();
       setDescription((d) => (d ? d + " " + text : text));
     } catch {
-      setError("Couldn't transcribe — type your description below instead.");
+      setError(w.transcribeFailed);
     } finally {
       setTranscribing(false);
     }
@@ -86,7 +83,7 @@ export default function NewRolePage() {
 
   async function getFollowups() {
     if (!description.trim()) {
-      setError("Describe the role first (speak or type).");
+      setError(w.describeFirst);
       return;
     }
     setError(null);
@@ -103,7 +100,7 @@ export default function NewRolePage() {
       setAnswers(new Array((data.followups ?? []).length).fill(""));
       setPhase("followups");
     } catch {
-      setError("Something went wrong. Try again.");
+      setError(w.genericError);
       setPhase("describe");
     }
   }
@@ -135,7 +132,7 @@ export default function NewRolePage() {
       setTerms(Array.isArray(data.terms) ? data.terms : null);
       setPhase("ready");
     } catch {
-      setError("Something went wrong. Try again.");
+      setError(w.genericError);
       onError();
     }
   }
@@ -164,7 +161,7 @@ export default function NewRolePage() {
   }
 
   const stepIndex = phase === "ready" ? 1 : 0; // Build -> Review -> Invite
-  const STEPS = ["Build", "Review", "Invite"];
+  const STEPS = w.steps;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -173,12 +170,12 @@ export default function NewRolePage() {
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/roles"
-            aria-label="Close"
+            aria-label={w.close}
             className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-card hover:text-foreground"
           >
             ✕
           </Link>
-          <span className="truncate font-medium">New role</span>
+          <span className="truncate font-medium">{w.headerTitle}</span>
         </div>
 
         {/* Stepper */}
@@ -239,15 +236,12 @@ export default function NewRolePage() {
               onClick={() => setPhase("pick")}
               className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted transition hover:text-foreground"
             >
-              ← Pick a role instead
+              {w.pickInstead}
             </button>
             <h1 className="text-3xl font-semibold tracking-tight">
-              Describe your ideal hire
+              {w.describeTitle}
             </h1>
-            <p className="mt-2 text-muted">
-              Speak it out loud, or type. Mention the role, the key skills, and what
-              great looks like.
-            </p>
+            <p className="mt-2 text-muted">{w.describeSubtitle}</p>
 
             <div className="mt-8 flex items-center gap-4">
               <button
@@ -258,20 +252,20 @@ export default function NewRolePage() {
                 }`}
               >
                 <span aria-hidden>🎙️</span>
-                {recording ? "Stop recording" : "Record description"}
+                {recording ? w.stopRecording : w.recordDescription}
               </button>
-              {transcribing && <span className="text-sm text-muted">Transcribing…</span>}
+              {transcribing && <span className="text-sm text-muted">{w.transcribing}</span>}
               {recording && (
                 <span className="flex items-center gap-2 text-sm text-muted">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-                  Listening
+                  {w.listening}
                 </span>
               )}
             </div>
 
             <textarea
               className="mt-6 min-h-40 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-accent"
-              placeholder="e.g. I need a customer support rep who stays calm with angry customers, takes ownership of problems, and communicates clearly…"
+              placeholder={w.descriptionPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -282,7 +276,7 @@ export default function NewRolePage() {
               onClick={getFollowups}
               className="mt-6 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
             >
-              Next →
+              {w.next}
             </button>
           </div>
         )}
@@ -317,11 +311,9 @@ export default function NewRolePage() {
         {phase === "followups" && (
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Two quick questions
+              {w.followupsTitle}
             </h1>
-            <p className="mt-2 text-muted">
-              These sharpen the assessment. Answer briefly.
-            </p>
+            <p className="mt-2 text-muted">{w.followupsSubtitle}</p>
             <div className="mt-8 space-y-6">
               {followups.map((q, i) => (
                 <div key={i}>
@@ -343,7 +335,7 @@ export default function NewRolePage() {
               onClick={buildAssessment}
               className="mt-8 rounded-full bg-accent px-6 py-2.5 font-medium text-white hover:bg-accent-soft"
             >
-              Generate assessment →
+              {w.generateAssessment}
             </button>
           </div>
         )}
@@ -351,18 +343,14 @@ export default function NewRolePage() {
         {phase === "ready" && assessment && (
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Review &amp; edit
+              {w.reviewTitle}
             </h1>
-            <p className="mt-2 mb-8 text-muted">
-              Clarion drafted this. Edit anything, then save.
-            </p>
+            <p className="mt-2 mb-8 text-muted">{w.reviewSubtitle}</p>
             {assessment.occupation?.soc_code &&
               (assessment.occupation.soc_code.startsWith("15") ||
                 assessment.occupation.soc_code.startsWith("17")) && (
               <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                <strong>Technical role detected.</strong> Voice interviews assess
-                communication and problem-solving approach — consider pairing
-                with a take-home test to evaluate hands-on technical skill.
+                <strong>{w.technicalDetected}</strong> {w.technicalNote}
               </div>
             )}
             <AssessmentForm

@@ -28,7 +28,7 @@ export default function JoinPage() {
         body: JSON.stringify({ code, name: needName ? name : undefined }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Invalid code");
+      if (!res.ok) throw new Error(data.error ?? j.invalidCode);
       if (data.needName) {
         // Open role code — collect the candidate's name, then join.
         setNeedName(true);
@@ -38,7 +38,7 @@ export default function JoinPage() {
       }
       router.push(`/interview/${data.token}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Invalid code");
+      setError(e instanceof Error ? e.message : j.invalidCode);
       setBusy(false);
     }
   }
