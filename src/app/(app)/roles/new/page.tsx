@@ -120,7 +120,7 @@ export default function NewRolePage() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: desc, answers: qa }),
+        body: JSON.stringify({ description: desc, answers: qa, language }),
       });
       if (!res.ok) throw new Error("Generation failed");
       const data = await res.json();

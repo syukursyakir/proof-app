@@ -111,6 +111,17 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ja: "Japanese",
 };
 
+// Appends a language requirement to ASSESSMENT_SYSTEM so the generated rubric,
+// aptitude/skills/interview questions actually come out in the candidate's
+// chosen language, not whichever language the employer typed their description in.
+export function buildAssessmentSystem(locale = "en"): string {
+  if (locale === "en") return ASSESSMENT_SYSTEM;
+  const languageName = LANGUAGE_NAMES[locale] ?? "English";
+  return `${ASSESSMENT_SYSTEM}
+
+LANGUAGE REQUIREMENT: This assessment is for candidates who will take it in ${languageName}. Write every candidate-facing string in ${languageName} — every "title", "rubric" entry ("name", "good", "bad", "anchors"), every "test_questions" task, every "interview_questions" item, every "test_mcq" question and its 4 "options", and every "terms" entry. Do NOT write any of these in English. The ONLY field that stays in English is "occupation" ("title" and "soc_code"), since that's a fixed O*NET taxonomy reference, not candidate-facing text.`;
+}
+
 // System prompt for the live ElevenLabs interviewer (passed as a prompt override).
 export function buildInterviewPrompt(
   roleTitle: string,
