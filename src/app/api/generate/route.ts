@@ -5,10 +5,12 @@ import {
   buildAssessmentSystem,
   buildMcqBatchSystem,
   buildMcqFixSystem,
+  buildMcqTranslateSystem,
   CRITIQUE_MCQ_SYSTEM,
 } from "@/lib/prompts";
 import { getUserOrgId } from "@/lib/org";
 import { shuffleMcqOptions } from "@/lib/shuffle";
+import { generateTemplatedMcq } from "@/lib/mcqTemplates";
 import type { Assessment, TestQuestion } from "@/lib/types";
 
 export const maxDuration = 90;
@@ -17,94 +19,113 @@ export const runtime = "nodejs";
 type McqOut = { test_mcq: TestQuestion[] };
 type Critique = { items: { id: string; verdict: "good" | "easy" | "flawed"; note: string }[] };
 
-const CATEGORIES = ["numerical", "verbal", "logical", "sjt"] as const;
+// numerical/logical: deterministic item-model templates (src/lib/mcqTemplates.ts)
+// — the correct answer and distractors are COMPUTED, not LLM-guessed, so these
+// never need the critique/fix loop. verbal/sjt don't reduce to arithmetic, so
+// they stay LLM-generated (one concurrent call per category, ~15-20s, ~$0.05/
+// role total — see openai.ts for why reasoning_effort isn't used here).
+const LLM_CATEGORIES = ["verbal", "sjt"] as const;
+const TEMPLATED_CATEGORIES = ["numerical", "logical"] as const;
 const PER_CATEGORY = 3;
-// Live-tested: one serial 12-item call on the default model takes a while and
-// reasoning_effort makes it dramatically slower/costlier for no measurable
-// quality gain over the schema reasoning-field trick alone (see openai.ts).
-// Running 4 smaller calls — one per category — CONCURRENTLY on the plain
-// default model is both fast (~15-20s total) and cheap (~$0.05/role).
 
-// Generates the 12 aptitude MCQs as 4 concurrent per-category calls, then runs
-// every item through the existing critique prompt and auto-rewrites anything
-// flagged "easy" or "flawed" (also batched by category, concurrently) — instead
-// of leaving that to an employer who, in practice, never clicks "check
-// difficulty" themselves. Non-fatal: if this whole step fails, the role is
-// still created with an empty test_mcq (the employer can add questions
-// manually), since the rubric/interview/skills content is independently
-// valuable.
 async function generateMcq(
   roleTitle: string,
   description: string,
   answers: unknown,
   locale: string,
 ): Promise<TestQuestion[]> {
-  const context = `Role: ${roleTitle}\nRole description:\n${description}\n\nEmployer's clarifying answers:\n${JSON.stringify(answers)}`;
+  // Templated items are free (no API call) in English. Only when the
+  // candidate's language isn't English do they need one translation pass —
+  // translation is far more reliable than free generation since the prompt
+  // can't touch the numbers, only the surrounding prose.
+  let templated: TestQuestion[] = TEMPLATED_CATEGORIES.flatMap((category) =>
+    generateTemplatedMcq(category, PER_CATEGORY, category[0]),
+  );
+  if (locale !== "en" && templated.length > 0) {
+    try {
+      const translated = await jsonChat<McqOut>(
+        buildMcqTranslateSystem(locale),
+        JSON.stringify({ test_mcq: templated }),
+      );
+      const byId = new Map((translated.test_mcq ?? []).map((q) => [q.id, q]));
+      templated = templated.map((q) => {
+        const t = byId.get(q.id);
+        return t ? { ...q, question: t.question, options: t.options } : q;
+      });
+    } catch (e) {
+      console.error("mcq template translation failed, leaving in English", e);
+    }
+  }
 
+  const context = `Role: ${roleTitle}\nRole description:\n${description}\n\nEmployer's clarifying answers:\n${JSON.stringify(answers)}`;
   const batches = await Promise.all(
-    CATEGORIES.map((category) =>
+    LLM_CATEGORIES.map((category) =>
       jsonChat<McqOut>(buildMcqBatchSystem(category, PER_CATEGORY, locale), context).catch((e) => {
         console.error(`mcq batch (${category}) failed`, e);
         return { test_mcq: [] as TestQuestion[] };
       }),
     ),
   );
-  let mcq = batches.flatMap((b) => (Array.isArray(b.test_mcq) ? b.test_mcq : []));
-  if (mcq.length === 0) return mcq;
-  // Re-id sequentially — each batch independently numbered its own items, so
-  // ids collide across batches until renumbered.
-  mcq = mcq.map((q, i) => ({ ...q, id: `q${i + 1}` })).map(shuffleMcqOptions);
+  let llmGenerated = batches.flatMap((b) => (Array.isArray(b.test_mcq) ? b.test_mcq : [])).map(shuffleMcqOptions);
 
-  const compact = mcq.map((q) => ({
-    id: q.id,
-    category: q.category,
-    question: q.question,
-    options: q.options,
-    correct_option: q.options[q.correct],
-  }));
-  const critique = await jsonChat<Critique>(CRITIQUE_MCQ_SYSTEM, JSON.stringify({ items: compact }));
-  const verdictById = new Map((critique.items ?? []).map((it) => [it.id, it.verdict]));
-  const notesById = new Map((critique.items ?? []).map((it) => [it.id, it.note]));
-  const flagged = mcq.filter((q) => {
-    const verdict = verdictById.get(q.id);
-    return verdict && verdict !== "good";
-  });
-  if (flagged.length === 0) return mcq;
+  if (llmGenerated.length > 0) {
+    const compact = llmGenerated.map((q) => ({
+      id: q.id,
+      category: q.category,
+      question: q.question,
+      options: q.options,
+      correct_option: q.options[q.correct],
+    }));
+    const critique = await jsonChat<Critique>(CRITIQUE_MCQ_SYSTEM, JSON.stringify({ items: compact }));
+    const verdictById = new Map((critique.items ?? []).map((it) => [it.id, it.verdict]));
+    const notesById = new Map((critique.items ?? []).map((it) => [it.id, it.note]));
+    const flagged = llmGenerated.filter((q) => {
+      const verdict = verdictById.get(q.id);
+      return verdict && verdict !== "good";
+    });
 
-  // Fix flagged items grouped by category, concurrently — same latency logic
-  // as generation: smaller parallel calls beat one larger serial one.
-  const flaggedByCategory = new Map<string, TestQuestion[]>();
-  for (const q of flagged) {
-    flaggedByCategory.set(q.category, [...(flaggedByCategory.get(q.category) ?? []), q]);
+    if (flagged.length > 0) {
+      // Fix flagged items grouped by category, concurrently — smaller
+      // parallel calls beat one larger serial one (same latency logic as
+      // generation above).
+      const flaggedByCategory = new Map<string, TestQuestion[]>();
+      for (const q of flagged) {
+        flaggedByCategory.set(q.category, [...(flaggedByCategory.get(q.category) ?? []), q]);
+      }
+      const fixSystem = buildMcqFixSystem(locale);
+      const fixedGroups = await Promise.all(
+        Array.from(flaggedByCategory.values()).map((items) =>
+          jsonChat<McqOut>(
+            fixSystem,
+            JSON.stringify({
+              role: roleTitle,
+              items: items.map((q) => ({
+                id: q.id,
+                category: q.category,
+                question: q.question,
+                options: q.options,
+                correct: q.correct,
+                reviewer_note: notesById.get(q.id),
+              })),
+            }),
+          ).catch((e) => {
+            console.error("mcq fix batch failed", e);
+            return { test_mcq: [] as TestQuestion[] };
+          }),
+        ),
+      );
+      const fixedById = new Map(
+        fixedGroups
+          .flatMap((g) => (Array.isArray(g.test_mcq) ? g.test_mcq : []))
+          .map((q) => [q.id, shuffleMcqOptions(q)] as const),
+      );
+      llmGenerated = llmGenerated.map((q) => fixedById.get(q.id) ?? q);
+    }
   }
-  const fixSystem = buildMcqFixSystem(locale);
-  const fixedGroups = await Promise.all(
-    Array.from(flaggedByCategory.values()).map((items) =>
-      jsonChat<McqOut>(
-        fixSystem,
-        JSON.stringify({
-          role: roleTitle,
-          items: items.map((q) => ({
-            id: q.id,
-            category: q.category,
-            question: q.question,
-            options: q.options,
-            correct: q.correct,
-            reviewer_note: notesById.get(q.id),
-          })),
-        }),
-      ).catch((e) => {
-        console.error("mcq fix batch failed", e);
-        return { test_mcq: [] as TestQuestion[] };
-      }),
-    ),
-  );
-  const fixedById = new Map(
-    fixedGroups
-      .flatMap((g) => (Array.isArray(g.test_mcq) ? g.test_mcq : []))
-      .map((q) => [q.id, shuffleMcqOptions(q)] as const),
-  );
-  return mcq.map((q) => fixedById.get(q.id) ?? q);
+
+  // Re-id sequentially across the combined set — templated and LLM batches
+  // each numbered independently, so ids collide until renumbered.
+  return [...templated, ...llmGenerated].map((q, i) => ({ ...q, id: `q${i + 1}` }));
 }
 
 export async function POST(req: Request) {
