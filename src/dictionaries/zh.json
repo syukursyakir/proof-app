@@ -138,7 +138,8 @@
       "toReview": "待审查",
       "back": "← 职位",
       "delete": "删除职位",
-      "deleteConfirm": "删除职位及所有候选人？"
+      "deleteConfirm": "删除职位及所有候选人？",
+      "limitReached": "您已达到此工作区的3个职位上限。请删除一个职位以创建新职位。"
     },
     "candsP": {
       "title": "候选人",

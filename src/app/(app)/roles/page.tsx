@@ -5,6 +5,7 @@ import { Reveal, Stagger, Item } from "@/components/motion";
 import RoleCodeBadge from "@/components/RoleCodeBadge";
 import { genCode } from "@/lib/candidateToken";
 import { getDictionary, isSupportedLocale } from "@/lib/i18n";
+import { MAX_ROLES_PER_ORG } from "@/lib/limits";
 import type { Candidate, Role } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +62,8 @@ export default async function RolesPage() {
     }
   }
 
+  const atLimit = roles.length >= MAX_ROLES_PER_ORG;
+
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-8 py-10">
       <Reveal>
@@ -69,18 +72,33 @@ export default async function RolesPage() {
             <h1 className="text-3xl font-semibold tracking-tight">{e.rolesP.title}</h1>
             <p className="mt-2 text-muted">{e.rolesP.subtitle}</p>
           </div>
-          <Link
-            href="/roles/new"
-            className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft"
-          >
-            {e.rolesP.newRole}
-          </Link>
+          {atLimit ? (
+            <span
+              title={e.rolesP.limitReached}
+              className="cursor-not-allowed rounded-full bg-border px-5 py-2 text-sm font-medium text-muted"
+            >
+              {e.rolesP.newRole}
+            </span>
+          ) : (
+            <Link
+              href="/roles/new"
+              className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-white hover:bg-accent-soft"
+            >
+              {e.rolesP.newRole}
+            </Link>
+          )}
         </div>
       </Reveal>
 
       {dbError && (
         <div className="mt-8 rounded-xl border border-yellow-500/40 bg-yellow-500/10 p-4 text-sm text-yellow-800">
           {dbError}
+        </div>
+      )}
+
+      {!dbError && atLimit && (
+        <div className="mt-8 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {e.rolesP.limitReached}
         </div>
       )}
 

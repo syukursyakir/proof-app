@@ -138,7 +138,8 @@
       "toReview": "para suriin",
       "back": "← Mga Posisyon",
       "delete": "Burahin ang posisyon",
-      "deleteConfirm": "Burahin ang posisyon + lahat ng kandidato?"
+      "deleteConfirm": "Burahin ang posisyon + lahat ng kandidato?",
+      "limitReached": "Naabot mo na ang limit na 3 tungkulin para sa workspace na ito. Tanggalin ang isang tungkulin para makagawa ng bago."
     },
     "candsP": {
       "title": "Mga Kandidato",

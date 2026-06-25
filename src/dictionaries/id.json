@@ -138,7 +138,8 @@
       "toReview": "untuk ditinjau",
       "back": "← Posisi",
       "delete": "Hapus posisi",
-      "deleteConfirm": "Hapus posisi + semua kandidat?"
+      "deleteConfirm": "Hapus posisi + semua kandidat?",
+      "limitReached": "Anda telah mencapai batas 3 peran untuk workspace ini. Hapus satu peran untuk membuat yang baru."
     },
     "candsP": {
       "title": "Kandidat",

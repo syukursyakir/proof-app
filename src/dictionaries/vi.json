@@ -138,7 +138,8 @@
       "toReview": "cần xem xét",
       "back": "← Vị trí",
       "delete": "Xóa vị trí",
-      "deleteConfirm": "Xóa vị trí + tất cả ứng viên?"
+      "deleteConfirm": "Xóa vị trí + tất cả ứng viên?",
+      "limitReached": "Bạn đã đạt giới hạn 3 vai trò cho không gian làm việc này. Xóa một vai trò để tạo vai trò mới."
     },
     "candsP": {
       "title": "Ứng viên",

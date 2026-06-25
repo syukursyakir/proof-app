@@ -138,7 +138,8 @@
       "toReview": "untuk disemak",
       "back": "← Jawatan",
       "delete": "Padam jawatan",
-      "deleteConfirm": "Padam jawatan + semua calon?"
+      "deleteConfirm": "Padam jawatan + semua calon?",
+      "limitReached": "Anda telah mencapai had 3 peranan untuk ruang kerja ini. Padamkan satu peranan untuk mencipta yang baharu."
     },
     "candsP": {
       "title": "Calon",

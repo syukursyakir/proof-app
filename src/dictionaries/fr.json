@@ -138,7 +138,8 @@
       "toReview": "à examiner",
       "back": "← Postes",
       "delete": "Supprimer le poste",
-      "deleteConfirm": "Supprimer le poste + tous les candidats ?"
+      "deleteConfirm": "Supprimer le poste + tous les candidats ?",
+      "limitReached": "Vous avez atteint la limite de 3 postes pour cet espace de travail. Supprimez un poste pour en créer un nouveau."
     },
     "candsP": {
       "title": "Candidats",

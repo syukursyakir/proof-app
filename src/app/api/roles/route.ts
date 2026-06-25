@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { getUserOrgId } from "@/lib/org";
 import { genCode } from "@/lib/candidateToken";
+import { MAX_ROLES_PER_ORG } from "@/lib/limits";
 
 export const runtime = "nodejs";
 
@@ -25,6 +26,21 @@ export async function POST(req: Request) {
   const orgId = await getUserOrgId();
   if (!orgId)
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+
+  const { count, error: countError } = await sb
+    .from("roles")
+    .select("id", { count: "exact", head: true });
+  if (countError) {
+    return NextResponse.json({ error: countError.message }, { status: 500 });
+  }
+  if ((count ?? 0) >= MAX_ROLES_PER_ORG) {
+    return NextResponse.json(
+      {
+        error: `You've reached the ${MAX_ROLES_PER_ORG}-role limit for this workspace. Delete an existing role to create a new one.`,
+      },
+      { status: 403 },
+    );
+  }
 
   const body = await req.json();
   const { data, error } = await sb
