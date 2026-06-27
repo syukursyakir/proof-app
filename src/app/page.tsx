@@ -295,7 +295,10 @@ export default function Home() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted">
           <span>Clarion</span>
-          <span>{l.footerTagline}</span>
+          <div className="flex items-center gap-6">
+            <a href="/pitch-deck.html" className="hover:text-foreground transition-colors">Pitch deck →</a>
+            <span>{l.footerTagline}</span>
+          </div>
         </div>
       </footer>
     </div>
