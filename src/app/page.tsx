@@ -292,6 +292,22 @@ export default function Home() {
         </Reveal>
       </section>
 
+      {/* Candidate entry point */}
+      <section className="border-t border-border/60 bg-card/40">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 py-10 sm:flex-row">
+          <div>
+            <p className="font-semibold">{l.invitedTitle}</p>
+            <p className="mt-1 text-sm text-muted">{l.invitedBody}</p>
+          </div>
+          <Link
+            href="/join"
+            className="shrink-0 rounded-full border border-accent/40 bg-white px-6 py-2.5 text-sm font-medium text-accent-soft transition-colors hover:bg-accent hover:text-white"
+          >
+            Enter your interview code →
+          </Link>
+        </div>
+      </section>
+
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted">
           <span>Clarion</span>
