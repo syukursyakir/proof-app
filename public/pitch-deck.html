@@ -206,10 +206,31 @@
     display: flex; gap: 8px;
   }
   .nav-controls button {
-    width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--border);
-    background: rgba(255,255,255,0.85); color: var(--accent); font-size: 1.1rem; cursor: pointer;
+    width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.92); color: var(--accent); font-size: 1.2rem; cursor: pointer;
+    box-shadow: 0 2px 12px rgba(21,35,63,0.12); backdrop-filter: blur(8px);
+    transition: background 0.15s, transform 0.1s;
   }
-  .nav-controls button:hover { background: #fff; }
+  .nav-controls button:hover { background: #fff; transform: scale(1.08); }
+  .nav-controls button:active { transform: scale(0.96); }
+
+  .slide { cursor: pointer; }
+  .slide a, .slide button { cursor: pointer; }
+
+  .progress-dots {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 7px; z-index: 50; align-items: center;
+  }
+  .progress-dots span {
+    width: 7px; height: 7px; border-radius: 999px;
+    background: var(--border); transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .progress-dots span.active {
+    background: var(--accent); width: 22px;
+  }
+  .dark-slide .progress-dots span { background: rgba(255,255,255,0.25); }
+  .dark-slide .progress-dots span.active { background: var(--accent-warm); width: 22px; }
 
   @page { size: 1280px 720px; margin: 0; }
   @media print {
@@ -225,6 +246,7 @@
       overflow: hidden !important;
     }
     .nav-controls { display: none !important; }
+    .progress-dots { display: none !important; }
     .glow { display: none !important; }
     h1.title { font-size: 2.5rem !important; }
     h2.headline { font-size: 1.65rem !important; margin-bottom: 0.4em !important; }
@@ -256,9 +278,10 @@
 <body>
 
 <div class="nav-controls">
-  <button onclick="document.querySelectorAll('.slide')[Math.max(0,window.__idx=Math.max(0,(window.__idx||0)-1))].scrollIntoView({behavior:'smooth'})">↑</button>
-  <button onclick="document.querySelectorAll('.slide')[Math.min(9,window.__idx=Math.min(9,(window.__idx||0)+1))].scrollIntoView({behavior:'smooth'})">↓</button>
+  <button id="btn-prev" title="Previous (↑)">↑</button>
+  <button id="btn-next" title="Next (↓ or click slide)">↓</button>
 </div>
+<div class="progress-dots" id="dots"></div>
 
 <!-- SLIDE 1 — TITLE -->
 <section class="slide dark">
@@ -439,22 +462,55 @@
 </section>
 
 <script>
-  // Track current slide index for the up/down nav buttons.
-  const slides = document.querySelectorAll('.slide');
-  window.__idx = 0;
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) window.__idx = Array.from(slides).indexOf(e.target);
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsEl = document.getElementById('dots');
+  let idx = 0;
+
+  // Build progress dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    idx = Math.max(0, Math.min(slides.length - 1, n));
+    slides[idx].scrollIntoView({ behavior: 'smooth' });
+    updateUI();
+  }
+
+  function updateUI() {
+    const dotNodes = dotsEl.querySelectorAll('span');
+    dotNodes.forEach((d, i) => d.classList.toggle('active', i === idx));
+    // Tint dots for dark slides
+    const isDark = slides[idx].classList.contains('dark');
+    dotsEl.classList.toggle('dark-slide', isDark);
+  }
+
+  // Click slide to advance (ignore clicks on links/buttons)
+  slides.forEach((slide, i) => {
+    slide.addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      goTo(i + 1);
     });
+  });
+
+  document.getElementById('btn-prev').addEventListener('click', () => goTo(idx - 1));
+  document.getElementById('btn-next').addEventListener('click', () => goTo(idx + 1));
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); goTo(idx + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); goTo(idx - 1); }
+  });
+
+  // Sync idx when user scrolls manually
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { idx = slides.indexOf(e.target); updateUI(); } });
   }, { threshold: 0.6 });
   slides.forEach(s => obs.observe(s));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-      slides[Math.min(9, window.__idx + 1)].scrollIntoView({behavior:'smooth'});
-    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-      slides[Math.max(0, window.__idx - 1)].scrollIntoView({behavior:'smooth'});
-    }
-  });
+
+  updateUI();
 </script>
 
 </body>
